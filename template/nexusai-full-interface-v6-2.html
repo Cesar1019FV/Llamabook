@@ -1,0 +1,556 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NexusAI</title>
+<style>
+:root{
+  --bg:#1a1a1a;
+  --sidebar:#202020;
+  --sidebar-hover:#2c2c2c;
+  --sidebar-active:#2c2c2a;
+  --surface:#252525;
+  --surface-2:#2a2a2a;
+  --border:rgba(255,255,255,0.07);
+  --border-2:rgba(255,255,255,0.12);
+  --fg:#ececec;
+  --fg-2:#c5c5c5;
+  --fg-3:#9a9a9a;
+  --fg-4:#6b6b6b;
+  --fg-5:#4a4a4a;
+  --accent:#c96442;
+  --accent-light:#d97757;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --font-serif:Georgia,'Iowan Old Style','Times New Roman',serif;
+  --font-mono:'SF Mono','JetBrains Mono',ui-monospace,Menlo,monospace;
+  --sidebar-w:260px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:var(--font-sans);font-weight:400;color:var(--fg);background:var(--bg);overflow:hidden;height:100dvh}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.15)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:3px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;padding:0}
+
+#app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;height:100dvh;transition:grid-template-columns .2s ease}
+#app.sb-closed{grid-template-columns:0 1fr}
+
+/* ═══ SIDEBAR ═══ */
+#sidebar{background:var(--sidebar);display:flex;flex-direction:column;overflow:hidden;min-width:0;transition:min-width .2s}
+#sidebar>*{min-width:var(--sidebar-w)}
+.sb-closed #sidebar>*{opacity:0;pointer-events:none;transition:opacity .15s}
+.sb-head{padding:14px 12px 6px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sb-brand{font-size:15px;font-weight:600;color:var(--fg);letter-spacing:-0.02em;padding:4px}
+.sb-brand span{font-weight:300;color:var(--fg-4)}
+.sb-head-r{display:flex;gap:2px}
+.sb-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:var(--fg-3);transition:background .12s,color .12s}
+.sb-btn:hover{background:var(--sidebar-hover);color:var(--fg)}
+.sb-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sb-new-chat{margin:4px 12px 8px;padding:8px 12px;border-radius:8px;display:flex;align-items:center;gap:7px;color:var(--fg-2);font-size:13.5px;font-weight:400;transition:background .12s;flex-shrink:0;width:calc(100% - 24px)}
+.sb-new-chat:hover{background:var(--sidebar-hover)}
+.sb-new-chat svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.sb-search{padding:0 12px 6px;flex-shrink:0}
+.sb-search input{width:100%;padding:7px 10px;border:none;border-radius:8px;background:rgba(255,255,255,0.05);color:var(--fg-2);font-size:13px;font-weight:400;transition:background .12s}
+.sb-search input::placeholder{color:var(--fg-5)}
+.sb-search input:focus{background:rgba(255,255,255,0.08);outline:none}
+.sb-nav{flex:1;overflow-y:auto;padding:2px 8px 8px}
+.sb-section{margin-bottom:2px}
+.sb-section-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 8px 5px;cursor:pointer;user-select:none}
+.sb-section-title{font-size:11.5px;font-weight:500;color:var(--fg-5);letter-spacing:0.02em}
+.sb-section-hdr .chevron{width:12px;height:12px;stroke:var(--fg-5);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.sb-section.collapsed .chevron{transform:rotate(-90deg)}
+.sb-section.collapsed .sb-section-body{display:none}
+
+/* Hover + button for section headers */
+.sb-section-hdr-right{display:flex;align-items:center;gap:2px}
+.sb-section-add{width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:4px;color:var(--fg-5);opacity:0;transition:opacity .12s,color .12s,background .12s;flex-shrink:0}
+.sb-section-add:hover{color:var(--fg);background:rgba(255,255,255,0.08)}
+.sb-section-add svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.sb-section-hdr:hover .sb-section-add{opacity:1}
+
+.sb-chat{display:block;width:100%;padding:7px 10px;border-radius:8px;color:var(--fg-3);font-size:13.5px;font-weight:400;text-align:left;transition:background .1s,color .1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.sb-chat:hover{background:var(--sidebar-hover);color:var(--fg-2)}
+.sb-chat.active{background:var(--sidebar-active);color:var(--fg)}
+.sb-chat.active::before{content:'';display:inline-block;width:3px;height:13px;border-radius:1.5px;background:var(--accent);margin-right:8px;vertical-align:middle}
+.sb-cuaderno{display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;border-radius:8px;color:var(--fg-3);font-size:13.5px;font-weight:400;text-align:left;transition:background .1s,color .1s;cursor:pointer}
+.sb-cuaderno:hover{background:var(--sidebar-hover);color:var(--fg-2)}
+.sb-cuaderno.active{background:var(--sidebar-active);color:var(--fg)}
+.sb-cuaderno-icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;color:#fff}
+.sb-cuaderno-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-cuaderno-count{font-size:11px;color:var(--fg-5);flex-shrink:0}
+.sb-cuaderno-chats{padding-left:18px;overflow:hidden;transition:max-height .2s}
+.sb-section.collapsed .sb-cuaderno-chats{display:none}
+.sb-cuaderno-chat{display:block;width:100%;padding:5px 10px;border-radius:6px;color:var(--fg-4);font-size:12.5px;font-weight:400;text-align:left;transition:background .1s,color .1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-cuaderno-chat:hover{background:var(--sidebar-hover);color:var(--fg-2)}
+.sb-cuaderno-chat.active{color:var(--fg);background:var(--sidebar-active)}
+.sb-foot{padding:8px 12px;border-top:1px solid var(--border);flex-shrink:0}
+.sb-profile{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;transition:background .12s;cursor:pointer}
+.sb-profile:hover{background:var(--sidebar-hover)}
+.sb-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-light));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
+.sb-pname{font-size:13px;font-weight:500;color:var(--fg-2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-ppro{font-size:11px;color:var(--fg-4);font-weight:400}
+.sb-pmore svg{width:16px;height:16px;stroke:var(--fg-4);fill:none;stroke-width:2;stroke-linecap:round}
+
+/* ═══ MAIN ═══ */
+#main{display:flex;flex-direction:column;min-width:0;background:var(--bg);overflow:hidden}
+#header{height:48px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--border);flex-shrink:0;position:relative}
+.h-left{display:flex;align-items:center;gap:4px}
+.h-center{flex:1;display:flex;align-items:center;justify-content:center}
+.h-right{display:flex;align-items:center;gap:2px}
+.h-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:var(--fg-3);transition:background .12s,color .12s}
+.h-btn:hover{background:var(--surface);color:var(--fg)}
+.h-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.view{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden}
+.view.active{display:flex}
+.model-sel{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;color:var(--fg-2);font-size:13px;font-weight:400;transition:background .12s,color .12s;cursor:pointer;position:relative}
+.model-sel:hover{background:var(--surface);color:var(--fg)}
+.model-sel svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.model-sel.open svg{transform:rotate(180deg)}
+.model-dot{width:6px;height:6px;border-radius:50%;background:#34d399;flex-shrink:0}
+.model-popup{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px);width:240px;background:var(--surface-2);border:1px solid var(--border-2);border-radius:12px;padding:6px;z-index:60;opacity:0;pointer-events:none;transition:all .18s cubic-bezier(0.4,0,0.2,1);box-shadow:0 8px 30px rgba(0,0,0,0.4)}
+.model-popup.open{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.model-popup-label{font-size:10.5px;font-weight:500;color:var(--fg-5);padding:6px 10px 4px;letter-spacing:0.02em;text-transform:uppercase}
+.model-popup-item{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border-radius:8px;color:var(--fg-2);font-size:13px;font-weight:400;text-align:left;transition:background .1s,color .1s;cursor:pointer}
+.model-popup-item:hover{background:rgba(255,255,255,0.06);color:var(--fg)}
+.model-popup-item.active{background:rgba(201,100,66,0.08);color:var(--fg)}
+.model-popup-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:600;color:#fff}
+.model-popup-item-text{flex:1;min-width:0}
+.model-popup-item-name{font-size:13px;font-weight:500;line-height:1.3}
+.model-popup-item-desc{font-size:11px;color:var(--fg-4);font-weight:300;line-height:1.3;margin-top:1px}
+.model-popup-item-check{width:14px;height:14px;border-radius:50%;background:var(--accent);display:none;align-items:center;justify-content:center;flex-shrink:0}
+.model-popup-item.active .model-popup-item-check{display:flex}
+.model-popup-item-check svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* ═══ DASHBOARD ═══ */
+#dashboard{overflow-y:auto}
+.dash-inner{max-width:780px;margin:0 auto;padding:36px 28px 60px}
+.greeting{margin-bottom:20px}
+.greeting h1{font-family:var(--font-serif);font-size:24px;font-weight:400;color:var(--fg);line-height:1.25;margin-bottom:4px}
+.greeting p{font-size:13.5px;color:var(--fg-4);font-weight:400;line-height:1.5}
+.quick-actions{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.q-action{padding:7px 14px;border-radius:16px;border:1px solid var(--border);color:var(--fg-3);font-size:12.5px;font-weight:400;transition:all .12s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.q-action:hover{border-color:var(--border-2);color:var(--fg-2);background:rgba(255,255,255,0.02)}
+.q-action svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dash-section{margin-bottom:22px}
+.dash-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.dash-section-title{font-size:13px;font-weight:500;color:var(--fg-3)}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+.card{padding:11px 13px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .12s;text-align:left;position:relative}
+.card:hover{border-color:var(--border-2);background:rgba(255,255,255,0.015)}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.card-model{font-size:10px;color:var(--fg-5);font-weight:400;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.03)}
+.card-time{font-size:10px;color:var(--fg-5);font-weight:400}
+.card-title{font-size:13px;font-weight:500;color:var(--fg-2);line-height:1.3;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-preview{font-size:11.5px;color:var(--fg-4);font-weight:400;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card.pinned::after{content:'';position:absolute;top:8px;right:8px;width:4px;height:4px;border-radius:50%;background:var(--accent)}
+
+/* ═══ CHAT VIEW ═══ */
+#chat-view{overflow-y:auto}
+.chat-scroll{max-width:740px;margin:0 auto;padding:24px 28px 120px}
+.msg{padding:14px 0;animation:msgIn .2s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.msg-row-ai{display:flex;gap:14px;align-items:flex-start}
+.msg-label{width:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding-top:2px}
+.msg-label-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.msg-label-icon.ai{background:linear-gradient(135deg,var(--accent),var(--accent-light));color:#fff}
+.msg-content{flex:1;min-width:0}
+.msg-sender{font-size:12px;font-weight:600;color:var(--accent-light);margin-bottom:5px;line-height:1}
+.msg-text-ai{font-family:var(--font-serif);font-size:15px;font-weight:400;line-height:1.7;color:var(--fg);max-width:100%}
+.msg-text-ai strong{font-weight:600}
+.msg-row-user{display:flex;justify-content:flex-end}
+.msg-text-user{font-family:var(--font-sans);font-size:15px;font-weight:400;line-height:1.55;color:var(--fg);text-align:right;max-width:85%}
+.msg-meta{display:flex;align-items:center;gap:8px;margin-top:6px;padding-left:40px}
+.msg-meta-user{display:flex;align-items:center;gap:8px;margin-top:6px;justify-content:flex-end}
+.msg-time{font-size:11px;color:var(--fg-5);font-weight:400}
+.msg-status{font-size:11px;color:var(--fg-5);font-weight:400}
+.msg-status.err{color:#f87171;cursor:pointer}
+.msg-sys{text-align:center;padding:16px 0}
+.msg-sys span{font-size:12px;color:var(--fg-5)}
+.c-block{margin:12px 0 12px 40px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:rgba(0,0,0,0.3)}
+.c-head{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--border);font-size:11.5px;color:var(--fg-4);font-family:var(--font-mono)}
+.c-copy{padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--fg-4);font-size:11px;font-family:var(--font-mono);cursor:pointer;transition:all .12s}
+.c-copy:hover{background:rgba(255,255,255,0.05);color:var(--fg-2);border-color:var(--border-2)}
+.c-body{padding:12px 14px;font-family:var(--font-mono);font-size:12.5px;line-height:1.65;color:var(--fg-2);overflow-x:auto;white-space:pre}
+.gen{display:inline-flex;gap:5px;padding:4px 0}
+.gen span{width:5px;height:5px;border-radius:50%;background:var(--fg-4);animation:gd 1.4s ease-in-out infinite}
+.gen span:nth-child(2){animation-delay:.15s}
+.gen span:nth-child(3){animation-delay:.3s}
+@keyframes gd{0%,80%,100%{opacity:.2}40%{opacity:1}}
+#scroll-btn{position:fixed;bottom:90px;right:28px;width:28px;height:28px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10}
+#scroll-btn.vis{opacity:1;pointer-events:auto}
+#scroll-btn:hover{border-color:var(--border-2)}
+#scroll-btn svg{width:13px;height:13px;stroke:var(--fg-3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ═══ DOCK ═══ */
+#dock{position:sticky;bottom:0;padding:0 28px 14px;background:linear-gradient(transparent,var(--bg) 40%);flex-shrink:0}
+.dock-inner{max-width:680px;margin:0 auto;position:relative}
+.dock-files{display:flex;gap:6px;padding-bottom:6px;flex-wrap:wrap}
+.dock-file{display:flex;align-items:center;gap:6px;padding:4px 8px 4px 10px;border-radius:6px;background:var(--surface);border:1px solid var(--border);font-size:12px;color:var(--fg-3)}
+.dock-file .x{cursor:pointer;color:var(--fg-4);font-size:14px;line-height:1;transition:color .1s}
+.dock-file .x:hover{color:#f87171}
+.dock-active-tools{display:flex;gap:5px;padding-bottom:6px;flex-wrap:wrap}
+.at-chip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:14px;border:1px solid var(--border);color:var(--fg-3);font-size:11.5px;font-weight:400;white-space:nowrap;user-select:none;cursor:pointer;transition:all .12s}
+.at-chip:hover{border-color:var(--border-2);color:var(--fg-2)}
+.at-chip-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.at-chip-x{font-size:10px;color:var(--fg-5);margin-left:1px;line-height:1}
+.at-chip-x:hover{color:var(--fg)}
+.dock-row{display:flex;align-items:flex-end;min-height:48px;padding:8px 14px 8px 8px;border-radius:14px;background:var(--surface);border:1px solid var(--border);transition:border-color .15s}
+.dock-row:focus-within{border-color:rgba(255,255,255,0.18)}
+.dock-plus{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--fg-3);transition:all .15s;flex-shrink:0;margin-right:4px}
+.dock-plus:hover{background:rgba(255,255,255,0.06);color:var(--fg)}
+.dock-plus.active{background:rgba(255,255,255,0.08);color:var(--fg)}
+.dock-plus svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.dock-plus.active svg{transform:rotate(45deg)}
+#msg-input{flex:1;border:none;background:transparent;color:var(--fg);font-family:var(--font-sans);font-size:14px;font-weight:400;resize:none;max-height:120px;outline:none;line-height:1.5;align-self:center}
+#msg-input::placeholder{color:var(--fg-4)}
+.dock-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;margin:0 4px}
+.dock-btns{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.d-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--fg-4);transition:color .12s,background .12s}
+.d-btn:hover{background:rgba(255,255,255,0.05);color:var(--fg-2)}
+.d-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.d-btn.send{background:var(--accent);color:#fff;border-radius:8px}
+.d-btn.send:hover{background:var(--accent-light)}
+.d-btn.send:disabled{background:rgba(255,255,255,0.06);color:var(--fg-4);cursor:default}
+
+/* ═══ + POPUP ═══ */
+.plus-popup{position:absolute;bottom:calc(100% + 8px);left:0;width:280px;background:var(--surface-2);border:1px solid var(--border-2);border-radius:12px;padding:6px;z-index:50;opacity:0;pointer-events:none;transform:translateY(6px) scale(0.97);transition:all .18s cubic-bezier(0.4,0,0.2,1);box-shadow:0 8px 30px rgba(0,0,0,0.4);max-height:360px;overflow-y:auto}
+.plus-popup.open{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
+.plus-popup-section{margin-bottom:2px}
+.plus-popup-label{font-size:10.5px;font-weight:500;color:var(--fg-5);padding:6px 10px 4px;letter-spacing:0.02em;text-transform:uppercase}
+.plus-popup-item{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border-radius:8px;color:var(--fg-2);font-size:13px;font-weight:400;text-align:left;transition:background .1s,color .1s;cursor:pointer}
+.plus-popup-item:hover{background:rgba(255,255,255,0.06);color:var(--fg)}
+.plus-popup-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.plus-popup-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.plus-popup-icon.upload{background:rgba(255,255,255,0.05);color:var(--fg-3)}
+.plus-popup-icon.drive{background:rgba(34,197,94,0.1);color:#4ade80}
+.plus-popup-icon.link{background:rgba(99,102,241,0.1);color:#818cf8}
+.plus-popup-icon.audio{background:rgba(168,85,247,0.12);color:#c084fc}
+.plus-popup-icon.slides{background:rgba(251,146,60,0.12);color:#fb923c}
+.plus-popup-icon.video{background:rgba(239,68,68,0.12);color:#ef4444}
+.plus-popup-icon.mindmap{background:rgba(52,211,153,0.12);color:#34d399}
+.plus-popup-icon.report{background:rgba(96,165,250,0.12);color:#60a5fa}
+.plus-popup-icon.flash{background:rgba(250,204,21,0.12);color:#facc15}
+.plus-popup-icon.quiz{background:rgba(244,114,182,0.12);color:#f472b6}
+.plus-popup-icon.infographic{background:rgba(45,212,191,0.12);color:#2dd4bf}
+.plus-popup-icon.table{background:rgba(148,163,184,0.12);color:#94a3b8}
+.plus-popup-item-text{flex:1;min-width:0}
+.plus-popup-item-title{font-size:13px;font-weight:400;line-height:1.3}
+.plus-popup-item-desc{font-size:11px;color:var(--fg-4);font-weight:300;line-height:1.3;margin-top:1px}
+.plus-popup-item-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
+.plus-popup-item-check.on{background:var(--accent);border-color:var(--accent)}
+.plus-popup-item-check svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .1s}
+.plus-popup-item-check.on svg{opacity:1}
+.plus-popup-sep{height:1px;background:var(--border);margin:4px 10px}
+
+#status{display:flex;align-items:center;justify-content:space-between;padding:2px 28px 8px;font-size:11px;color:var(--fg-5);font-family:var(--font-mono);flex-shrink:0}
+.st-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.st-dot.on{background:#34d399}
+.st-dot.off{background:#f87171}
+.st-dot.rec{background:#fbbf24;animation:bl 1s ease-in-out infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.active-tools-ind{display:flex;align-items:center;gap:4px}
+.active-tools-ind .at-dot{width:4px;height:4px;border-radius:50%}
+
+@media(max-width:768px){
+  #app,#app.sb-closed{grid-template-columns:0 1fr}
+  #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:60;transform:translateX(-100%);transition:transform .2s ease}
+  #sidebar.mob-open{transform:translateX(0)}
+  .mob-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:59;opacity:0;pointer-events:none;transition:opacity .15s}
+  .mob-ov.vis{opacity:1;pointer-events:auto}
+  .cards-grid{grid-template-columns:1fr 1fr}
+  .dash-inner{padding:24px 18px 60px}
+  .chat-scroll{padding:16px 16px 120px}
+  #dock{padding:0 16px 10px}
+  #status{padding:2px 16px 8px}
+  .plus-popup{width:260px;left:-8px}
+  .model-popup{width:220px}
+}
+</style>
+</head>
+<body>
+<div class="mob-ov" id="mob-ov"></div>
+<div id="app">
+
+<aside id="sidebar">
+  <div class="sb-head"><div class="sb-brand">Nexus<span>AI</span></div><div class="sb-head-r"><button class="sb-btn" id="btn-sb-tog" aria-label="Cerrar sidebar"><svg viewBox="0 0 24 24"><path d="M11 19l-7-7 7-7"/><path d="M18 5l-7 7 7 7"/></svg></button></div></div>
+  <button class="sb-new-chat" id="btn-new"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo chat</button>
+  <div class="sb-search"><input type="text" placeholder="Buscar…" id="sb-search" aria-label="Buscar"></div>
+  <nav class="sb-nav" id="sb-nav">
+    <div class="sb-section" id="sec-cuadernos">
+      <div class="sb-section-hdr" data-section="sec-cuadernos">
+        <span class="sb-section-title">Cuadernos</span>
+        <div class="sb-section-hdr-right">
+          <button class="sb-section-add" id="btn-add-cuaderno" aria-label="Nuevo cuaderno" title="Nuevo cuaderno"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <svg class="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="sb-section-body">
+        <div class="sb-cuaderno" data-cuaderno="infra"><div class="sb-cuaderno-icon" style="background:rgba(99,102,241,0.2)">⚙</div><span class="sb-cuaderno-name">Infraestructura</span><span class="sb-cuaderno-count">4</span></div>
+        <div class="sb-cuaderno-chats" data-parent="infra"><button class="sb-cuaderno-chat active" data-id="c1">Arquitectura de caché</button><button class="sb-cuaderno-chat" data-id="c2">API Gateway patterns</button><button class="sb-cuaderno-chat" data-id="c3">Particionamiento DB</button><button class="sb-cuaderno-chat" data-id="c5">gRPC vs REST</button></div>
+        <div class="sb-cuaderno" data-cuaderno="ml"><div class="sb-cuaderno-icon" style="background:rgba(244,114,182,0.2)">🧠</div><span class="sb-cuaderno-name">Machine Learning</span><span class="sb-cuaderno-count">3</span></div>
+        <div class="sb-cuaderno-chats" data-parent="ml"><button class="sb-cuaderno-chat" data-id="c6">Transformer fine-tuning</button><button class="sb-cuaderno-chat" data-id="c7">Dataset augmentation</button><button class="sb-cuaderno-chat" data-id="c8">Helm charts prod</button></div>
+        <div class="sb-cuaderno" data-cuaderno="devops"><div class="sb-cuaderno-icon" style="background:rgba(34,197,94,0.2)">🚀</div><span class="sb-cuaderno-name">DevOps</span><span class="sb-cuaderno-count">2</span></div>
+        <div class="sb-cuaderno-chats" data-parent="devops"><button class="sb-cuaderno-chat" data-id="c9">CI/CD GitHub Actions</button><button class="sb-cuaderno-chat" data-id="c10">Prometheus + Grafana</button></div>
+      </div>
+    </div>
+    <div class="sb-section" id="sec-chats">
+      <div class="sb-section-hdr" data-section="sec-chats"><span class="sb-section-title">Recientes</span><svg class="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="sb-section-body">
+        <div style="padding:2px 0 4px"><span style="font-size:10.5px;color:var(--fg-5);padding:0 8px;font-weight:500">Hoy</span></div>
+        <button class="sb-chat active" data-id="c1">Arquitectura de caché distribuido</button>
+        <button class="sb-chat" data-id="c2">API Gateway design patterns</button>
+        <button class="sb-chat" data-id="c3">Estrategias de particionamiento DB</button>
+        <div style="padding:8px 0 4px"><span style="font-size:10.5px;color:var(--fg-5);padding:0 8px;font-weight:500">Ayer</span></div>
+        <button class="sb-chat" data-id="c4">Microservicios auth flow</button>
+        <button class="sb-chat" data-id="c5">gRPC vs REST comparison</button>
+        <div style="padding:8px 0 4px"><span style="font-size:10.5px;color:var(--fg-5);padding:0 8px;font-weight:500">7 días anteriores</span></div>
+        <button class="sb-chat" data-id="c6">Transformer fine-tuning pipeline</button>
+        <button class="sb-chat" data-id="c7">Dataset augmentation strategies</button>
+      </div>
+    </div>
+  </nav>
+  <div class="sb-foot"><div class="sb-profile"><div class="sb-av">M</div><div style="flex:1;min-width:0"><div class="sb-pname">Mira</div><div class="sb-ppro">Pro</div></div><div class="sb-pmore"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div></div></div>
+</aside>
+
+<main id="main">
+  <header id="header">
+    <div class="h-left"><button class="h-btn" id="btn-mob" style="display:none" aria-label="Menú"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><button class="h-btn" id="btn-sb-main" aria-label="Sidebar"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg></button></div>
+    <div class="h-center">
+      <button class="model-sel" id="model-sel" aria-label="Selector de modelo"><span class="model-dot" id="model-dot"></span><span id="model-name">NexusAI Pro</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="model-popup" id="model-popup">
+        <div class="model-popup-label">Modelos</div>
+        <div class="model-popup-item active" data-model="nexus-pro"><div class="model-popup-icon" style="background:linear-gradient(135deg,var(--accent),var(--accent-light))">N</div><div class="model-popup-item-text"><div class="model-popup-item-name">NexusAI Pro</div><div class="model-popup-item-desc">Modelo avanzado, razonamiento superior</div></div><div class="model-popup-item-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="model-popup-item" data-model="kimi"><div class="model-popup-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">K</div><div class="model-popup-item-text"><div class="model-popup-item-name">Kimi</div><div class="model-popup-item-desc">Contexto largo, investigación profunda</div></div><div class="model-popup-item-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="model-popup-item" data-model="minimax"><div class="model-popup-icon" style="background:linear-gradient(135deg,#10b981,#34d399)">M</div><div class="model-popup-item-text"><div class="model-popup-item-name">MiniMax</div><div class="model-popup-item-desc">Rápido, multimodal, eficiente</div></div><div class="model-popup-item-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        <div class="model-popup-item" data-model="gemma"><div class="model-popup-icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">G</div><div class="model-popup-item-text"><div class="model-popup-item-name">Gemma</div><div class="model-popup-item-desc">Open source, ligero y preciso</div></div><div class="model-popup-item-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      </div>
+    </div>
+    <div class="h-right"><button class="h-btn" id="btn-back" style="display:none" aria-label="Dashboard"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button></div>
+  </header>
+
+  <div class="view active" id="dashboard">
+    <div class="dash-inner">
+      <div class="greeting"><h1 id="greeting">Buenas tardes, Mira</h1><p>¿En qué puedo ayudarte hoy?</p></div>
+      <div class="quick-actions">
+        <button class="q-action" data-prompt="Ayúdame a diseñar una API REST"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Código</button>
+        <button class="q-action" data-prompt="Analiza los datos de rendimiento del último trimestre"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Análisis</button>
+        <button class="q-action" data-prompt="Explícame este concepto paso a paso"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Aprender</button>
+        <button class="q-action" data-prompt="Revisa este documento y sugiere mejoras"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Revisar</button>
+      </div>
+      <section class="dash-section"><div class="dash-section-head"><span class="dash-section-title">Fijados</span></div><div class="cards-grid"><div class="card pinned" data-chat="c1"><div class="card-top"><span class="card-model">Pro</span><span class="card-time">hace 12 min</span></div><div class="card-title">Arquitectura de caché</div><div class="card-preview">Redis Cluster con sharding y Cache-Aside</div></div><div class="card pinned" data-chat="c4"><div class="card-top"><span class="card-model">Pro</span><span class="card-time">ayer</span></div><div class="card-title">Auth flow microservicios</div><div class="card-preview">JWT, refresh tokens y rotación</div></div></div></section>
+      <section class="dash-section"><div class="dash-section-head"><span class="dash-section-title">Cuadernos</span></div><div class="cards-grid"><div class="card" data-cuaderno="infra"><div class="card-top"><span class="card-model" style="background:rgba(99,102,241,0.1);color:#818cf8">⚙ Infra</span><span class="card-time">4 chats</span></div><div class="card-title">Infraestructura</div><div class="card-preview">Caché, Gateways, Sharding, Auth</div></div><div class="card" data-cuaderno="ml"><div class="card-top"><span class="card-model" style="background:rgba(244,114,182,0.1);color:#f472b6">🧠 ML</span><span class="card-time">3 chats</span></div><div class="card-title">Machine Learning</div><div class="card-preview">Fine-tuning, Datasets, Deploy</div></div><div class="card" data-cuaderno="devops"><div class="card-top"><span class="card-model" style="background:rgba(34,197,94,0.1);color:#4ade80">🚀 DevOps</span><span class="card-time">2 chats</span></div><div class="card-title">DevOps</div><div class="card-preview">CI/CD, Monitoring</div></div></div></section>
+    </div>
+  </div>
+
+  <div class="view" id="chat-view">
+    <div class="chat-scroll" id="chat-scroll"><div id="msgs"></div></div>
+    <button id="scroll-btn" aria-label="Ir al final"><svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button>
+  </div>
+
+  <div id="dock">
+    <div class="dock-inner">
+      <div class="dock-active-tools" id="dock-active-tools"></div>
+      <div class="dock-files" id="dock-files"></div>
+      <div class="dock-row" id="dock-row">
+        <button class="dock-plus" id="btn-plus" aria-label="Adjuntar y herramientas"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <textarea id="msg-input" rows="1" placeholder="Escribe un mensaje a NexusAI…" aria-label="Mensaje"></textarea>
+        <div class="dock-sep"></div>
+        <div class="dock-btns"><button class="d-btn" id="btn-mic" aria-label="Voz"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button><button class="d-btn send" id="btn-send" disabled aria-label="Enviar"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>
+      </div>
+      <div class="plus-popup" id="plus-popup">
+        <div class="plus-popup-section">
+          <div class="plus-popup-label">Adjuntar</div>
+          <div class="plus-popup-item" data-action="upload"><div class="plus-popup-icon upload"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Subir archivo</div><div class="plus-popup-item-desc">Documentos, imágenes, código</div></div></div>
+          <div class="plus-popup-item" data-action="drive"><div class="plus-popup-icon drive"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Google Drive</div><div class="plus-popup-item-desc">Conectar con tu cuenta</div></div></div>
+          <div class="plus-popup-item" data-action="link"><div class="plus-popup-icon link"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Enlace web</div><div class="plus-popup-item-desc">Pegar URL de una fuente</div></div></div>
+        </div>
+        <div class="plus-popup-sep"></div>
+        <div class="plus-popup-section">
+          <div class="plus-popup-label">Herramientas</div>
+          <div class="plus-popup-item" data-tool="audio"><div class="plus-popup-icon audio"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Resumen en audio</div><div class="plus-popup-item-desc">Audio generado con IA</div></div><div class="plus-popup-item-check" data-tool-check="audio"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="plus-popup-item" data-tool="slides"><div class="plus-popup-icon slides"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Presentación con diapositivas</div><div class="plus-popup-item-desc">Slides automáticas</div></div><div class="plus-popup-item-check" data-tool-check="slides"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="plus-popup-item" data-tool="video"><div class="plus-popup-icon video"><svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Resumen en video</div><div class="plus-popup-item-desc">Video explicativo generado</div></div><div class="plus-popup-item-check" data-tool-check="video"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="plus-popup-item" data-tool="mindmap"><div class="plus-popup-icon mindmap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><line x1="12" y1="9" x2="12" y2="3"/><line x1="12" y1="15" x2="12" y2="21"/><line x1="9" y1="12" x2="3" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Mapa mental</div><div class="plus-popup-item-desc">Visualización de conceptos</div></div><div class="plus-popup-item-check" data-tool-check="mindmap"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="plus-popup-item" data-tool="report"><div class="plus-popup-icon report"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Informes</div><div class="plus-popup-item-desc">Reportes estructurados</div></div><div class="plus-popup-item-check" data-tool-check="report"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="plus-popup-item" data-tool="flash"><div class="plus-popup-icon flash"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Tarjetas didácticas</div><div class="plus-popup-item-desc">Flashcards para aprender</div></div><div class="plus-popup-item-check" data-tool-check="flash"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="plus-popup-item" data-tool="quiz"><div class="plus-popup-icon quiz"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Cuestionario</div><div class="plus-popup-item-desc">Preguntas de evaluación</div></div><div class="plus-popup-item-check" data-tool-check="quiz"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="plus-popup-item" data-tool="infographic"><div class="plus-popup-icon infographic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Infografía</div><div class="plus-popup-item-desc">Visual de datos y conceptos</div></div><div class="plus-popup-item-check" data-tool-check="infographic"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="plus-popup-item" data-tool="table"><div class="plus-popup-icon table"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></div><div class="plus-popup-item-text"><div class="plus-popup-item-title">Tabla de datos</div><div class="plus-popup-item-desc">Datos estructurados en tabla</div></div><div class="plus-popup-item-check" data-tool-check="table"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="status">
+    <div style="display:flex;align-items:center;gap:10px"><div style="display:flex;align-items:center;gap:5px"><span class="st-dot on" id="st-dot"></span><span id="st-txt">En línea</span></div><div class="active-tools-ind" id="active-tools-ind"></div></div>
+    <span id="status-model"><span style="color:var(--fg-3)">2,847</span> / 128K · NexusAI Pro</span>
+  </div>
+</main>
+</div>
+
+<script>
+const S={sbOpen:true,gen:false,files:[],msgs:[],view:'dashboard',
+  activeTools:new Set([]),
+  expandedCuadernos:new Set(['infra']),
+  popupOpen:false,modelPopupOpen:false,
+  currentModel:{id:'nexus-pro',name:'NexusAI Pro'}};
+
+const $=id=>document.getElementById(id);
+const $app=$('app'),$sb=$('sidebar'),$msgs=$('msgs'),
+  $input=$('msg-input'),$send=$('btn-send'),$dockF=$('dock-files'),
+  $scrollBtn=$('scroll-btn'),$ov=$('mob-ov'),$mob=$('btn-mob'),
+  $stDot=$('st-dot'),$stTxt=$('st-txt'),
+  $dash=$('dashboard'),$chatV=$('chat-view'),$chatSc=$('chat-scroll'),
+  $back=$('btn-back'),$toolsInd=$('active-tools-ind'),
+  $popup=$('plus-popup'),$plusBtn=$('btn-plus'),
+  $dockAT=$('dock-active-tools'),
+  $modelSel=$('model-sel'),$modelPopup=$('model-popup'),$modelDot=$('model-dot'),$modelName=$('model-name'),$statusModel=$('status-model');
+
+function showView(n){S.view=n;$dash.classList.toggle('active',n==='dashboard');$chatV.classList.toggle('active',n==='chat');$back.style.display=n==='chat'?'flex':'none';if(n==='chat')$input.focus()}
+function togSb(){S.sbOpen=!S.sbOpen;$app.classList.toggle('sb-closed',!S.sbOpen)}
+$('btn-sb-tog').onclick=togSb;$('btn-sb-main').onclick=togSb;
+function chkMob(){const m=innerWidth<=768;$mob.style.display=m?'flex':'none';if(!m){$sb.classList.remove('mob-open');$ov.classList.remove('vis')}}
+addEventListener('resize',chkMob);chkMob();
+$mob.onclick=()=>{$sb.classList.add('mob-open');$ov.classList.add('vis')};
+$ov.onclick=()=>{$sb.classList.remove('mob-open');$ov.classList.remove('vis')};
+document.querySelectorAll('.sb-section-hdr').forEach(hdr=>{
+  hdr.onclick=(e)=>{
+    if(e.target.closest('.sb-section-add'))return;
+    hdr.closest('.sb-section').classList.toggle('collapsed');
+  };
+});
+document.querySelectorAll('.sb-cuaderno').forEach(c=>{c.onclick=()=>{const id=c.dataset.cuaderno;const chats=document.querySelector(`.sb-cuaderno-chats[data-parent="${id}"]`);if(S.expandedCuadernos.has(id)){S.expandedCuadernos.delete(id);if(chats)chats.style.maxHeight='0'}else{S.expandedCuadernos.add(id);if(chats)chats.style.maxHeight=chats.scrollHeight+'px'}document.querySelectorAll('.sb-cuaderno').forEach(x=>x.classList.remove('active'));c.classList.add('active')}});
+S.expandedCuadernos.forEach(id=>{const chats=document.querySelector(`.sb-cuaderno-chats[data-parent="${id}"]`);if(chats)chats.style.maxHeight=chats.scrollHeight+'px'});
+function selectChat(id){document.querySelectorAll('.sb-chat,.sb-cuaderno-chat').forEach(c=>c.classList.remove('active'));const el=document.querySelector(`.sb-chat[data-id="${id}"],.sb-cuaderno-chat[data-id="${id}"]`);if(el)el.classList.add('active');if(innerWidth<=768){$sb.classList.remove('mob-open');$ov.classList.remove('vis')}openChat(id)}
+document.querySelectorAll('.sb-chat,.sb-cuaderno-chat').forEach(b=>{b.onclick=(e)=>{e.stopPropagation();selectChat(b.dataset.id)}});
+$('sb-search').oninput=e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('.sb-chat,.sb-cuaderno-chat').forEach(c=>{c.style.display=!q||c.textContent.toLowerCase().includes(q)?'':'none'})};
+
+/* Add cuaderno button */
+$('btn-add-cuaderno').onclick=(e)=>{e.stopPropagation();
+  const name=prompt('Nombre del nuevo cuaderno:');
+  if(!name||!name.trim())return;
+  const id='cud_'+Date.now();
+  const colors=['rgba(99,102,241,0.2)','rgba(244,114,182,0.2)','rgba(34,197,94,0.2)','rgba(251,146,60,0.2)','rgba(96,165,250,0.2)','rgba(168,85,247,0.2)'];
+  const emojis=['📁','📊','🔬','📝','🎯','💡'];
+  const ci=Math.floor(Math.random()*colors.length);
+  const body=document.querySelector('#sec-cuadernos .sb-section-body');
+  const newCuaderno=document.createElement('div');
+  newCuaderno.className='sb-cuaderno';
+  newCuaderno.dataset.cuaderno=id;
+  newCuaderno.innerHTML=`<div class="sb-cuaderno-icon" style="background:${colors[ci]}">${emojis[ci]}</div><span class="sb-cuaderno-name">${name.trim()}</span><span class="sb-cuaderno-count">0</span>`;
+  newCuaderno.onclick=()=>{document.querySelectorAll('.sb-cuaderno').forEach(x=>x.classList.remove('active'));newCuaderno.classList.add('active')};
+  body.appendChild(newCuaderno);
+};
+
+const toolNames={audio:'Resumen en audio',slides:'Presentación',video:'Resumen en video',mindmap:'Mapa mental',report:'Informes',flash:'Tarjetas didácticas',quiz:'Cuestionario',infographic:'Infografía',table:'Tabla de datos'};
+const toolColors={audio:'#c084fc',slides:'#fb923c',video:'#ef4444',mindmap:'#34d399',report:'#60a5fa',flash:'#facc15',quiz:'#f472b6',infographic:'#2dd4bf',table:'#94a3b8'};
+
+function toggleTool(tool){if(S.activeTools.has(tool))S.activeTools.delete(tool);else S.activeTools.add(tool);syncTools()}
+function syncTools(){
+  document.querySelectorAll('.plus-popup-item-check').forEach(chk=>{chk.classList.toggle('on',S.activeTools.has(chk.dataset.toolCheck))});
+  $dockAT.innerHTML=[...S.activeTools].map(t=>`<button class="at-chip" data-tool-rm="${t}"><span class="at-chip-dot" style="background:${toolColors[t]}"></span>${toolNames[t]}<span class="at-chip-x">×</span></button>`).join('');
+  $dockAT.querySelectorAll('.at-chip').forEach(ch=>{ch.onclick=()=>{toggleTool(ch.dataset.toolRm)}});
+  $toolsInd.innerHTML=[...S.activeTools].map(t=>`<span class="at-dot" style="background:${toolColors[t]||'#666'}"></span>`).join('');
+}
+$popup.querySelectorAll('.plus-popup-item[data-tool]').forEach(item=>{item.onclick=(e)=>{e.stopPropagation();toggleTool(item.dataset.tool)}});
+syncTools();
+
+function openPopup(){S.popupOpen=true;$popup.classList.add('open');$plusBtn.classList.add('active')}
+function closePopup(){S.popupOpen=false;$popup.classList.remove('open');$plusBtn.classList.remove('active')}
+$plusBtn.onclick=(e)=>{e.stopPropagation();if(S.popupOpen)closePopup();else openPopup()};
+$popup.querySelectorAll('.plus-popup-item[data-action]').forEach(item=>{item.onclick=(e)=>{e.stopPropagation();const action=item.dataset.action;if(action==='upload'){if(S.files.length<3){const ns=['config.yaml','schema.sql','notes.md','data.csv'];const n=ns[Math.floor(Math.random()*ns.length)];if(!S.files.includes(n)){S.files.push(n);renderFiles();$send.disabled=false}}}closePopup()}});
+
+function openModelPopup(){S.modelPopupOpen=true;$modelPopup.classList.add('open');$modelSel.classList.add('open')}
+function closeModelPopup(){S.modelPopupOpen=false;$modelPopup.classList.remove('open');$modelSel.classList.remove('open')}
+$modelSel.onclick=(e)=>{e.stopPropagation();if(S.modelPopupOpen)closeModelPopup();else openModelPopup()};
+$modelPopup.querySelectorAll('.model-popup-item').forEach(item=>{item.onclick=(e)=>{e.stopPropagation();const modelId=item.dataset.model;S.currentModel={id:modelId,name:item.querySelector('.model-popup-item-name').textContent};$modelName.textContent=S.currentModel.name;$modelPopup.querySelectorAll('.model-popup-item').forEach(i=>i.classList.remove('active'));item.classList.add('active');const dotColors={'nexus-pro':'#34d399','kimi':'#818cf8','minimax':'#34d399','gemma':'#fbbf24'};$modelDot.style.background=dotColors[modelId]||'#34d399';$statusModel.innerHTML=`<span style="color:var(--fg-3)">2,847</span> / 128K · ${S.currentModel.name}`;closeModelPopup()}});
+
+document.addEventListener('click',(e)=>{if(S.popupOpen&&!$popup.contains(e.target)&&!$plusBtn.contains(e.target))closePopup();if(S.modelPopupOpen&&!$modelPopup.contains(e.target)&&!$modelSel.contains(e.target))closeModelPopup()});
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape'){if(S.popupOpen){closePopup();e.preventDefault()}else if(S.modelPopupOpen){closeModelPopup();e.preventDefault()}}});
+
+$('btn-new').onclick=()=>{openChat('new')};
+document.querySelectorAll('.card').forEach(c=>{c.onclick=()=>{if(c.dataset.chat)openChat(c.dataset.chat);else if(c.dataset.cuaderno){const id=c.dataset.cuaderno;S.expandedCuadernos.add(id);const chats=document.querySelector(`.sb-cuaderno-chats[data-parent="${id}"]`);if(chats)chats.style.maxHeight=chats.scrollHeight+'px';document.querySelectorAll('.sb-cuaderno').forEach(x=>x.classList.remove('active'));document.querySelector(`.sb-cuaderno[data-cuaderno="${id}"]`)?.classList.add('active');$('sec-cuadernos').classList.remove('collapsed')}}});
+document.querySelectorAll('.q-action').forEach(c=>{c.onclick=()=>{if(c.dataset.prompt){$input.value=c.dataset.prompt;$input.dispatchEvent(new Event('input'))}openChat('new')}});
+$back.onclick=()=>showView('dashboard');
+
+const hr=new Date().getHours();
+$('greeting').textContent=(hr>=19?'Buenas noches':hr>=12?'Buenas tardes':'Buenos días')+', Mira';
+
+const sampleMsgs=[
+  {type:'system',text:'Conversación iniciada · NexusAI Pro'},
+  {type:'user',text:'¿Puedes explicarme cómo implementar un sistema de caché distribuido con Redis?',time:'14:32'},
+  {type:'ai',text:'Claro. Un sistema de caché distribuido con Redis requiere varios componentes:\n\n<strong>1. Patrón Cache-Aside</strong> — la aplicación consulta la caché primero; si no encuentra el dato, lo obtiene de la base de datos y lo almacena en Redis.\n\n<strong>2. Topología</strong> — usa Redis Cluster con sharding para distribuir la carga.\n\n<strong>3. Replicación</strong> — configura al menos una réplica por shard.\n\n<strong>4. TTL por tipo de dato</strong> — asigna tiempos de expiración diferenciados.',time:'14:32'},
+  {type:'user',text:'¿Y cómo manejo la invalidación en múltiples nodos?',time:'14:34'},
+  {type:'ai',text:'La invalidación en múltiples nodos se maneja con pub/sub y versionado de keys:',time:'14:34',code:{lang:'yaml',body:'# redis-pub-sub-cache-invalidation.yml\ninvalidation:\n  channel: "cache:invalidate"\n  strategy:\n    - pattern: "cache:invalidate:{key}"\n      action: DELETE\n  publisher:\n    on_write: publish_invalidation_event\n  subscriber:\n    on_event:\n      - delete_local_cache_entry\n      - update_version_counter'}},
+  {type:'user',text:'Perfecto, ¿puedes generar el docker-compose?',time:'14:36'},
+  {type:'ai',text:'Aquí tienes una configuración de Docker Compose:',time:'14:36',code:{lang:'yaml',body:'version: "3.8"\nservices:\n  redis-shard-1:\n    image: redis:7-alpine\n    ports: ["6379:6379"]\n    command: redis-server --cluster-enabled yes\n\n  redis-replica-1:\n    image: redis:7-alpine\n    ports: ["6380:6379"]\n    command: >\n      redis-server --cluster-enabled yes\n      --replicaof redis-shard-1 6379\n    depends_on: [redis-shard-1]\n\n  app:\n    build: .\n    ports: ["3000:3000"]\n    environment:\n      REDIS_URL: "redis://redis-shard-1:6379"\n    depends_on: [redis-shard-1]'},status:'sent'},
+];
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function openChat(id){showView('chat');S.msgs=id==='new'?[]:[...sampleMsgs];renderMsgs();$input.focus()}
+
+function renderMsgs(){
+  $msgs.innerHTML='';
+  S.msgs.forEach(m=>{
+    const d=document.createElement('div');
+    if(m.type==='system'){d.className='msg-sys';d.innerHTML=`<span>${m.text}</span>`}
+    else if(m.type==='user'){
+      d.className='msg';
+      let h=`<div class="msg-row-user"><div class="msg-text-user">${m.text.replace(/\n/g,'<br>')}</div></div>`;
+      h+=`<div class="msg-meta-user"><span class="msg-time">${m.time||''}</span>`;
+      if(m.status){h+=`<span class="msg-status${m.status==='error'?' err':''}">${m.status==='error'?'Error · Reintentar':m.status==='sending'?'Enviando…':'✓'}</span>`}
+      h+='</div>';d.innerHTML=h;
+    }else{
+      d.className='msg';
+      let textContent=m.text.replace(/\n/g,'<br>');
+      let codeHtml='';
+      if(m.code){codeHtml=`<div class="c-block"><div class="c-head"><span>${m.code.lang}</span><button class="c-copy" onclick="cpC(this)">Copiar</button></div><div class="c-body">${esc(m.code.body)}</div></div>`}
+      let metaHtml=`<div class="msg-meta"><span class="msg-time">${m.time||''}</span>`;
+      if(m.status){metaHtml+=`<span class="msg-status${m.status==='error'?' err':''}">${m.status==='error'?'Error · Reintentar':m.status==='sending'?'Enviando…':'✓'}</span>`}
+      metaHtml+='</div>';
+      d.innerHTML=`<div class="msg-row-ai"><div class="msg-label"><div class="msg-label-icon ai">N</div></div><div class="msg-content"><div class="msg-sender">NexusAI</div><div class="msg-text-ai">${textContent}</div>${codeHtml}${metaHtml}</div></div>`;
+    }
+    $msgs.appendChild(d);
+  });scrollEnd();
+}
+
+window.cpC=function(btn){navigator.clipboard.writeText(btn.closest('.c-block').querySelector('.c-body').textContent).then(()=>{btn.textContent='✓';setTimeout(()=>btn.textContent='Copiar',1200)})};
+
+function send(){
+  const txt=$input.value.trim();if(!txt||S.gen)return;
+  const now=new Date(),t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  if(S.view==='dashboard')showView('chat');closePopup();
+  const activeToolNames=[...S.activeTools].map(t=>toolNames[t]).filter(Boolean).join(', ');
+  if(!S.msgs.length)S.msgs.push({type:'system',text:`Conversación iniciada · ${S.currentModel.name}${activeToolNames?' · '+activeToolNames:''}`});
+  S.msgs.push({type:'user',text:txt,time:t});
+  $input.value='';$input.style.height='auto';$send.disabled=true;S.files=[];renderFiles();renderMsgs();
+  S.gen=true;
+  const gd=document.createElement('div');gd.className='msg';gd.id='gen-msg';
+  gd.innerHTML=`<div class="msg-row-ai"><div class="msg-label"><div class="msg-label-icon ai">N</div></div><div class="msg-content"><div class="msg-sender">NexusAI</div><div class="gen"><span></span><span></span><span></span></div></div></div>`;
+  $msgs.appendChild(gd);scrollEnd();
+  setTimeout(()=>{const g=$('gen-msg');if(g)g.remove();S.gen=false;
+    const rs=['Entendido. Déjame analizar tu consulta y proporcionar una respuesta fundamentada.','Buena pregunta. Aquí va mi análisis:\n\n<strong>1.</strong> Considera el contexto.\n\n<strong>2.</strong> Evalúa los trade-offs.\n\n<strong>3.</strong> Implementa de forma incremental.','La clave está en el balance entre consistencia, disponibilidad y latencia.'];
+    S.msgs.push({type:'ai',text:rs[Math.floor(Math.random()*rs.length)],time:t});renderMsgs();
+  },1600);
+}
+
+$send.onclick=send;
+$input.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}};
+$input.oninput=()=>{$input.style.height='auto';$input.style.height=Math.min($input.scrollHeight,120)+'px';$send.disabled=!$input.value.trim()&&!S.files.length};
+$input.onfocus=()=>{if(S.popupOpen)closePopup();if(S.modelPopupOpen)closeModelPopup()};
+function renderFiles(){$dockF.innerHTML=S.files.map(f=>`<div class="dock-file"><span>${f}</span><span class="x" data-f="${f}">×</span></div>`).join('');$dockF.querySelectorAll('.x').forEach(b=>{b.onclick=()=>{S.files=S.files.filter(f=>f!==b.dataset.f);renderFiles();$send.disabled=!$input.value.trim()&&!S.files.length}})}
+function scrollEnd(sm){$chatSc.scrollTo({top:$chatSc.scrollHeight,behavior:sm?'smooth':'auto'})}
+$chatV.onscroll=()=>{const d=$chatV.scrollHeight-$chatV.scrollTop-$chatV.clientHeight;$scrollBtn.classList.toggle('vis',d>80)};
+$scrollBtn.onclick=()=>scrollEnd(true);
+const cn=['on','on','on','rec','on','off','rec','on'];let ci=0;
+setInterval(()=>{if(Math.random()>.9){ci=(ci+1)%cn.length;const s=cn[ci];$stDot.className='st-dot '+s;$stTxt.textContent=s==='on'?'En línea':s==='off'?'Sin conexión':'Reconectando…'}},5000);
+document.onkeydown=e=>{if(e.ctrlKey&&e.shiftKey&&e.key==='S'){e.preventDefault();togSb()}if(e.key==='Escape'&&S.view==='chat'&&!S.popupOpen&&!S.modelPopupOpen)showView('dashboard')};
+showView('dashboard');$input.focus();
+</script>
+</body>
+</html>

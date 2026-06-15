@@ -1,0 +1,41 @@
+{
+  "header": {
+    "logo": "Llamabook",
+    "nav": {
+      "features": "Características",
+      "about": "Acerca de",
+      "contact": "Contacto"
+    }
+  },
+  "hero": {
+    "eyebrow": "Tu nuevo espacio digital",
+    "title": "Descubre, comparte y conecta con Llamabook",
+    "subtitle": "Una plataforma simple y rápida para guardar lo que te importa y compartirlo con quienes elijas.",
+    "ctaPrimary": "Comenzar ahora",
+    "ctaSecondary": "Saber más"
+  },
+  "features": {
+    "title": "Diseñado para ser claro",
+    "items": [
+      {
+        "title": "Rápido",
+        "description": "Construido con Vite y React para una experiencia instantánea en cada interacción."
+      },
+      {
+        "title": "Moderno",
+        "description": "TypeScript y Tailwind CSS trabajando juntos desde el primer componente."
+      },
+      {
+        "title": "Multilingüe",
+        "description": "Cambia de idioma sobre la marcha. Preparado para crecer a más mercados."
+      }
+    ]
+  },
+  "footer": {
+    "copyright": "© {{year}} Llamabook. Hecho con cuidado.",
+    "madeWith": "Hecho con Vite + React + Tailwind"
+  },
+  "language": {
+    "label": "Idioma"
+  }
+}

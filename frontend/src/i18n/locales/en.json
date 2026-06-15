@@ -1,0 +1,41 @@
+{
+  "header": {
+    "logo": "Llamabook",
+    "nav": {
+      "features": "Features",
+      "about": "About",
+      "contact": "Contact"
+    }
+  },
+  "hero": {
+    "eyebrow": "Your new digital space",
+    "title": "Discover, share and connect with Llamabook",
+    "subtitle": "A simple, fast platform to save what matters to you and share it with the people you choose.",
+    "ctaPrimary": "Get started",
+    "ctaSecondary": "Learn more"
+  },
+  "features": {
+    "title": "Designed to be clear",
+    "items": [
+      {
+        "title": "Fast",
+        "description": "Built with Vite and React for an instant experience on every interaction."
+      },
+      {
+        "title": "Modern",
+        "description": "TypeScript and Tailwind CSS working together from the very first component."
+      },
+      {
+        "title": "Multilingual",
+        "description": "Switch languages on the fly. Ready to grow into more markets."
+      }
+    ]
+  },
+  "footer": {
+    "copyright": "© {{year}} Llamabook. Made with care.",
+    "madeWith": "Made with Vite + React + Tailwind"
+  },
+  "language": {
+    "label": "Language"
+  }
+}
