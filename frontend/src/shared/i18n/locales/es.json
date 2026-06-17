@@ -1,41 +1,135 @@
 {
-  "header": {
-    "logo": "Llamabook",
-    "nav": {
-      "features": "Características",
-      "about": "Acerca de",
-      "contact": "Contacto"
-    }
-  },
-  "hero": {
-    "eyebrow": "Tu nuevo espacio digital",
-    "title": "Descubre, comparte y conecta con Llamabook",
-    "subtitle": "Una plataforma simple y rápida para guardar lo que te importa y compartirlo con quienes elijas.",
-    "ctaPrimary": "Comenzar ahora",
-    "ctaSecondary": "Saber más"
-  },
-  "features": {
-    "title": "Diseñado para ser claro",
-    "items": [
-      {
-        "title": "Rápido",
-        "description": "Construido con Vite y React para una experiencia instantánea en cada interacción."
-      },
-      {
-        "title": "Moderno",
-        "description": "TypeScript y Tailwind CSS trabajando juntos desde el primer componente."
-      },
-      {
-        "title": "Multilingüe",
-        "description": "Cambia de idioma sobre la marcha. Preparado para crecer a más mercados."
+  "dashboard": {
+    "brand": "Llamabook",
+    "brandPro": "Llamabook Pro",
+    "sidebar": {
+      "newChat": "Nuevo chat",
+      "searchPlaceholder": "Buscar...",
+      "notebooks": "Cuadernos",
+      "recent": "Recientes",
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "last7Days": "7 dias anteriores",
+      "addNotebookPrompt": "Nombre del nuevo cuaderno:",
+      "closeSidebar": "Cerrar sidebar",
+      "search": "Buscar",
+      "newNotebook": "Nuevo cuaderno",
+      "profile": {
+        "name": "Mira",
+        "plan": "Pro"
       }
-    ]
-  },
-  "footer": {
-    "copyright": "© {{year}} Llamabook. Hecho con cuidado.",
-    "madeWith": "Hecho con Vite + React + Tailwind"
-  },
-  "language": {
-    "label": "Idioma"
+    },
+    "header": {
+      "menu": "Menu",
+      "sidebarToggle": "Sidebar",
+      "backToDashboard": "Dashboard",
+      "modelSelector": "Selector de modelo",
+      "modelPopup": {
+        "label": "Modelos"
+      },
+      "models": {
+        "llamabook-pro": {
+          "name": "Llamabook Pro",
+          "desc": "Modelo avanzado, razonamiento superior"
+        },
+        "kimi": {
+          "name": "Kimi",
+          "desc": "Contexto largo, investigacion profunda"
+        },
+        "minimax": {
+          "name": "MiniMax",
+          "desc": "Rapido, multimodal, eficiente"
+        },
+        "gemma": {
+          "name": "Gemma",
+          "desc": "Open source, ligero y preciso"
+        }
+      }
+    },
+    "dashboardView": {
+      "greeting": {
+        "morning": "Buenos dias",
+        "afternoon": "Buenas tardes",
+        "evening": "Buenas noches",
+        "subtitle": "En que puedo ayudarte hoy?"
+      },
+      "quickActions": {
+        "code": "Codigo",
+        "analysis": "Analisis",
+        "learn": "Aprender",
+        "review": "Revisar",
+        "codePrompt": "Ayudame a disenar una API REST",
+        "analysisPrompt": "Analiza los datos de rendimiento del ultimo trimestre",
+        "learnPrompt": "Explicame este concepto paso a paso",
+        "reviewPrompt": "Revisa este documento y sugiere mejoras"
+      },
+      "sections": {
+        "pinned": "Fijados",
+        "notebooks": "Cuadernos"
+      }
+    },
+    "chatView": {
+      "conversationStarted": "Conversacion iniciada · {{model}}",
+      "conversationStartedWithTools": "Conversacion iniciada · {{model}} · {{tools}}",
+      "sender": "Llamabook",
+      "scrollToBottom": "Ir al final",
+      "status": {
+        "sending": "Enviando...",
+        "error": "Error · Reintentar",
+        "sent": "✓"
+      }
+    },
+    "dock": {
+      "inputPlaceholder": "Escribe un mensaje a Llamabook...",
+      "inputLabel": "Mensaje",
+      "attach": "Adjuntar y herramientas",
+      "mic": "Voz",
+      "send": "Enviar",
+      "attachSection": {
+        "title": "Adjuntar",
+        "upload": "Subir archivo",
+        "uploadDesc": "Documentos, imagenes, codigo",
+        "drive": "Google Drive",
+        "driveDesc": "Conectar con tu cuenta",
+        "link": "Enlace web",
+        "linkDesc": "Pegar URL de una fuente"
+      },
+      "toolsSection": {
+        "title": "Herramientas"
+      },
+      "tools": {
+        "audio": "Resumen en audio",
+        "audioDesc": "Audio generado con IA",
+        "slides": "Presentacion con diapositivas",
+        "slidesDesc": "Slides automaticas",
+        "video": "Resumen en video",
+        "videoDesc": "Video explicativo generado",
+        "mindmap": "Mapa mental",
+        "mindmapDesc": "Visualizacion de conceptos",
+        "report": "Informes",
+        "reportDesc": "Reportes estructurados",
+        "flash": "Tarjetas didacticas",
+        "flashDesc": "Flashcards para aprender",
+        "quiz": "Cuestionario",
+        "quizDesc": "Preguntas de evaluacion",
+        "infographic": "Infografia",
+        "infographicDesc": "Visual de datos y conceptos",
+        "table": "Tabla de datos",
+        "tableDesc": "Datos estructurados en tabla"
+      }
+    },
+    "statusBar": {
+      "online": "En linea",
+      "offline": "Sin conexion",
+      "reconnecting": "Reconectando...",
+      "tokenCount": "{{count}} / 128K · {{model}}"
+    },
+    "codeBlock": {
+      "copy": "Copiar",
+      "copied": "✓"
+    },
+    "shortcuts": {
+      "toggleSidebar": "Ctrl+Shift+S"
+    }
   }
 }

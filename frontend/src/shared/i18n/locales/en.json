@@ -1,41 +1,135 @@
 {
-  "header": {
-    "logo": "Llamabook",
-    "nav": {
-      "features": "Features",
-      "about": "About",
-      "contact": "Contact"
-    }
-  },
-  "hero": {
-    "eyebrow": "Your new digital space",
-    "title": "Discover, share and connect with Llamabook",
-    "subtitle": "A simple, fast platform to save what matters to you and share it with the people you choose.",
-    "ctaPrimary": "Get started",
-    "ctaSecondary": "Learn more"
-  },
-  "features": {
-    "title": "Designed to be clear",
-    "items": [
-      {
-        "title": "Fast",
-        "description": "Built with Vite and React for an instant experience on every interaction."
-      },
-      {
-        "title": "Modern",
-        "description": "TypeScript and Tailwind CSS working together from the very first component."
-      },
-      {
-        "title": "Multilingual",
-        "description": "Switch languages on the fly. Ready to grow into more markets."
+  "dashboard": {
+    "brand": "Llamabook",
+    "brandPro": "Llamabook Pro",
+    "sidebar": {
+      "newChat": "New chat",
+      "searchPlaceholder": "Search...",
+      "notebooks": "Notebooks",
+      "recent": "Recent",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last7Days": "Previous 7 days",
+      "addNotebookPrompt": "New notebook name:",
+      "closeSidebar": "Close sidebar",
+      "search": "Search",
+      "newNotebook": "New notebook",
+      "profile": {
+        "name": "Mira",
+        "plan": "Pro"
       }
-    ]
-  },
-  "footer": {
-    "copyright": "© {{year}} Llamabook. Made with care.",
-    "madeWith": "Made with Vite + React + Tailwind"
-  },
-  "language": {
-    "label": "Language"
+    },
+    "header": {
+      "menu": "Menu",
+      "sidebarToggle": "Sidebar",
+      "backToDashboard": "Dashboard",
+      "modelSelector": "Model selector",
+      "modelPopup": {
+        "label": "Models"
+      },
+      "models": {
+        "llamabook-pro": {
+          "name": "Llamabook Pro",
+          "desc": "Advanced model, superior reasoning"
+        },
+        "kimi": {
+          "name": "Kimi",
+          "desc": "Long context, deep research"
+        },
+        "minimax": {
+          "name": "MiniMax",
+          "desc": "Fast, multimodal, efficient"
+        },
+        "gemma": {
+          "name": "Gemma",
+          "desc": "Open source, lightweight and precise"
+        }
+      }
+    },
+    "dashboardView": {
+      "greeting": {
+        "morning": "Good morning",
+        "afternoon": "Good afternoon",
+        "evening": "Good evening",
+        "subtitle": "What can I help you with today?"
+      },
+      "quickActions": {
+        "code": "Code",
+        "analysis": "Analysis",
+        "learn": "Learn",
+        "review": "Review",
+        "codePrompt": "Help me design a REST API",
+        "analysisPrompt": "Analyze last quarter's performance data",
+        "learnPrompt": "Explain this concept step by step",
+        "reviewPrompt": "Review this document and suggest improvements"
+      },
+      "sections": {
+        "pinned": "Pinned",
+        "notebooks": "Notebooks"
+      }
+    },
+    "chatView": {
+      "conversationStarted": "Conversation started · {{model}}",
+      "conversationStartedWithTools": "Conversation started · {{model}} · {{tools}}",
+      "sender": "Llamabook",
+      "scrollToBottom": "Go to bottom",
+      "status": {
+        "sending": "Sending...",
+        "error": "Error · Retry",
+        "sent": "✓"
+      }
+    },
+    "dock": {
+      "inputPlaceholder": "Write a message to Llamabook...",
+      "inputLabel": "Message",
+      "attach": "Attach and tools",
+      "mic": "Voice",
+      "send": "Send",
+      "attachSection": {
+        "title": "Attach",
+        "upload": "Upload file",
+        "uploadDesc": "Documents, images, code",
+        "drive": "Google Drive",
+        "driveDesc": "Connect your account",
+        "link": "Web link",
+        "linkDesc": "Paste a source URL"
+      },
+      "toolsSection": {
+        "title": "Tools"
+      },
+      "tools": {
+        "audio": "Audio summary",
+        "audioDesc": "AI-generated audio",
+        "slides": "Slide presentation",
+        "slidesDesc": "Automatic slides",
+        "video": "Video summary",
+        "videoDesc": "AI-generated explainer video",
+        "mindmap": "Mind map",
+        "mindmapDesc": "Concept visualization",
+        "report": "Reports",
+        "reportDesc": "Structured reports",
+        "flash": "Flashcards",
+        "flashDesc": "Cards for learning",
+        "quiz": "Quiz",
+        "quizDesc": "Assessment questions",
+        "infographic": "Infographic",
+        "infographicDesc": "Data and concept visual",
+        "table": "Data table",
+        "tableDesc": "Structured data table"
+      }
+    },
+    "statusBar": {
+      "online": "Online",
+      "offline": "Offline",
+      "reconnecting": "Reconnecting...",
+      "tokenCount": "{{count}} / 128K · {{model}}"
+    },
+    "codeBlock": {
+      "copy": "Copy",
+      "copied": "✓"
+    },
+    "shortcuts": {
+      "toggleSidebar": "Ctrl+Shift+S"
+    }
   }
 }

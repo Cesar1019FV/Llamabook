@@ -1,12 +1,10 @@
 import { Routes, Route } from 'react-router-dom'
-import { LandingPage } from '@/pages/landing-page'
-import { HelloWorldPage } from '@/pages/hello-world-page'
+import { LlamabookDashboard } from '@/pages/llamabook-dashboard'
 
 export function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/hello" element={<HelloWorldPage />} />
+      <Route path="/" element={<LlamabookDashboard />} />
     </Routes>
   )
 }

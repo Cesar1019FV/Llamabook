@@ -1,1 +1,0 @@
-export { HelloWorldPage } from './ui'

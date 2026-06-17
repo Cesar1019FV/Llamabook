@@ -4,14 +4,15 @@
 
 ## Quick start
 
-All commands run from `frontend/`:
+**Use `yarn` only.** Do not run `npm install` or generate `package-lock.json` files.
 
 ```bash
-npm install
-npm run dev       # http://localhost:5173
-npm run build     # tsc + vite build → dist/
-npm run preview   # preview the production build
+yarn install
+yarn build      # tsc + vite build → dist/
+yarn preview    # preview the production build
 ```
+
+**Do not run `yarn dev`**. The user is responsible for starting the development server.
 
 ## Stack
 
