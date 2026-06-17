@@ -14,6 +14,7 @@ export function DockInput() {
     openPlusPopup,
     closePlusPopup,
     closeModelPopup,
+    currentView,
   } = useLlamabookDashboard()
   const [text, setText] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -30,6 +31,12 @@ export function DockInput() {
   useEffect(() => {
     resize()
   }, [text])
+
+  useEffect(() => {
+    if (currentView === 'chat') {
+      setTimeout(() => textareaRef.current?.focus(), 0)
+    }
+  }, [currentView])
 
   const handleSend = () => {
     if (disabled) return

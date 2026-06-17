@@ -19,7 +19,7 @@ export function LlamabookHeader() {
           <IconMenu className="w-[18px] h-[18px] stroke-[1.8]" />
         </button>
         <button
-          className="h-btn w-8 h-8 flex items-center justify-center rounded-md text-llama-fg-3 transition-colors duration-150 hover:bg-llama-surface hover:text-llama-fg"
+          className="h-btn hidden md:flex w-8 h-8 items-center justify-center rounded-md text-llama-fg-3 transition-colors duration-150 hover:bg-llama-surface hover:text-llama-fg"
           onClick={toggleSidebar}
           aria-label={t('dashboard.header.sidebarToggle')}
         >

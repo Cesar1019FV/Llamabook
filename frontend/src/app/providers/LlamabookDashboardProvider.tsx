@@ -4,7 +4,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -109,7 +108,6 @@ export function LlamabookDashboardProvider({
   const [searchQuery, setSearchQuery] = useState('')
   const [modelSearchQuery, setModelSearchQuery] = useState('')
   const [notebooks, setNotebooks] = useState<Notebook[]>(initialNotebooks)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const showDashboard = useCallback(() => {
     setCurrentView('dashboard')
@@ -139,9 +137,8 @@ export function LlamabookDashboardProvider({
       if (id === 'new') {
         setAttachedFiles([])
       }
-      setTimeout(() => textareaRef.current?.focus(), 0)
     },
-    [textareaRef]
+    []
   )
 
   const startNewChat = useCallback(() => {
@@ -155,8 +152,7 @@ export function LlamabookDashboardProvider({
     setCurrentChatId(null)
     setCurrentNotebookId(notebookId)
     setAttachedFiles([])
-    setTimeout(() => textareaRef.current?.focus(), 0)
-  }, [textareaRef])
+  }, [])
 
   const sendMessage = useCallback(
     (text: string) => {
@@ -409,7 +405,6 @@ export function LlamabookDashboardProvider({
   return (
     <DashboardContext.Provider value={value}>
       {children}
-      <textarea ref={textareaRef} style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }} />
     </DashboardContext.Provider>
   )
 }
@@ -420,9 +415,4 @@ export function useLlamabookDashboard() {
     throw new Error('useLlamabookDashboard must be used inside LlamabookDashboardProvider')
   }
   return ctx
-}
-
-export function useDashboardTextarea() {
-  const { openChat } = useLlamabookDashboard()
-  return { openChat }
 }

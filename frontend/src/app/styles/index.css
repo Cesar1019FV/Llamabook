@@ -102,6 +102,11 @@
     height: 100dvh;
   }
 
+  #root {
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
   ::-webkit-scrollbar {
     width: 5px;
   }

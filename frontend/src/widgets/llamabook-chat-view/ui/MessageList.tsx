@@ -1,14 +1,8 @@
-import { useEffect, useRef } from 'react'
 import { useLlamabookDashboard } from '@/app/providers'
 import { Message } from './Message'
 
 export function MessageList() {
   const { messages, isGenerating } = useLlamabookDashboard()
-  const bottomRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'auto' })
-  }, [messages, isGenerating])
 
   return (
     <div className="chat-scroll max-w-[740px] mx-auto px-4 md:px-7 py-4 md:py-6 pb-[120px]">
@@ -33,8 +27,6 @@ export function MessageList() {
             </div>
           </div>
         )}
-
-        <div ref={bottomRef} />
       </div>
     </div>
   )

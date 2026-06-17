@@ -13,7 +13,7 @@ export function DashboardView() {
   return (
     <div
       className={clsx(
-        'absolute inset-0 flex-col min-h-0 overflow-hidden',
+        'flex flex-col min-h-0 overflow-hidden',
         currentView !== 'chat' ? 'flex' : 'hidden'
       )}
     >
