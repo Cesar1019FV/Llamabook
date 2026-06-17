@@ -6,6 +6,8 @@ import { PinnedSection } from './PinnedSection'
 import { NotebooksSection } from './NotebooksSection'
 import { NotebooksListView } from '@/widgets/llamabook-notebooks-list/ui/NotebooksListView'
 import { NotebookView } from '@/widgets/llamabook-notebook-view/ui/NotebookView'
+import { AgentsListView } from '@/widgets/llamabook-agent-list/ui/AgentsListView'
+import { AgentView } from '@/widgets/llamabook-agent-view/ui/AgentView'
 
 export function DashboardView() {
   const { currentView } = useLlamabookDashboard()
@@ -30,6 +32,10 @@ export function DashboardView() {
         {currentView === 'notebooks-list' && <NotebooksListView />}
 
         {currentView === 'notebook-detail' && <NotebookView />}
+
+        {currentView === 'agents-list' && <AgentsListView />}
+
+        {currentView === 'agent-detail' && <AgentView />}
       </div>
     </div>
   )

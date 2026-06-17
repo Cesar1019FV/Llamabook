@@ -14,7 +14,7 @@ interface NavItem {
 
 export function SidebarNav() {
   const { t } = useTranslation()
-  const { currentView, showDashboard, showNotebooksList } = useLlamabookDashboard()
+  const { currentView, showDashboard, showNotebooksList, showAgentsList } = useLlamabookDashboard()
 
   const items: NavItem[] = [
     {
@@ -43,7 +43,7 @@ export function SidebarNav() {
       labelKey: 'dashboard.sidebar.agents',
       icon: IconWorkspace,
       variant: 'default',
-      disabled: true,
+      onClick: showAgentsList,
     },
   ]
 
@@ -56,15 +56,17 @@ export function SidebarNav() {
           const Icon = item.icon
           const active =
             (item.id === 'new-chat' && isActive) ||
-            (item.id === 'notebooks' && currentView === 'notebooks-list')
+            (item.id === 'notebooks' && currentView === 'notebooks-list') ||
+            (item.id === 'workspace' &&
+              (currentView === 'agents-list' || currentView === 'agent-detail'))
           return (
             <li key={item.id} className="min-w-0">
               <button
                 className={clsx(
                   'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] font-normal text-left transition-colors duration-150',
                   item.disabled
-                    ? 'text-llama-fg-5 cursor-default'
-                    : 'text-llama-fg-2 hover:bg-llama-sidebar-hover hover:text-llama-fg',
+                    ? 'text-llama-fg-4 cursor-default'
+                    : 'text-llama-fg hover:bg-llama-sidebar-hover hover:text-llama-fg',
                   item.variant === 'primary' && !item.disabled && 'bg-llama-surface border border-llama-border text-llama-fg hover:bg-llama-surface-2 hover:border-llama-border-2',
                   active && 'bg-llama-sidebar-active text-llama-fg'
                 )}

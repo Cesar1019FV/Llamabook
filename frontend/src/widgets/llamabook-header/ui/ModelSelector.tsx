@@ -149,12 +149,12 @@ export function ModelSelector() {
                   <div className="flex items-center gap-1.5">
                     <span className="model-popup-item-name text-[13px] font-medium leading-tight">{model.name}</span>
                     {model.provider === 'local' && (
-                      <span className="text-[9.5px] font-medium text-llama-fg-5 px-1 py-px rounded bg-white/[0.05]">
+                      <span className="text-[9.5px] font-medium text-llama-fg-3 px-1 py-px rounded bg-white/[0.10]">
                         {t('dashboard.header.modelProvider.local')}
                       </span>
                     )}
                   </div>
-                  <div className="model-popup-item-desc text-[11px] text-llama-fg-4 font-light leading-tight mt-px">
+                  <div className="model-popup-item-desc text-[11px] text-llama-fg-3 font-normal leading-tight mt-px">
                     {model.desc}
                   </div>
                 </div>

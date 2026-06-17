@@ -94,7 +94,7 @@ export function DockInput() {
 
         <div className="dock-btns flex items-center gap-0.5 shrink-0">
           <button
-            className="d-btn w-8 h-8 flex items-center justify-center rounded-lg text-llama-fg-4 transition-colors duration-150 hover:bg-white/[0.05] hover:text-llama-fg-2"
+            className="d-btn w-8 h-8 flex items-center justify-center rounded-lg text-llama-fg-4 transition-colors duration-150 hover:bg-white/[0.10] hover:text-llama-fg-2"
             aria-label={t('dashboard.dock.mic')}
           >
             <IconMic className="w-4 h-4 stroke-[1.8]" />
@@ -103,7 +103,7 @@ export function DockInput() {
             className={clsx(
               'd-btn send w-8 h-8 flex items-center justify-center rounded-lg text-white transition-colors duration-150',
               disabled
-                ? 'bg-white/[0.06] text-llama-fg-4 cursor-default'
+                ? 'bg-white/[0.10] text-llama-fg-3 cursor-default'
                 : 'bg-llama-accent hover:bg-llama-accent-light'
             )}
             disabled={disabled}

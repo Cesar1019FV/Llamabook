@@ -16,7 +16,7 @@ export function NotebooksSection() {
         {notebookCards.map((card) => (
           <button
             key={card.id}
-            className="card text-left p-[11px] pb-3 rounded-lg border border-llama-border bg-transparent cursor-pointer transition-all duration-150 hover:border-llama-border-2 hover:bg-white/[0.015]"
+            className="card text-left p-[11px] pb-3 rounded-lg border border-llama-border bg-transparent cursor-pointer transition-all duration-150 hover:border-llama-border-2 hover:bg-white/[0.06]"
             onClick={() => {
               collapseNotebook(card.id)
               openChat(card.id)

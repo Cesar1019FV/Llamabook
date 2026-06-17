@@ -5,6 +5,8 @@ import { IconChevron, IconPlus } from '@/shared/ui/icons'
 import { recentChatGroups } from '../model/data'
 import { SidebarCuaderno } from './SidebarCuaderno'
 
+import { SidebarAgentSection } from './SidebarAgentSection'
+
 export function SidebarSections() {
   const { t } = useTranslation()
   const {
@@ -27,10 +29,10 @@ export function SidebarSections() {
     <nav className="pb-2">
       <div className="mb-0.5">
         <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 select-none">
-          <span className="text-[11.5px] font-medium text-llama-fg-5 tracking-wide">{t('dashboard.sidebar.notebooks')}</span>
+          <span className="text-[11.5px] font-medium text-llama-fg-3 tracking-wide">{t('dashboard.sidebar.notebooks')}</span>
           <div className="relative group/tooltip">
             <button
-              className="sb-section-add w-[18px] h-[18px] flex items-center justify-center rounded text-llama-fg-5 transition-all duration-100 hover:text-llama-fg hover:bg-white/[0.08] shrink-0"
+              className="sb-section-add w-[18px] h-[18px] flex items-center justify-center rounded text-llama-fg-3 transition-all duration-100 hover:text-llama-fg hover:bg-white/[0.12] shrink-0"
               onClick={() => {
                 openCreateNotebookModal()
               }}
@@ -55,17 +57,19 @@ export function SidebarSections() {
               />
             ))
           ) : (
-            <div className="px-2.5 py-2 text-[12.5px] text-llama-fg-5 italic">
+            <div className="px-2.5 py-2 text-[12.5px] text-llama-fg-3 italic">
               {t('dashboard.sidebar.noNotebooks')}
             </div>
           )}
         </div>
       </div>
 
+      <SidebarAgentSection />
+
       <div className="mb-0.5">
         <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 cursor-pointer select-none">
-          <span className="text-[11.5px] font-medium text-llama-fg-5 tracking-wide">{t('dashboard.sidebar.recent')}</span>
-          <IconChevron className="chevron w-3 h-3 stroke-llama-fg-5" />
+          <span className="text-[11.5px] font-medium text-llama-fg-3 tracking-wide">{t('dashboard.sidebar.recent')}</span>
+          <IconChevron className="chevron w-3 h-3 stroke-llama-fg-3" />
         </div>
 
         <div>
@@ -75,7 +79,7 @@ export function SidebarSections() {
             return (
               <div key={group.label}>
                 <div className={clsx('px-2', group.label === 'today' ? 'py-0.5 pb-1' : 'pt-2 pb-1')}>
-                  <span className="text-[10.5px] font-medium text-llama-fg-5 px-2">
+                  <span className="text-[10.5px] font-medium text-llama-fg-3 px-2">
                     {t(`dashboard.sidebar.${group.label}`)}
                   </span>
                 </div>
@@ -83,8 +87,8 @@ export function SidebarSections() {
                   <button
                     key={chat.id}
                     className={clsx(
-                      'sb-chat block w-full min-w-0 py-[7px] px-2.5 rounded-lg text-llama-fg-3 text-[13.5px] font-normal text-left transition-colors duration-100 whitespace-nowrap overflow-hidden text-ellipsis leading-[1.4]',
-                      'hover:bg-llama-sidebar-hover hover:text-llama-fg-2',
+                      'sb-chat block w-full min-w-0 py-[7px] px-2.5 rounded-lg text-llama-fg text-[13.5px] font-normal text-left transition-colors duration-100 whitespace-nowrap overflow-hidden text-ellipsis leading-[1.4]',
+                      'hover:bg-llama-sidebar-hover hover:text-llama-fg',
                       currentChatId === chat.id && 'bg-llama-sidebar-active text-llama-fg active-indicator'
                     )}
                     onClick={(e) => {

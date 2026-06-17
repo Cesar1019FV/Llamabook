@@ -18,6 +18,9 @@
       "agents": "Agents",
       "noNotebooks": "No notebooks",
       "noNotebookChats": "No chats yet",
+      "agents": "Agents",
+      "newAgent": "New agent",
+      "noAgents": "No agents",
       "profile": {
         "name": "Mira",
         "plan": "Pro"
@@ -58,6 +61,18 @@
       "hint": "Notebooks group chats, files and custom instructions to keep everything organized.",
       "create": "Create notebook"
     },
+    "createAgent": {
+      "title": "Create agent",
+      "close": "Close",
+      "nameLabel": "Agent name",
+      "namePlaceholder": "My agent",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Short description of the agent",
+      "contextLabel": "Context",
+      "contextPlaceholder": "You are an expert in...",
+      "hint": "Agents are chats with a custom context or system prompt that guides their responses.",
+      "create": "Create agent"
+    },
     "notebooksList": {
       "title": "Notebooks",
       "searchPlaceholder": "Search notebooks",
@@ -90,6 +105,32 @@
       "empty": {
         "title": "No chats yet",
         "description": "Start a new chat in {{name}} to begin."
+      }
+    },
+    "agentsList": {
+      "title": "Agents",
+      "searchPlaceholder": "Search agents",
+      "create": "Create",
+      "empty": {
+        "title": "No agents",
+        "description": "Create an agent to give custom context to your chats."
+      }
+    },
+    "agentDetail": {
+      "notFound": "Agent not found",
+      "back": "Back",
+      "startChat": "Start chat with {{name}}",
+      "tabs": {
+        "chat": "Chat",
+        "context": "Context"
+      },
+      "context": {
+        "title": "Agent context",
+        "placeholder": "Write the agent context or system prompt..."
+      },
+      "empty": {
+        "title": "No chats yet",
+        "description": "Start a chat with {{name}} to begin."
       }
     },
     "header": {

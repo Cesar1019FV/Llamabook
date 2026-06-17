@@ -70,7 +70,7 @@ export function CreateNotebookModal() {
           className={clsx(
             'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-medium transition-colors duration-150',
             disabled
-              ? 'bg-white/[0.06] text-llama-fg-5 cursor-default'
+                ? 'bg-white/[0.10] text-llama-fg-3 cursor-default'
               : 'bg-llama-fg text-llama-bg hover:bg-llama-fg-2'
           )}
           disabled={disabled}

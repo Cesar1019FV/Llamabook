@@ -1,3 +1,3 @@
 export { LlamabookSidebar } from './ui/LlamabookSidebar'
-export { initialNotebooks, recentChatGroups } from './model/data'
-export { newNotebookColors } from './model/consts'
+export { initialNotebooks, recentChatGroups, initialAgents } from './model/data'
+export { newNotebookColors, newAgentAvatars } from './model/consts'

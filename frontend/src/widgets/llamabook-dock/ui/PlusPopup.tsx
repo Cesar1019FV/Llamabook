@@ -12,7 +12,7 @@ interface PlusPopupProps {
 }
 
 const iconColorByAction: Record<string, string> = {
-  upload: 'text-llama-fg-3 bg-white/[0.05]',
+  upload: 'text-llama-fg-3 bg-white/[0.10]',
   drive: 'text-[#4ade80] bg-[rgba(34,197,94,0.1)]',
   link: 'text-[#818cf8] bg-[rgba(99,102,241,0.1)]',
 }

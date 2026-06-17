@@ -22,7 +22,7 @@ export function CodeBlock({ lang, body }: CodeBlockProps) {
       <div className="c-head flex items-center justify-between px-3 py-[7px] border-b border-llama-border text-[11.5px] text-llama-fg-4 font-mono">
         <span>{lang}</span>
         <button
-          className="c-copy py-0.5 px-2 rounded border border-llama-border bg-transparent text-llama-fg-4 text-[11px] font-mono cursor-pointer transition-all duration-150 hover:bg-white/[0.05] hover:text-llama-fg-2 hover:border-llama-border-2"
+          className="c-copy py-0.5 px-2 rounded border border-llama-border bg-transparent text-llama-fg-4 text-[11px] font-mono cursor-pointer transition-all duration-150 hover:bg-white/[0.10] hover:text-llama-fg-2 hover:border-llama-border-2"
           onClick={handleCopy}
         >
           {copied ? t('dashboard.codeBlock.copied') : t('dashboard.codeBlock.copy')}

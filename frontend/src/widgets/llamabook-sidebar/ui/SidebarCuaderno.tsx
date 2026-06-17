@@ -35,15 +35,15 @@ export function SidebarCuaderno({ notebook, activeChatId }: SidebarCuadernoProps
     <>
       <div
         className={clsx(
-          'sb-cuaderno flex items-center gap-2 w-full min-w-0 py-[7px] px-2.5 rounded-lg text-llama-fg-3 text-[13.5px] font-normal text-left transition-colors duration-100 cursor-pointer',
-          'hover:bg-llama-sidebar-hover hover:text-llama-fg-2',
+          'sb-cuaderno flex items-center gap-2 w-full min-w-0 py-[7px] px-2.5 rounded-lg text-llama-fg text-[13.5px] font-normal text-left transition-colors duration-100 cursor-pointer',
+          'hover:bg-llama-sidebar-hover hover:text-llama-fg',
           isActive && 'bg-llama-sidebar-active text-llama-fg'
         )}
         onClick={() => showNotebookDetail(notebook.id)}
       >
         <NotebookAvatar name={notebook.name} color={notebook.color} />
         <span className="sb-cuaderno-name flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{notebook.name}</span>
-        <span className="sb-cuaderno-count text-[11px] text-llama-fg-5 shrink-0">{notebook.chats.length}</span>
+        <span className="sb-cuaderno-count text-[11px] text-llama-fg-3 shrink-0">{notebook.chats.length}</span>
       </div>
 
       <div
@@ -60,7 +60,7 @@ export function SidebarCuaderno({ notebook, activeChatId }: SidebarCuadernoProps
                 className={clsx(
                   'sb-cuaderno-chat block w-full min-w-0 py-[5px] px-2.5 rounded-md text-llama-fg-4 text-[12.5px] font-normal text-left transition-colors duration-100 whitespace-nowrap overflow-hidden text-ellipsis',
                   'hover:bg-llama-sidebar-hover hover:text-llama-fg-2',
-                  activeChatId === chat && 'text-llama-fg bg-llama-sidebar-active'
+                  activeChatId === chat && 'text-llama-fg bg-llama-sidebar-active active-indicator'
                 )}
                 onClick={(e) => {
                   e.stopPropagation()

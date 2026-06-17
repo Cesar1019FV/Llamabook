@@ -20,7 +20,7 @@ export function PinnedSection() {
             onClick={() => openChat(item.id)}
           >
             <div className="card-top flex items-center justify-between mb-[5px]">
-              <span className="card-model text-[10px] text-llama-fg-5 font-normal px-1 py-px rounded bg-white/[0.03]">Pro</span>
+              <span className="card-model text-[10px] text-llama-fg-5 font-normal px-1 py-px rounded bg-white/[0.08]">Pro</span>
               <span className="card-time text-[10px] text-llama-fg-5 font-normal">{item.time}</span>
             </div>
             <div className="card-title text-[13px] font-medium text-llama-fg-2 leading-tight mb-[3px] overflow-hidden text-ellipsis whitespace-nowrap">

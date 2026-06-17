@@ -41,7 +41,7 @@ export function SettingsModal() {
               'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] text-left transition-colors duration-100',
               activeSection === 'general'
                 ? 'bg-llama-surface text-llama-fg'
-                : 'text-llama-fg-3 hover:text-llama-fg hover:bg-white/[0.04]'
+                : 'text-llama-fg-3 hover:text-llama-fg hover:bg-white/[0.08]'
             )}
             onClick={() => setActiveSection('general')}
           >

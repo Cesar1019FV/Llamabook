@@ -6,3 +6,14 @@ export const newNotebookColors = [
   'rgba(96,165,250,0.35)',
   'rgba(168,85,247,0.35)',
 ]
+
+export const newAgentAvatars = [
+  '🤖',
+  '🔍',
+  '📊',
+  '✍️',
+  '🛠️',
+  '🧠',
+  '⚡',
+  '📎',
+]

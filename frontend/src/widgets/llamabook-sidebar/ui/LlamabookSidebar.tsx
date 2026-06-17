@@ -4,6 +4,7 @@ import { SidebarSections } from './SidebarSections'
 import { SidebarProfile } from './SidebarProfile'
 import { SettingsModal } from './SettingsModal'
 import { CreateNotebookModal } from './CreateNotebookModal'
+import { CreateAgentModal } from './CreateAgentModal'
 
 export function LlamabookSidebar() {
   return (
@@ -18,6 +19,7 @@ export function LlamabookSidebar() {
       <SidebarProfile />
       <SettingsModal />
       <CreateNotebookModal />
+      <CreateAgentModal />
     </div>
   )
 }

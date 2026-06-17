@@ -10,15 +10,23 @@ import { useTranslation } from 'react-i18next'
 import type { Message } from '@/entities/llamabook-message'
 import type { Model } from '@/entities/llamabook-model'
 import type { Notebook } from '@/entities/llamabook-notebook'
+import type { Agent } from '@/entities/llamabook-agent'
 import { defaultModel } from '@/entities/llamabook-model'
 import {
   initialNotebooks,
   newNotebookColors,
+  initialAgents,
 } from '@/widgets/llamabook-sidebar'
 import { sampleMessages } from '@/widgets/llamabook-chat-view'
 import { toolNames } from '@/widgets/llamabook-dock'
 
-type View = 'dashboard' | 'chat' | 'notebooks-list' | 'notebook-detail'
+type View =
+  | 'dashboard'
+  | 'chat'
+  | 'notebooks-list'
+  | 'notebook-detail'
+  | 'agents-list'
+  | 'agent-detail'
 
 interface DashboardState {
   sidebarOpen: boolean
@@ -26,6 +34,7 @@ interface DashboardState {
   currentView: View
   currentChatId: string | null
   currentNotebookId: string | null
+  currentAgentId: string | null
   messages: Message[]
   isGenerating: boolean
   attachedFiles: string[]
@@ -36,10 +45,12 @@ interface DashboardState {
   profileDropdownOpen: boolean
   settingsModalOpen: boolean
   createNotebookModalOpen: boolean
+  createAgentModalOpen: boolean
   currentModel: Model
   searchQuery: string
   modelSearchQuery: string
   notebooks: Notebook[]
+  agents: Agent[]
   i18n: ReturnType<typeof useTranslation>['i18n']
 }
 
@@ -50,13 +61,17 @@ interface DashboardActions {
   showDashboard: () => void
   showNotebooksList: () => void
   showNotebookDetail: (id: string) => void
+  showAgentsList: () => void
+  showAgentDetail: (id: string) => void
   openChat: (id: string | 'new') => void
   startNewChat: () => void
+  startAgentChat: (agentId: string) => void
   sendMessage: (text: string) => void
   toggleTool: (tool: string) => void
   toggleNotebook: (id: string) => void
   collapseNotebook: (id: string) => void
   addNotebook: (name: string) => void
+  addAgent: (agent: Omit<Agent, 'id'>) => void
   attachFile: () => void
   removeFile: (name: string) => void
   selectModel: (model: Model) => void
@@ -72,6 +87,8 @@ interface DashboardActions {
   closeSettingsModal: () => void
   openCreateNotebookModal: () => void
   closeCreateNotebookModal: () => void
+  openCreateAgentModal: () => void
+  closeCreateAgentModal: () => void
   closePopups: () => void
   setAttachedFiles: React.Dispatch<React.SetStateAction<string[]>>
   setIsGenerating: React.Dispatch<React.SetStateAction<boolean>>
@@ -92,6 +109,7 @@ export function LlamabookDashboardProvider({
   const [currentView, setCurrentView] = useState<View>('dashboard')
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
   const [currentNotebookId, setCurrentNotebookId] = useState<string | null>(null)
+  const [currentAgentId, setCurrentAgentId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [attachedFiles, setAttachedFiles] = useState<string[]>([])
@@ -104,10 +122,12 @@ export function LlamabookDashboardProvider({
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [settingsModalOpen, setSettingsModalOpen] = useState(false)
   const [createNotebookModalOpen, setCreateNotebookModalOpen] = useState(false)
+  const [createAgentModalOpen, setCreateAgentModalOpen] = useState(false)
   const [currentModel, setCurrentModel] = useState<Model>(defaultModel)
   const [searchQuery, setSearchQuery] = useState('')
   const [modelSearchQuery, setModelSearchQuery] = useState('')
   const [notebooks, setNotebooks] = useState<Notebook[]>(initialNotebooks)
+  const [agents, setAgents] = useState<Agent[]>(initialAgents)
 
   const showDashboard = useCallback(() => {
     setCurrentView('dashboard')
@@ -125,6 +145,21 @@ export function LlamabookDashboardProvider({
     setCurrentView('notebook-detail')
     setCurrentNotebookId(id)
     setCurrentChatId(null)
+    setCurrentAgentId(null)
+  }, [])
+
+  const showAgentsList = useCallback(() => {
+    setCurrentView('agents-list')
+    setCurrentChatId(null)
+    setCurrentNotebookId(null)
+    setCurrentAgentId(null)
+  }, [])
+
+  const showAgentDetail = useCallback((id: string) => {
+    setCurrentView('agent-detail')
+    setCurrentAgentId(id)
+    setCurrentChatId(null)
+    setCurrentNotebookId(null)
   }, [])
 
   const openChat = useCallback(
@@ -134,6 +169,7 @@ export function LlamabookDashboardProvider({
       setCurrentView('chat')
       setCurrentChatId(id === 'new' ? null : id)
       setCurrentNotebookId(null)
+      setCurrentAgentId(null)
       if (id === 'new') {
         setAttachedFiles([])
       }
@@ -151,6 +187,17 @@ export function LlamabookDashboardProvider({
     setCurrentView('chat')
     setCurrentChatId(null)
     setCurrentNotebookId(notebookId)
+    setCurrentAgentId(null)
+    setAttachedFiles([])
+  }, [])
+
+  const startAgentChat = useCallback((agentId: string) => {
+    const msgs: Message[] = []
+    setMessages(msgs)
+    setCurrentView('chat')
+    setCurrentChatId(null)
+    setCurrentNotebookId(null)
+    setCurrentAgentId(agentId)
     setAttachedFiles([])
   }, [])
 
@@ -247,7 +294,22 @@ export function LlamabookDashboardProvider({
         name: name.trim(),
         color: newNotebookColors[index],
         chats: [],
-      }
+      },
+    ])
+  }, [])
+
+  const addAgent = useCallback((agent: Omit<Agent, 'id'>) => {
+    const id = 'agt_' + Date.now()
+    setAgents((prev) => [
+      ...prev,
+      {
+        id,
+        name: agent.name.trim(),
+        description: agent.description.trim(),
+        avatar: agent.avatar,
+        color: agent.color,
+        context: agent.context.trim(),
+      },
     ])
   }, [])
 
@@ -276,6 +338,7 @@ export function LlamabookDashboardProvider({
       currentView,
       currentChatId,
       currentNotebookId,
+      currentAgentId,
       messages,
       isGenerating,
       attachedFiles,
@@ -286,10 +349,12 @@ export function LlamabookDashboardProvider({
       profileDropdownOpen,
       settingsModalOpen,
       createNotebookModalOpen,
+      createAgentModalOpen,
       currentModel,
       searchQuery,
       modelSearchQuery,
       notebooks,
+      agents,
       i18n,
       toggleSidebar: () => setSidebarOpen((v) => !v),
       openMobileSidebar: () => setMobileSidebarOpen(true),
@@ -297,14 +362,18 @@ export function LlamabookDashboardProvider({
       showDashboard,
       showNotebooksList,
       showNotebookDetail,
+      showAgentsList,
+      showAgentDetail,
       openChat,
       startNewChat,
       startNotebookChat,
+      startAgentChat,
       sendMessage,
       toggleTool,
       toggleNotebook,
       collapseNotebook,
       addNotebook,
+      addAgent,
       attachFile,
       removeFile,
       selectModel,
@@ -323,6 +392,8 @@ export function LlamabookDashboardProvider({
       closeSettingsModal: () => setSettingsModalOpen(false),
       openCreateNotebookModal: () => setCreateNotebookModalOpen(true),
       closeCreateNotebookModal: () => setCreateNotebookModalOpen(false),
+      openCreateAgentModal: () => setCreateAgentModalOpen(true),
+      closeCreateAgentModal: () => setCreateAgentModalOpen(false),
       closePopups: () => {
         setPlusPopupOpen(false)
         setModelPopupOpen(false)
@@ -337,6 +408,7 @@ export function LlamabookDashboardProvider({
       currentView,
       currentChatId,
       currentNotebookId,
+      currentAgentId,
       messages,
       isGenerating,
       attachedFiles,
@@ -347,22 +419,28 @@ export function LlamabookDashboardProvider({
       profileDropdownOpen,
       settingsModalOpen,
       createNotebookModalOpen,
+      createAgentModalOpen,
       currentModel,
       searchQuery,
       modelSearchQuery,
       notebooks,
+      agents,
       i18n,
       showDashboard,
       showNotebooksList,
       showNotebookDetail,
+      showAgentsList,
+      showAgentDetail,
       openChat,
       startNewChat,
       startNotebookChat,
+      startAgentChat,
       sendMessage,
       toggleTool,
       toggleNotebook,
       collapseNotebook,
       addNotebook,
+      addAgent,
       attachFile,
       removeFile,
       selectModel,
@@ -389,6 +467,9 @@ export function LlamabookDashboardProvider({
         } else if (modelPopupOpen) {
           e.preventDefault()
           setModelPopupOpen(false)
+        } else if (createAgentModalOpen) {
+          e.preventDefault()
+          setCreateAgentModalOpen(false)
         } else if (currentView === 'chat') {
           showDashboard()
         }
@@ -400,7 +481,7 @@ export function LlamabookDashboardProvider({
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [currentView, modelPopupOpen, plusPopupOpen, profileDropdownOpen, settingsModalOpen, createNotebookModalOpen, showDashboard])
+  }, [currentView, modelPopupOpen, plusPopupOpen, profileDropdownOpen, settingsModalOpen, createNotebookModalOpen, createAgentModalOpen, showDashboard])
 
   return (
     <DashboardContext.Provider value={value}>

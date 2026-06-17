@@ -10,11 +10,11 @@
   --color-llama-surface-2: #2a2a2a;
   --color-llama-border: rgba(255, 255, 255, 0.07);
   --color-llama-border-2: rgba(255, 255, 255, 0.12);
-  --color-llama-fg: #ececec;
-  --color-llama-fg-2: #c5c5c5;
-  --color-llama-fg-3: #9a9a9a;
-  --color-llama-fg-4: #6b6b6b;
-  --color-llama-fg-5: #4a4a4a;
+  --color-llama-fg: #f5f5f5;
+  --color-llama-fg-2: #d6d6d6;
+  --color-llama-fg-3: #c4c4c4;
+  --color-llama-fg-4: #a8a8a8;
+  --color-llama-fg-5: #949494;
   --color-llama-accent: #c96442;
   --color-llama-accent-light: #d97757;
   --color-llama-online: #34d399;
@@ -168,6 +168,19 @@
     fill: none;
     stroke-linecap: round;
     stroke-linejoin: round;
+  }
+
+  /* Active sidebar item indicator */
+  .active-indicator::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 13px;
+    border-radius: 1.5px;
+    background: var(--accent);
+    margin-right: 8px;
+    vertical-align: middle;
+    flex-shrink: 0;
   }
 }
 

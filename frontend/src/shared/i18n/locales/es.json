@@ -18,6 +18,9 @@
       "agents": "Agentes",
       "noNotebooks": "Sin cuadernos",
       "noNotebookChats": "No hay chats aun",
+      "agents": "Agentes",
+      "newAgent": "Nuevo agente",
+      "noAgents": "Sin agentes",
       "profile": {
         "name": "Mira",
         "plan": "Pro"
@@ -58,6 +61,18 @@
       "hint": "Los cuadernos agrupan chats, archivos e instrucciones personalizadas para mantener todo organizado.",
       "create": "Crear cuaderno"
     },
+    "createAgent": {
+      "title": "Crear agente",
+      "close": "Cerrar",
+      "nameLabel": "Nombre del agente",
+      "namePlaceholder": "Mi agente",
+      "descriptionLabel": "Descripcion",
+      "descriptionPlaceholder": "Descripcion breve del agente",
+      "contextLabel": "Contexto",
+      "contextPlaceholder": "Eres un experto en...",
+      "hint": "Los agentes son chats con un contexto o prompt personalizado que guia sus respuestas.",
+      "create": "Crear agente"
+    },
     "notebooksList": {
       "title": "Cuadernos",
       "searchPlaceholder": "Buscar cuadernos",
@@ -90,6 +105,32 @@
       "empty": {
         "title": "Sin chats aun",
         "description": "Empieza un nuevo chat en {{name}} para comenzar."
+      }
+    },
+    "agentsList": {
+      "title": "Agentes",
+      "searchPlaceholder": "Buscar agentes",
+      "create": "Crear",
+      "empty": {
+        "title": "Sin agentes",
+        "description": "Crea un agente para dar contexto personalizado a tus chats."
+      }
+    },
+    "agentDetail": {
+      "notFound": "Agente no encontrado",
+      "back": "Volver",
+      "startChat": "Iniciar chat con {{name}}",
+      "tabs": {
+        "chat": "Chat",
+        "context": "Contexto"
+      },
+      "context": {
+        "title": "Contexto del agente",
+        "placeholder": "Escribe el contexto o prompt del sistema..."
+      },
+      "empty": {
+        "title": "Sin chats aun",
+        "description": "Inicia un chat con {{name}} para comenzar."
       }
     },
     "header": {
