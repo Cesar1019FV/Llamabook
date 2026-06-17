@@ -7,35 +7,41 @@ import { ScrollButton } from './ScrollButton'
 export function ChatView() {
   const { currentView, messages, isGenerating } = useLlamabookDashboard()
   const scrollRef = useRef<HTMLDivElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
   const [showScroll, setShowScroll] = useState(false)
   const isNearBottom = useRef(true)
-
-  const checkNearBottom = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) return true
-    return el.scrollHeight - el.scrollTop - el.clientHeight < 80
-  }, [])
-
-  const handleScroll = useCallback(() => {
-    isNearBottom.current = checkNearBottom()
-    setShowScroll(!isNearBottom.current)
-  }, [checkNearBottom])
 
   const scrollToBottom = useCallback(() => {
     const el = scrollRef.current
     if (!el) return
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
-    isNearBottom.current = true
-    setShowScroll(false)
   }, [])
 
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
-    el.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll()
-    return () => el.removeEventListener('scroll', handleScroll)
-  }, [handleScroll])
+    const onScroll = () => {
+      isNearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80
+      setShowScroll(!isNearBottom.current)
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    const scrollEl = scrollRef.current
+    if (!sentinel || !scrollEl) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isNearBottom.current = entry.isIntersecting
+        setShowScroll(!entry.isIntersecting)
+      },
+      { root: scrollEl, threshold: 0 }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     if (isNearBottom.current) {
@@ -64,6 +70,7 @@ export function ChatView() {
     >
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <MessageList />
+        <div ref={sentinelRef} />
       </div>
       <ScrollButton visible={showScroll} onClick={scrollToBottom} />
     </div>

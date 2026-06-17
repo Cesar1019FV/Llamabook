@@ -55,7 +55,7 @@ function DashboardContent() {
 
       <main className="flex flex-col min-w-0 flex-1 h-dvh overflow-hidden">
         <LlamabookHeader />
-        <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
           <DashboardView />
           <ChatView />
         </div>
