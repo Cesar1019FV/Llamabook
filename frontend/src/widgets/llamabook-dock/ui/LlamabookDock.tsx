@@ -1,12 +1,14 @@
 import { ActiveTools } from './ActiveTools'
 import { DockFiles } from './DockFiles'
 import { DockInput } from './DockInput'
-import './LlamabookDock.css'
 
 export function LlamabookDock() {
   return (
-    <div className="dock">
-      <div className="dock-inner">
+    <div
+      id="dock"
+      className="sticky bottom-0 px-4 md:px-7 pt-0 pb-2.5 md:pb-3.5 bg-gradient-to-t from-llama-bg via-llama-bg to-transparent shrink-0"
+    >
+      <div className="dock-inner max-w-[680px] mx-auto relative">
         <ActiveTools />
         <DockFiles />
         <DockInput />

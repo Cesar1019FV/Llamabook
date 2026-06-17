@@ -32,16 +32,16 @@ export function SidebarSections() {
   const notebooksExpanded = expandedNotebooks.has('notebooks-section')
 
   return (
-    <nav className="sb-nav">
-      <div className={clsx('sb-section', !notebooksExpanded && 'collapsed')}>
+    <nav className="flex-1 overflow-y-auto px-2 pb-2">
+      <div className={clsx('mb-0.5 group/sb-section', !notebooksExpanded && 'collapsed')}>
         <div
-          className="sb-section-hdr"
+          className="flex items-center justify-between py-2.5 pb-1.5 px-2 cursor-pointer select-none"
           onClick={() => handleSectionToggle('notebooks')}
         >
-          <span className="sb-section-title">{t('dashboard.sidebar.notebooks')}</span>
-          <div className="sb-section-hdr-right">
+          <span className="text-[11.5px] font-medium text-llama-fg-5 tracking-wide">{t('dashboard.sidebar.notebooks')}</span>
+          <div className="flex items-center gap-0.5">
             <button
-              className="sb-section-add"
+              className="sb-section-add w-[18px] h-[18px] flex items-center justify-center rounded text-llama-fg-5 opacity-0 transition-all duration-100 hover:text-llama-fg hover:bg-white/[0.08] shrink-0"
               onClick={(e) => {
                 e.stopPropagation()
                 const name = window.prompt(t('dashboard.sidebar.addNotebookPrompt'))
@@ -50,12 +50,18 @@ export function SidebarSections() {
               aria-label={t('dashboard.sidebar.newNotebook')}
               title={t('dashboard.sidebar.newNotebook')}
             >
-              <IconPlus />
+              <IconPlus className="w-3 h-3 stroke-[2.5]" />
             </button>
-            <IconChevron className="chevron" />
+            <IconChevron
+              className={clsx(
+                'chevron w-3 h-3 stroke-llama-fg-5 transition-transform duration-150',
+                !notebooksExpanded && '-rotate-90'
+              )}
+            />
           </div>
         </div>
-        <div className="sb-section-body">
+
+        <div className={clsx(!notebooksExpanded && 'hidden')}>
           {notebooks.map((notebook) => (
             <SidebarCuaderno
               key={notebook.id}
@@ -66,33 +72,31 @@ export function SidebarSections() {
         </div>
       </div>
 
-      <div className="sb-section">
-        <div className="sb-section-hdr">
-          <span className="sb-section-title">{t('dashboard.sidebar.recent')}</span>
-          <IconChevron className="chevron" />
+      <div className="mb-0.5">
+        <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 cursor-pointer select-none">
+          <span className="text-[11.5px] font-medium text-llama-fg-5 tracking-wide">{t('dashboard.sidebar.recent')}</span>
+          <IconChevron className="chevron w-3 h-3 stroke-llama-fg-5" />
         </div>
-        <div className="sb-section-body">
+
+        <div>
           {recentChatGroups.map((group) => {
             const visibleChats = group.chats.filter((chat) => filteredChats(chat.title))
             if (visibleChats.length === 0) return null
             return (
               <div key={group.label}>
-                <div style={{ padding: group.label === 'today' ? '2px 0 4px' : '8px 0 4px' }}>
-                  <span
-                    style={{
-                      fontSize: '10.5px',
-                      color: 'var(--fg-5)',
-                      padding: '0 8px',
-                      fontWeight: 500,
-                    }}
-                  >
+                <div className={clsx('px-2', group.label === 'today' ? 'py-0.5 pb-1' : 'pt-2 pb-1')}>
+                  <span className="text-[10.5px] font-medium text-llama-fg-5 px-2">
                     {t(`dashboard.sidebar.${group.label}`)}
                   </span>
                 </div>
                 {visibleChats.map((chat) => (
                   <button
                     key={chat.id}
-                    className={clsx('sb-chat', currentChatId === chat.id && 'active')}
+                    className={clsx(
+                      'sb-chat block w-full py-[7px] px-2.5 rounded-lg text-llama-fg-3 text-[13.5px] font-normal text-left transition-colors duration-100 whitespace-nowrap overflow-hidden text-ellipsis leading-[1.4]',
+                      'hover:bg-llama-sidebar-hover hover:text-llama-fg-2',
+                      currentChatId === chat.id && 'bg-llama-sidebar-active text-llama-fg active-indicator'
+                    )}
                     onClick={(e) => {
                       e.stopPropagation()
                       openChat(chat.id)

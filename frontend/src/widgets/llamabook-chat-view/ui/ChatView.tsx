@@ -3,7 +3,6 @@ import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
 import { MessageList } from './MessageList'
 import { ScrollButton } from './ScrollButton'
-import './ChatView.css'
 
 export function ChatView() {
   const { currentView } = useLlamabookDashboard()
@@ -34,10 +33,15 @@ export function ChatView() {
   return (
     <div
       ref={containerRef}
-      className={clsx('chat-view view', currentView === 'chat' && 'active')}
+      className={clsx(
+        'absolute inset-0 flex-col min-h-0 overflow-hidden',
+        currentView === 'chat' ? 'flex' : 'hidden'
+      )}
       onScroll={handleScroll}
     >
-      <MessageList />
+      <div className="flex-1 overflow-y-auto">
+        <MessageList />
+      </div>
       <ScrollButton visible={showScroll} onClick={scrollToBottom} />
     </div>
   )

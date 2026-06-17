@@ -7,9 +7,6 @@ import { DashboardView } from '@/widgets/llamabook-dashboard-view'
 import { ChatView } from '@/widgets/llamabook-chat-view'
 import { LlamabookDock } from '@/widgets/llamabook-dock'
 import { StatusBar } from '@/widgets/llamabook-status-bar'
-import '@/app/styles/llamabook-base.css'
-import '@/app/styles/llamabook-theme.css'
-import './LlamabookDashboard.css'
 
 function DashboardContent() {
   const { sidebarOpen, mobileSidebarOpen, closeMobileSidebar } = useLlamabookDashboard()
@@ -25,25 +22,43 @@ function DashboardContent() {
   }, [closeMobileSidebar])
 
   return (
-    <div className={clsx('llamabook-app', !sidebarOpen && 'sidebar-closed')}>
-      <div
-        className={clsx('llamabook-sidebar', mobileSidebarOpen && 'mobile-open')}
+    <div
+      className={clsx(
+        'grid h-dvh transition-[grid-template-columns] duration-200 ease-out',
+        'grid-cols-[0_1fr]',
+        sidebarOpen ? 'md:grid-cols-[var(--sidebar-w)_1fr]' : 'md:grid-cols-[0_1fr]'
+      )}
+    >
+      <aside
+        className={clsx(
+          'bg-llama-sidebar flex flex-col overflow-hidden min-w-0 h-dvh',
+          'fixed left-0 top-0 z-[60] w-[var(--sidebar-w)] -translate-x-full transition-transform duration-200 ease-out',
+          'md:static md:translate-x-0',
+          mobileSidebarOpen && 'translate-x-0'
+        )}
       >
-        <LlamabookSidebar />
-      </div>
+        <div className="min-w-[var(--sidebar-w)] flex flex-col h-full">
+          <LlamabookSidebar />
+        </div>
+      </aside>
 
       <div
-        className={clsx('mobile-overlay', mobileSidebarOpen && 'visible')}
+        className={clsx(
+          'fixed inset-0 z-[59] bg-black/45 opacity-0 pointer-events-none transition-opacity duration-150 md:hidden',
+          mobileSidebarOpen && 'opacity-100 pointer-events-auto'
+        )}
         onClick={closeMobileSidebar}
       />
 
-      <div className="llamabook-main">
+      <main className="flex flex-col min-w-0 bg-llama-bg overflow-hidden h-dvh">
         <LlamabookHeader />
-        <DashboardView />
-        <ChatView />
+        <div className="flex-1 min-h-0 relative">
+          <DashboardView />
+          <ChatView />
+        </div>
         <LlamabookDock />
         <StatusBar />
-      </div>
+      </main>
     </div>
   )
 }

@@ -5,11 +5,16 @@ import { useLlamabookDashboard } from '@/app/providers'
 import { iconsByToolId, iconsByActionId, IconCheck } from '@/shared/ui/icons'
 import { attachItems, toolItems } from '../model/data'
 import { toolColors, toolIconBackgrounds } from '../model/consts'
-import './PlusPopup.css'
 
 interface PlusPopupProps {
   open: boolean
   onClose: () => void
+}
+
+const iconColorByAction: Record<string, string> = {
+  upload: 'text-llama-fg-3 bg-white/[0.05]',
+  drive: 'text-[#4ade80] bg-[rgba(34,197,94,0.1)]',
+  link: 'text-[#818cf8] bg-[rgba(99,102,241,0.1)]',
 }
 
 export function PlusPopup({ open, onClose }: PlusPopupProps) {
@@ -29,29 +34,39 @@ export function PlusPopup({ open, onClose }: PlusPopupProps) {
   }, [open, onClose])
 
   return (
-    <div ref={ref} className={clsx('plus-popup', open && 'open')}>
-      <div className="plus-popup-section">
-        <div className="plus-popup-label">{t('dashboard.dock.attachSection.title')}</div>
+    <div
+      ref={ref}
+      className={clsx(
+        'plus-popup absolute bottom-[calc(100%+8px)] left-0 w-[calc(100vw-32px)] sm:w-[280px] max-w-[320px] bg-llama-surface-2 border border-llama-border-2 rounded-xl p-1.5 z-50',
+        'max-h-[360px] overflow-y-auto opacity-0 pointer-events-none transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)] shadow-[0_8px_30px_rgba(0,0,0,0.4)] origin-bottom-left',
+        open && 'opacity-100 pointer-events-auto scale-100 translate-y-0',
+        !open && 'scale-[0.97] translate-y-1.5'
+      )}
+    >
+      <div className="plus-popup-section mb-0.5">
+        <div className="plus-popup-label text-[10.5px] font-medium text-llama-fg-5 px-2.5 pt-1.5 pb-1 tracking-wide uppercase">
+          {t('dashboard.dock.attachSection.title')}
+        </div>
         {attachItems.map((item) => {
           const Icon = iconsByActionId[item.id]
           return (
             <button
               key={item.id}
-              className="plus-popup-item"
+              className="plus-popup-item flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-[13px] font-normal text-llama-fg-2 text-left transition-colors duration-100 cursor-pointer hover:bg-white/[0.06] hover:text-llama-fg"
               onClick={(e) => {
                 e.stopPropagation()
                 if (item.id === 'upload') attachFile()
                 onClose()
               }}
             >
-              <div className={clsx('plus-popup-icon', item.id)}>
-                <Icon />
+              <div className={clsx('plus-popup-icon w-[30px] h-[30px] rounded-lg flex items-center justify-center shrink-0', iconColorByAction[item.id])}>
+                <Icon className="w-4 h-4 stroke-2" />
               </div>
-              <div className="plus-popup-item-text">
-                <div className="plus-popup-item-title">
+              <div className="plus-popup-item-text flex-1 min-w-0">
+                <div className="plus-popup-item-title text-[13px] font-normal leading-tight">
                   {t(`dashboard.dock.attachSection.${item.id}`)}
                 </div>
-                <div className="plus-popup-item-desc">
+                <div className="plus-popup-item-desc text-[11px] text-llama-fg-4 font-light leading-tight mt-px">
                   {t(`dashboard.dock.attachSection.${item.id}Desc`)}
                 </div>
               </div>
@@ -59,40 +74,49 @@ export function PlusPopup({ open, onClose }: PlusPopupProps) {
           )
         })}
       </div>
-      <div className="plus-popup-sep" />
-      <div className="plus-popup-section">
-        <div className="plus-popup-label">{t('dashboard.dock.toolsSection.title')}</div>
+
+      <div className="plus-popup-sep h-px bg-llama-border my-1 mx-2.5" />
+
+      <div className="plus-popup-section mb-0.5">
+        <div className="plus-popup-label text-[10.5px] font-medium text-llama-fg-5 px-2.5 pt-1.5 pb-1 tracking-wide uppercase">
+          {t('dashboard.dock.toolsSection.title')}
+        </div>
         {toolItems.map((item) => {
           const Icon = iconsByToolId[item.id]
           const isActive = activeTools.has(item.id)
           return (
             <button
               key={item.id}
-              className="plus-popup-item"
+              className="plus-popup-item flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-[13px] font-normal text-llama-fg-2 text-left transition-colors duration-100 cursor-pointer hover:bg-white/[0.06] hover:text-llama-fg"
               onClick={(e) => {
                 e.stopPropagation()
                 toggleTool(item.id)
               }}
             >
               <div
-                className={clsx('plus-popup-icon', item.id)}
+                className="plus-popup-icon w-[30px] h-[30px] rounded-lg flex items-center justify-center shrink-0"
                 style={{
                   background: toolIconBackgrounds[item.id],
                   color: toolColors[item.id],
                 }}
               >
-                <Icon />
+                <Icon className="w-4 h-4 stroke-2" />
               </div>
-              <div className="plus-popup-item-text">
-                <div className="plus-popup-item-title">
+              <div className="plus-popup-item-text flex-1 min-w-0">
+                <div className="plus-popup-item-title text-[13px] font-normal leading-tight">
                   {t(`dashboard.dock.tools.${item.id}`)}
                 </div>
-                <div className="plus-popup-item-desc">
+                <div className="plus-popup-item-desc text-[11px] text-llama-fg-4 font-light leading-tight mt-px">
                   {t(`dashboard.dock.tools.${item.id}Desc`)}
                 </div>
               </div>
-              <div className={clsx('plus-popup-item-check', isActive && 'on')}>
-                <IconCheck />
+              <div
+                className={clsx(
+                  'plus-popup-item-check w-4 h-4 rounded border-[1.5px] border-llama-border-2 flex items-center justify-center shrink-0 transition-colors duration-150',
+                  isActive && 'bg-llama-accent border-llama-accent'
+                )}
+              >
+                <IconCheck className={clsx('w-2.5 h-2.5 stroke-white stroke-[3] opacity-0 transition-opacity duration-100', isActive && 'opacity-100')} />
               </div>
             </button>
           )
