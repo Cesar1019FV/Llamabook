@@ -14,9 +14,82 @@
       "closeSidebar": "Close sidebar",
       "search": "Search",
       "newNotebook": "New notebook",
+      "notebooksMenu": "Notebooks",
+      "agents": "Agents",
+      "noNotebooks": "No notebooks",
+      "noNotebookChats": "No chats yet",
       "profile": {
         "name": "Mira",
         "plan": "Pro"
+      }
+    },
+    "profile": {
+      "menu": "User menu",
+      "settings": "Settings",
+      "language": "Language",
+      "logout": "Log out"
+    },
+    "settings": {
+      "title": "Settings",
+      "close": "Close settings",
+      "sections": {
+        "general": "General"
+      },
+      "profile": {
+        "title": "Profile",
+        "fullName": "Full name"
+      },
+      "preferences": {
+        "title": "Preferences",
+        "language": "Language",
+        "appearance": "Appearance",
+        "themes": {
+          "system": "System",
+          "light": "Light",
+          "dark": "Dark"
+        }
+      }
+    },
+    "createNotebook": {
+      "title": "Create notebook",
+      "close": "Close",
+      "nameLabel": "Notebook name",
+      "placeholder": "My notebook",
+      "hint": "Notebooks group chats, files and custom instructions to keep everything organized.",
+      "create": "Create notebook"
+    },
+    "notebooksList": {
+      "title": "Notebooks",
+      "searchPlaceholder": "Search notebooks",
+      "create": "Create",
+      "tabs": {
+        "all": "All",
+        "shared": "Shared"
+      },
+      "columns": {
+        "name": "Name",
+        "modified": "Modified"
+      },
+      "recently": "Recently",
+      "empty": {
+        "title": "No notebooks",
+        "description": "Create a notebook to organize your chats and files."
+      }
+    },
+    "notebookDetail": {
+      "notFound": "Notebook not found",
+      "back": "Back",
+      "chatsCount": "chats",
+      "chatsCount_one": "chat",
+      "newChat": "New chat in {{name}}",
+      "recently": "Recently",
+      "tabs": {
+        "chats": "Chats",
+        "sources": "Sources"
+      },
+      "empty": {
+        "title": "No chats yet",
+        "description": "Start a new chat in {{name}} to begin."
       }
     },
     "header": {
@@ -27,24 +100,17 @@
       "modelPopup": {
         "label": "Models"
       },
-      "models": {
-        "llamabook-pro": {
-          "name": "Llamabook Pro",
-          "desc": "Advanced model, superior reasoning"
-        },
-        "kimi": {
-          "name": "Kimi",
-          "desc": "Long context, deep research"
-        },
-        "minimax": {
-          "name": "MiniMax",
-          "desc": "Fast, multimodal, efficient"
-        },
-        "gemma": {
-          "name": "Gemma",
-          "desc": "Open source, lightweight and precise"
-        }
-      }
+      "modelSearchPlaceholder": "Search a model",
+      "modelSearchEmpty": "No models found for \"{{query}}\"",
+      "modelEmpty": "No models available",
+      "modelTabs": {
+        "all": "All",
+        "external": "External"
+      },
+      "modelProvider": {
+        "local": "Local"
+      },
+      "models": {}
     },
     "dashboardView": {
       "greeting": {

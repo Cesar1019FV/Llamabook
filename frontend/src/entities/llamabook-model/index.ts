@@ -1,2 +1,2 @@
-export type { Model } from './model/types'
-export { LlamabookModel, availableModels } from './model/data'
+export type { Model, ModelProvider } from './model/types'
+export { defaultModel, availableModels } from './model/data'

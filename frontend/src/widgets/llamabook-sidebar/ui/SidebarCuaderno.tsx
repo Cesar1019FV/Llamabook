@@ -1,34 +1,48 @@
+import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
 import type { Notebook } from '@/entities/llamabook-notebook'
+
+const MAX_VISIBLE_CHATS = 5
 
 interface SidebarCuadernoProps {
   notebook: Notebook
   activeChatId: string | null
 }
 
+function NotebookAvatar({ name, color }: { name: string; color: string }) {
+  const initial = name.charAt(0).toUpperCase()
+  return (
+    <div
+      className="w-[18px] h-[18px] rounded-md flex items-center justify-center text-[10px] font-semibold shrink-0 text-white"
+      style={{ background: color }}
+      aria-hidden="true"
+    >
+      {initial}
+    </div>
+  )
+}
+
 export function SidebarCuaderno({ notebook, activeChatId }: SidebarCuadernoProps) {
-  const { expandedNotebooks, toggleNotebook, openChat, currentChatId } = useLlamabookDashboard()
+  const { t } = useTranslation()
+  const { expandedNotebooks, openChat, currentChatId, showNotebookDetail } = useLlamabookDashboard()
   const expanded = expandedNotebooks.has(notebook.id)
   const isActive = currentChatId === notebook.id
+  const visibleChats = notebook.chats.slice(0, MAX_VISIBLE_CHATS)
+  const hasChats = visibleChats.length > 0
 
   return (
     <>
       <div
         className={clsx(
-          'sb-cuaderno flex items-center gap-2 w-full py-[7px] px-2.5 rounded-lg text-llama-fg-3 text-[13.5px] font-normal text-left transition-colors duration-100 cursor-pointer',
+          'sb-cuaderno flex items-center gap-2 w-full min-w-0 py-[7px] px-2.5 rounded-lg text-llama-fg-3 text-[13.5px] font-normal text-left transition-colors duration-100 cursor-pointer',
           'hover:bg-llama-sidebar-hover hover:text-llama-fg-2',
           isActive && 'bg-llama-sidebar-active text-llama-fg'
         )}
-        onClick={() => toggleNotebook(notebook.id)}
+        onClick={() => showNotebookDetail(notebook.id)}
       >
-        <div
-          className="sb-cuaderno-icon w-[18px] h-[18px] rounded flex items-center justify-center text-[11px] font-semibold shrink-0 text-white"
-          style={{ background: notebook.color }}
-        >
-          {notebook.emoji}
-        </div>
-        <span className="sb-cuaderno-name flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{notebook.name}</span>
+        <NotebookAvatar name={notebook.name} color={notebook.color} />
+        <span className="sb-cuaderno-name flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{notebook.name}</span>
         <span className="sb-cuaderno-count text-[11px] text-llama-fg-5 shrink-0">{notebook.chats.length}</span>
       </div>
 
@@ -39,22 +53,28 @@ export function SidebarCuaderno({ notebook, activeChatId }: SidebarCuadernoProps
         )}
         style={{ maxHeight: expanded ? 200 : 0 }}
       >
-        {notebook.chats.map((chat, idx) => (
-          <button
-            key={`${notebook.id}-${idx}`}
-            className={clsx(
-              'sb-cuaderno-chat block w-full py-[5px] px-2.5 rounded-md text-llama-fg-4 text-[12.5px] font-normal text-left transition-colors duration-100 whitespace-nowrap overflow-hidden text-ellipsis',
-              'hover:bg-llama-sidebar-hover hover:text-llama-fg-2',
-              activeChatId === chat && 'text-llama-fg bg-llama-sidebar-active'
-            )}
-            onClick={(e) => {
-              e.stopPropagation()
-              openChat(chat)
-            }}
-          >
-            {chat}
-          </button>
-        ))}
+        {hasChats ? (
+          visibleChats.map((chat, idx) => (
+              <button
+                key={`${notebook.id}-${idx}`}
+                className={clsx(
+                  'sb-cuaderno-chat block w-full min-w-0 py-[5px] px-2.5 rounded-md text-llama-fg-4 text-[12.5px] font-normal text-left transition-colors duration-100 whitespace-nowrap overflow-hidden text-ellipsis',
+                  'hover:bg-llama-sidebar-hover hover:text-llama-fg-2',
+                  activeChatId === chat && 'text-llama-fg bg-llama-sidebar-active'
+                )}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  openChat(chat)
+                }}
+              >
+                {chat}
+              </button>
+          ))
+        ) : (
+          <div className="py-[5px] px-2.5 text-[12px] text-llama-fg-5 italic">
+            {t('dashboard.sidebar.noNotebookChats')}
+          </div>
+        )}
       </div>
     </>
   )

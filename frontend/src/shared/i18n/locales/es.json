@@ -14,9 +14,82 @@
       "closeSidebar": "Cerrar sidebar",
       "search": "Buscar",
       "newNotebook": "Nuevo cuaderno",
+      "notebooksMenu": "Cuadernos",
+      "agents": "Agentes",
+      "noNotebooks": "Sin cuadernos",
+      "noNotebookChats": "No hay chats aun",
       "profile": {
         "name": "Mira",
         "plan": "Pro"
+      }
+    },
+    "profile": {
+      "menu": "Menu de usuario",
+      "settings": "Configuracion",
+      "language": "Idioma",
+      "logout": "Cerrar sesion"
+    },
+    "settings": {
+      "title": "Configuracion",
+      "close": "Cerrar configuracion",
+      "sections": {
+        "general": "General"
+      },
+      "profile": {
+        "title": "Perfil",
+        "fullName": "Nombre completo"
+      },
+      "preferences": {
+        "title": "Preferencias",
+        "language": "Idioma",
+        "appearance": "Apariencia",
+        "themes": {
+          "system": "Sistema",
+          "light": "Claro",
+          "dark": "Oscuro"
+        }
+      }
+    },
+    "createNotebook": {
+      "title": "Crear cuaderno",
+      "close": "Cerrar",
+      "nameLabel": "Nombre del cuaderno",
+      "placeholder": "Mi cuaderno",
+      "hint": "Los cuadernos agrupan chats, archivos e instrucciones personalizadas para mantener todo organizado.",
+      "create": "Crear cuaderno"
+    },
+    "notebooksList": {
+      "title": "Cuadernos",
+      "searchPlaceholder": "Buscar cuadernos",
+      "create": "Crear",
+      "tabs": {
+        "all": "Todos",
+        "shared": "Compartidos"
+      },
+      "columns": {
+        "name": "Nombre",
+        "modified": "Modificado"
+      },
+      "recently": "Recientemente",
+      "empty": {
+        "title": "Sin cuadernos",
+        "description": "Crea un cuaderno para organizar tus chats y archivos."
+      }
+    },
+    "notebookDetail": {
+      "notFound": "Cuaderno no encontrado",
+      "back": "Volver",
+      "chatsCount": "chats",
+      "chatsCount_one": "chat",
+      "newChat": "Nuevo chat en {{name}}",
+      "recently": "Recientemente",
+      "tabs": {
+        "chats": "Chats",
+        "sources": "Fuentes"
+      },
+      "empty": {
+        "title": "Sin chats aun",
+        "description": "Empieza un nuevo chat en {{name}} para comenzar."
       }
     },
     "header": {
@@ -27,24 +100,17 @@
       "modelPopup": {
         "label": "Modelos"
       },
-      "models": {
-        "llamabook-pro": {
-          "name": "Llamabook Pro",
-          "desc": "Modelo avanzado, razonamiento superior"
-        },
-        "kimi": {
-          "name": "Kimi",
-          "desc": "Contexto largo, investigacion profunda"
-        },
-        "minimax": {
-          "name": "MiniMax",
-          "desc": "Rapido, multimodal, eficiente"
-        },
-        "gemma": {
-          "name": "Gemma",
-          "desc": "Open source, ligero y preciso"
-        }
-      }
+      "modelSearchPlaceholder": "Buscar un modelo",
+      "modelSearchEmpty": "No se encontraron modelos para \"{{query}}\"",
+      "modelEmpty": "No hay modelos disponibles",
+      "modelTabs": {
+        "all": "Todos",
+        "external": "Externo"
+      },
+      "modelProvider": {
+        "local": "Local"
+      },
+      "models": {}
     },
     "dashboardView": {
       "greeting": {

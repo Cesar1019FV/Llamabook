@@ -5,8 +5,7 @@ export const initialNotebooks: Notebook[] = [
   {
     id: 'infra',
     name: 'Infraestructura',
-    emoji: '⚙',
-    color: 'rgba(99,102,241,0.2)',
+    color: 'rgba(99,102,241,0.35)',
     chats: [
       'Arquitectura de caché',
       'API Gateway patterns',
@@ -17,15 +16,13 @@ export const initialNotebooks: Notebook[] = [
   {
     id: 'ml',
     name: 'Machine Learning',
-    emoji: '🧠',
-    color: 'rgba(244,114,182,0.2)',
+    color: 'rgba(244,114,182,0.35)',
     chats: ['Transformer fine-tuning', 'Dataset augmentation', 'Helm charts prod'],
   },
   {
     id: 'devops',
     name: 'DevOps',
-    emoji: '🚀',
-    color: 'rgba(34,197,94,0.2)',
+    color: 'rgba(34,197,94,0.35)',
     chats: ['CI/CD GitHub Actions', 'Prometheus + Grafana'],
   },
 ]
