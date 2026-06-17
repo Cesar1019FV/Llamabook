@@ -1,0 +1,46 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "edit": "allow",
+    "bash": {
+      "*": "ask",
+      "git status": "allow",
+      "git log *": "allow",
+      "git diff *": "allow",
+      "git branch *": "allow",
+      "git fetch": "allow",
+      "git checkout *": "ask",
+      "git add *": "ask",
+      "git commit *": "deny",
+      "git push *": "deny",
+      "git pull": "ask",
+      "yarn install": "allow",
+      "yarn add *": "ask",
+      "yarn remove *": "ask",
+      "yarn run *": "allow",
+      "yarn test": "allow",
+      "yarn build": "allow",
+      "yarn dev": "deny",
+      "yarn lint": "allow",
+      "yarn format": "ask",
+      "npx *": "ask",
+      "node *": "ask",
+      "python *": "ask",
+      "pip *": "ask",
+      "rm *": "allow",
+      "del *": "allow",
+      "rmdir *": "allow",
+      "mkdir *": "allow",
+      "New-Item *": "allow",
+      "Remove-Item *": "ask",
+      "Set-Content *": "ask",
+      "Out-File *": "ask",
+      "docker *": "ask",
+      "gh *": "ask",
+      "npm *": "deny"
+    },
+    "external_directory": {
+      "*": "ask"
+    }
+  }
+}

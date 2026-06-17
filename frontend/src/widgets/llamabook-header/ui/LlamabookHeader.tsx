@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
@@ -7,33 +6,18 @@ import { ModelSelector } from './ModelSelector'
 
 export function LlamabookHeader() {
   const { t } = useTranslation()
-  const {
-    currentView,
-    toggleSidebar,
-    openMobileSidebar,
-    showDashboard,
-  } = useLlamabookDashboard()
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
+  const { currentView, toggleSidebar, openMobileSidebar, showDashboard } = useLlamabookDashboard()
 
   return (
     <header className="h-12 flex items-center px-4 md:px-5 border-b border-llama-border shrink-0 relative">
       <div className="h-left flex items-center gap-1">
-        {isMobile && (
-          <button
-            className="h-btn w-8 h-8 flex items-center justify-center rounded-md text-llama-fg-3 transition-colors duration-150 hover:bg-llama-surface hover:text-llama-fg"
-            onClick={openMobileSidebar}
-            aria-label={t('dashboard.header.menu')}
-          >
-            <IconMenu className="w-[18px] h-[18px] stroke-[1.8]" />
-          </button>
-        )}
+        <button
+          className="h-btn md:hidden w-8 h-8 flex items-center justify-center rounded-md text-llama-fg-3 transition-colors duration-150 hover:bg-llama-surface hover:text-llama-fg"
+          onClick={openMobileSidebar}
+          aria-label={t('dashboard.header.menu')}
+        >
+          <IconMenu className="w-[18px] h-[18px] stroke-[1.8]" />
+        </button>
         <button
           className="h-btn w-8 h-8 flex items-center justify-center rounded-md text-llama-fg-3 transition-colors duration-150 hover:bg-llama-surface hover:text-llama-fg"
           onClick={toggleSidebar}

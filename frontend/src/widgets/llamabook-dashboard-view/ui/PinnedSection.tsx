@@ -12,7 +12,7 @@ export function PinnedSection() {
         <span className="dash-section-title text-[13px] font-medium text-llama-fg-3">{t('dashboard.dashboardView.sections.pinned')}</span>
       </div>
 
-      <div className="cards-grid grid grid-cols-1 sm:grid-cols-2 lg:[grid-template-columns:repeat(auto-fill,minmax(200px,1fr))] gap-1.5">
+      <div className="cards-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-1.5">
         {pinnedItems.map((item) => (
           <button
             key={item.id}

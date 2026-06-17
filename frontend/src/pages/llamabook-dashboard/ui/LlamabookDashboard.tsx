@@ -22,19 +22,22 @@ function DashboardContent() {
   }, [closeMobileSidebar])
 
   return (
-    <div
-      className={clsx(
-        'grid h-dvh transition-[grid-template-columns] duration-200 ease-out',
-        'grid-cols-[0_1fr]',
-        sidebarOpen ? 'md:grid-cols-[var(--sidebar-w)_1fr]' : 'md:grid-cols-[0_1fr]'
-      )}
-    >
+    <div className="relative flex h-dvh overflow-hidden bg-llama-bg">
       <aside
         className={clsx(
-          'bg-llama-sidebar flex flex-col overflow-hidden min-w-0 h-dvh',
-          'fixed left-0 top-0 z-[60] w-[var(--sidebar-w)] -translate-x-full transition-transform duration-200 ease-out',
-          'md:static md:translate-x-0',
-          mobileSidebarOpen && 'translate-x-0'
+          'hidden md:flex flex-col overflow-hidden bg-llama-sidebar h-dvh shrink-0 transition-[width] duration-200 ease-out',
+          sidebarOpen ? 'w-[var(--sidebar-w)]' : 'w-0'
+        )}
+      >
+        <div className="min-w-[var(--sidebar-w)] flex flex-col h-full">
+          <LlamabookSidebar />
+        </div>
+      </aside>
+
+      <aside
+        className={clsx(
+          'md:hidden fixed left-0 top-0 z-[60] h-dvh w-[var(--sidebar-w)] bg-llama-sidebar transition-transform duration-200 ease-out',
+          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="min-w-[var(--sidebar-w)] flex flex-col h-full">
@@ -44,13 +47,13 @@ function DashboardContent() {
 
       <div
         className={clsx(
-          'fixed inset-0 z-[59] bg-black/45 opacity-0 pointer-events-none transition-opacity duration-150 md:hidden',
-          mobileSidebarOpen && 'opacity-100 pointer-events-auto'
+          'md:hidden fixed inset-0 z-[59] bg-black/45 transition-opacity duration-150',
+          mobileSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         )}
         onClick={closeMobileSidebar}
       />
 
-      <main className="flex flex-col min-w-0 bg-llama-bg overflow-hidden h-dvh">
+      <main className="flex flex-col min-w-0 flex-1 h-dvh overflow-hidden">
         <LlamabookHeader />
         <div className="flex-1 min-h-0 relative">
           <DashboardView />
