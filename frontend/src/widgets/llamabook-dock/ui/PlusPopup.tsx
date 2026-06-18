@@ -29,19 +29,20 @@ export function PlusPopup({ open, onClose }: PlusPopupProps) {
         onClose()
       }
     }
-    document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
+    document.addEventListener('click', onClick, true)
+    return () => document.removeEventListener('click', onClick, true)
   }, [open, onClose])
 
   return (
     <div
       ref={ref}
       className={clsx(
-        'plus-popup absolute bottom-[calc(100%+8px)] left-0 w-[calc(100vw-32px)] sm:w-[280px] max-w-[320px] bg-llama-surface-2 border border-llama-border-2 rounded-xl p-1.5 z-50',
-        'max-h-[360px] overflow-y-auto opacity-0 pointer-events-none transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)] shadow-[0_8px_30px_rgba(0,0,0,0.4)] origin-bottom-left',
+        'plus-popup absolute bottom-[calc(100%+8px)] left-0 w-[calc(100vw-32px)] sm:w-[300px] max-w-[340px] bg-llama-surface-2 border border-llama-border-2 rounded-xl p-1.5 z-50',
+        'max-h-[420px] overflow-y-auto opacity-0 transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)] shadow-[0_8px_30px_rgba(0,0,0,0.4)] origin-bottom-left',
         open && 'opacity-100 pointer-events-auto scale-100 translate-y-0',
-        !open && 'scale-[0.97] translate-y-1.5'
+        !open && 'pointer-events-none scale-[0.97] translate-y-1.5'
       )}
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="plus-popup-section mb-0.5">
         <div className="plus-popup-label text-[10.5px] font-medium text-llama-fg-5 px-2.5 pt-1.5 pb-1 tracking-wide uppercase">

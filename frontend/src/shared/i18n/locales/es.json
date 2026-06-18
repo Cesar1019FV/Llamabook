@@ -21,6 +21,10 @@
       "agents": "Agentes",
       "newAgent": "Nuevo agente",
       "noAgents": "Sin agentes",
+      "pdfChat": "Chat con PDF",
+      "library": "Biblioteca",
+      "newPDF": "Subir PDF",
+      "noPDFs": "Sin PDFs",
       "profile": {
         "name": "Mira",
         "plan": "Pro"
@@ -70,6 +74,7 @@
       "descriptionPlaceholder": "Descripcion breve del agente",
       "contextLabel": "Contexto",
       "contextPlaceholder": "Eres un experto en...",
+      "upload": "Subir archivo",
       "hint": "Los agentes son chats con un contexto o prompt personalizado que guia sus respuestas.",
       "create": "Crear agente"
     },
@@ -100,7 +105,14 @@
       "recently": "Recientemente",
       "tabs": {
         "chats": "Chats",
-        "sources": "Fuentes"
+        "sources": "Fuentes",
+        "context": "Contexto"
+      },
+      "context": {
+        "title": "Contexto del cuaderno",
+        "placeholder": "Escribe el contexto o instrucciones para los chats de este cuaderno...",
+        "save": "Guardar contexto",
+        "upload": "Subir archivo"
       },
       "empty": {
         "title": "Sin chats aun",
@@ -131,6 +143,67 @@
       "empty": {
         "title": "Sin chats aun",
         "description": "Inicia un chat con {{name}} para comenzar."
+      }
+    },
+    "uploadPDF": {
+      "title": "Subir PDF",
+      "close": "Cerrar",
+      "drop": "Arrastra PDFs aqui",
+      "or": "o",
+      "browse": "Seleccionar archivos",
+      "hint": "Sube un PDF para chatear con su contenido o redactar un documento.",
+      "mergeWarning": "Los PDFs seleccionados se combinaran en un unico PDF al subirlos.",
+      "removeFile": "Quitar archivo",
+      "cancel": "Cancelar",
+      "upload": "Subir PDF",
+      "mergeUpload": "Subir PDF combinado"
+    },
+    "pdfChatList": {
+      "title": "Chat con PDF",
+      "searchPlaceholder": "Buscar PDFs",
+      "upload": "Subir PDF",
+      "empty": {
+        "title": "Sin PDFs",
+        "description": "Sube un PDF para empezar a chatear con el."
+      }
+    },
+    "pdfChatDetail": {
+      "notFound": "PDF no encontrado",
+      "back": "Volver",
+      "newChat": "Nuevo chat",
+      "chats": "Chats",
+      "documents": "Documentos",
+      "startChat": "Chatear con {{name}}",
+      "draftDoc": "Redactar documento",
+      "startDraft": "Redactar",
+      "collapsePreview": "Ocultar PDF",
+      "showPreview": "Mostrar PDF",
+      "loadingPreview": "Cargando vista previa...",
+      "previewError": "No se pudo cargar la vista previa.",
+      "placeholderPreview": "Vista previa del PDF",
+      "prevPage": "Pagina anterior",
+      "nextPage": "Pagina siguiente",
+      "empty": {
+        "title": "Sin chats aun",
+        "description": "Empieza un nuevo chat sobre este PDF."
+      },
+      "emptyDocs": "Aun no hay documentos generados a partir de este PDF."
+    },
+    "canvas": {
+      "untitled": "Documento sin titulo",
+      "exportPDF": "Exportar PDF",
+      "exportDOCX": "Exportar DOCX",
+      "close": "Cerrar canvas",
+      "aiWriting": "La IA esta redactando...",
+      "placeholder": "Empieza a escribir o pide a la IA que redacte..."
+    },
+    "library": {
+      "title": "Biblioteca",
+      "searchPlaceholder": "Buscar documentos",
+      "newDoc": "Nuevo documento",
+      "empty": {
+        "title": "Sin documentos",
+        "description": "Los documentos que generes apareceran aqui."
       }
     },
     "header": {

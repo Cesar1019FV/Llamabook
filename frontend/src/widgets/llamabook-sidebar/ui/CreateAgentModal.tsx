@@ -3,15 +3,17 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
 import { newAgentAvatars, newNotebookColors } from '@/widgets/llamabook-sidebar'
-import { IconClose, IconPlus, IconLightbulb, IconWorkspace } from '@/shared/ui/icons'
+import { IconClose, IconPlus, IconLightbulb, IconWorkspace, IconFileUpload } from '@/shared/ui/icons'
 
 export function CreateAgentModal() {
   const { t } = useTranslation()
   const { createAgentModalOpen, closeCreateAgentModal, addAgent } = useLlamabookDashboard()
   const nameRef = useRef<HTMLInputElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [context, setContext] = useState('')
+  const [uploadedName, setUploadedName] = useState('')
   const [avatarIndex, setAvatarIndex] = useState(0)
   const [colorIndex, setColorIndex] = useState(0)
 
@@ -20,10 +22,34 @@ export function CreateAgentModal() {
     setName('')
     setDescription('')
     setContext('')
+    setUploadedName('')
     setAvatarIndex(Math.floor(Math.random() * newAgentAvatars.length))
     setColorIndex(Math.floor(Math.random() * newNotebookColors.length))
     setTimeout(() => nameRef.current?.focus(), 0)
   }, [createAgentModalOpen])
+
+  const readTextFile = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const text = typeof reader.result === 'string' ? reader.result : ''
+      setContext(text)
+      setUploadedName(file.name)
+    }
+    reader.readAsText(file)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    readTextFile(file)
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files?.[0]
+    if (!file) return
+    readTextFile(file)
+  }
 
   const handleSubmit = () => {
     const trimmedName = name.trim()
@@ -39,7 +65,9 @@ export function CreateAgentModal() {
     setName('')
     setDescription('')
     setContext('')
+    setUploadedName('')
   }
+
 
   if (!createAgentModalOpen) return null
 
@@ -90,18 +118,39 @@ export function CreateAgentModal() {
         </div>
 
         <label className="block text-[13px] text-llama-fg-2 mb-2">{t('dashboard.createAgent.contextLabel')}</label>
-        <textarea
-          value={context}
-          onChange={(e) => setContext(e.target.value)}
-          placeholder={t('dashboard.createAgent.contextPlaceholder')}
-          rows={4}
-          className="w-full px-3 py-2.5 rounded-xl bg-llama-surface border border-llama-border mb-4 text-[14px] text-llama-fg outline-none placeholder:text-llama-fg-5 focus:border-llama-border-2 resize-none"
-        />
+        <div
+          className="relative w-full mb-2"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleDrop}
+        >
+          <textarea
+            value={context}
+            onChange={(e) => setContext(e.target.value)}
+            placeholder={t('dashboard.createAgent.contextPlaceholder')}
+            rows={4}
+            className="w-full px-3 py-2.5 rounded-xl bg-llama-surface border border-llama-border text-[14px] text-llama-fg outline-none placeholder:text-llama-fg-5 focus:border-llama-border-2 resize-none"
+          />
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".txt,.md,.json,.yaml,.yml,.csv,.xml,.html,.css,.js,.ts,.tsx,.py,.sh,.sql,.log,.env,.ini,.toml,.rst"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="absolute right-2 bottom-2 flex items-center gap-1.5 px-2 py-1 rounded-md bg-llama-surface-2 border border-llama-border text-[11px] text-llama-fg-3 hover:text-llama-fg hover:border-llama-border-2 transition-colors duration-100"
+          >
+            <IconFileUpload className="w-3.5 h-3.5" />
+            {uploadedName ? uploadedName : t('dashboard.createAgent.upload')}
+          </button>
+        </div>
 
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex flex-col gap-4 mb-4">
           <div>
             <span className="block text-[12px] text-llama-fg-3 mb-1.5">Avatar</span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-wrap">
               {newAgentAvatars.map((avatar, idx) => (
                 <button
                   key={avatar}
@@ -121,7 +170,7 @@ export function CreateAgentModal() {
           </div>
           <div>
             <span className="block text-[12px] text-llama-fg-3 mb-1.5">Color</span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-wrap">
               {newNotebookColors.map((color, idx) => (
                 <button
                   key={color}

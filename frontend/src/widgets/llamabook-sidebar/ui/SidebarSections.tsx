@@ -6,6 +6,7 @@ import { recentChatGroups } from '../model/data'
 import { SidebarCuaderno } from './SidebarCuaderno'
 
 import { SidebarAgentSection } from './SidebarAgentSection'
+import { SidebarPDFSection } from './SidebarPDFSection'
 
 export function SidebarSections() {
   const { t } = useTranslation()
@@ -65,6 +66,8 @@ export function SidebarSections() {
       </div>
 
       <SidebarAgentSection />
+
+      <SidebarPDFSection />
 
       <div className="mb-0.5">
         <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 cursor-pointer select-none">

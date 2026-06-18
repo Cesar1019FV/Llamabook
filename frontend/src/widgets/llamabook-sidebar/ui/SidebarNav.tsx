@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
-import { IconPlus, IconSearch, IconDocument, IconWorkspace } from '@/shared/ui/icons'
+import { IconPlus, IconSearch, IconDocument, IconWorkspace, IconPDF, IconLibrary } from '@/shared/ui/icons'
 
 interface NavItem {
   id: string
@@ -14,7 +14,7 @@ interface NavItem {
 
 export function SidebarNav() {
   const { t } = useTranslation()
-  const { currentView, showDashboard, showNotebooksList, showAgentsList } = useLlamabookDashboard()
+  const { currentView, showDashboard, showNotebooksList, showAgentsList, showPDFChatList, showLibrary } = useLlamabookDashboard()
 
   const items: NavItem[] = [
     {
@@ -45,6 +45,20 @@ export function SidebarNav() {
       variant: 'default',
       onClick: showAgentsList,
     },
+    {
+      id: 'pdf-chat',
+      labelKey: 'dashboard.sidebar.pdfChat',
+      icon: IconPDF,
+      variant: 'default',
+      onClick: showPDFChatList,
+    },
+    {
+      id: 'library',
+      labelKey: 'dashboard.sidebar.library',
+      icon: IconLibrary,
+      variant: 'default',
+      onClick: showLibrary,
+    },
   ]
 
   const isActive = currentView === 'dashboard'
@@ -58,7 +72,10 @@ export function SidebarNav() {
             (item.id === 'new-chat' && isActive) ||
             (item.id === 'notebooks' && currentView === 'notebooks-list') ||
             (item.id === 'workspace' &&
-              (currentView === 'agents-list' || currentView === 'agent-detail'))
+              (currentView === 'agents-list' || currentView === 'agent-detail')) ||
+            (item.id === 'pdf-chat' &&
+              (currentView === 'pdf-chat-list' || currentView === 'pdf-chat-detail')) ||
+            (item.id === 'library' && currentView === 'library')
           return (
             <li key={item.id} className="min-w-0">
               <button

@@ -4,7 +4,7 @@ import { useLlamabookDashboard } from '@/app/providers'
 import { MessageList } from './MessageList'
 import { ScrollButton } from './ScrollButton'
 
-export function ChatView() {
+export function ChatView({ embedded = false }: { embedded?: boolean }) {
   const { currentView, messages, isGenerating } = useLlamabookDashboard()
   const scrollRef = useRef<HTMLDivElement>(null)
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -65,7 +65,7 @@ export function ChatView() {
     <div
       className={clsx(
         'flex flex-col min-h-0 overflow-hidden',
-        currentView === 'chat' ? 'flex' : 'hidden'
+        embedded || currentView === 'chat' ? 'flex' : 'hidden'
       )}
     >
       <div ref={scrollRef} className="flex-1 overflow-y-auto">

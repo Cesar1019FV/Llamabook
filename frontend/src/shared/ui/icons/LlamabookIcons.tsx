@@ -102,6 +102,10 @@ export function IconUpload({ className }: IconProps) {
   return baseSvg(className, <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />)
 }
 
+export function IconFileUpload({ className }: IconProps) {
+  return baseSvg(className, <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M12 12v9" /><path d="M9 15l3-3 3 3" /></>, 16)
+}
+
 export function IconDrive({ className }: IconProps) {
   return baseSvg(className, <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />)
 }
@@ -180,6 +184,34 @@ export function IconUser({ className }: IconProps) {
 
 export function IconLightbulb({ className }: IconProps) {
   return baseSvg(className, <><path d="M9 18h6" /><path d="M10 22h4" /><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z" /></>, 16)
+}
+
+export function IconInfo({ className }: IconProps) {
+  return baseSvg(className, <><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></>, 16)
+}
+
+export function IconPDF({ className }: IconProps) {
+  return baseSvg(className, <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M10.5 12.5h6" /><path d="M10.5 15.5h6" /></>, 16)
+}
+
+export function IconLibrary({ className }: IconProps) {
+  return baseSvg(className, <><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></>, 16)
+}
+
+export function IconExport({ className }: IconProps) {
+  return baseSvg(className, <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></>, 16)
+}
+
+export function IconPen({ className }: IconProps) {
+  return baseSvg(className, <><path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><path d="M2 2l7.586 7.586" /><circle cx="11" cy="11" r="2" /></>, 16)
+}
+
+export function IconBookOpen({ className }: IconProps) {
+  return baseSvg(className, <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>, 16)
+}
+
+export function IconMessage({ className }: IconProps) {
+  return baseSvg(className, <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></>, 16)
 }
 
 export const iconsByToolId: Record<string, React.FC<IconProps>> = {

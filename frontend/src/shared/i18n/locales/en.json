@@ -21,6 +21,10 @@
       "agents": "Agents",
       "newAgent": "New agent",
       "noAgents": "No agents",
+      "pdfChat": "PDF Chat",
+      "library": "Library",
+      "newPDF": "Upload PDF",
+      "noPDFs": "No PDFs",
       "profile": {
         "name": "Mira",
         "plan": "Pro"
@@ -70,6 +74,7 @@
       "descriptionPlaceholder": "Short description of the agent",
       "contextLabel": "Context",
       "contextPlaceholder": "You are an expert in...",
+      "upload": "Upload file",
       "hint": "Agents are chats with a custom context or system prompt that guides their responses.",
       "create": "Create agent"
     },
@@ -100,7 +105,14 @@
       "recently": "Recently",
       "tabs": {
         "chats": "Chats",
-        "sources": "Sources"
+        "sources": "Sources",
+        "context": "Context"
+      },
+      "context": {
+        "title": "Notebook context",
+        "placeholder": "Write context or instructions for chats in this notebook...",
+        "save": "Save context",
+        "upload": "Upload file"
       },
       "empty": {
         "title": "No chats yet",
@@ -131,6 +143,67 @@
       "empty": {
         "title": "No chats yet",
         "description": "Start a chat with {{name}} to begin."
+      }
+    },
+    "uploadPDF": {
+      "title": "Upload PDF",
+      "close": "Close",
+      "drop": "Drop PDFs here",
+      "or": "or",
+      "browse": "Select files",
+      "hint": "Upload a PDF to chat with its contents or draft a document.",
+      "mergeWarning": "Selected PDFs will be combined into a single PDF when uploaded.",
+      "removeFile": "Remove file",
+      "cancel": "Cancel",
+      "upload": "Upload PDF",
+      "mergeUpload": "Upload combined PDF"
+    },
+    "pdfChatList": {
+      "title": "PDF Chat",
+      "searchPlaceholder": "Search PDFs",
+      "upload": "Upload PDF",
+      "empty": {
+        "title": "No PDFs",
+        "description": "Upload a PDF to start chatting with it."
+      }
+    },
+    "pdfChatDetail": {
+      "notFound": "PDF not found",
+      "back": "Back",
+      "newChat": "New chat",
+      "chats": "Chats",
+      "documents": "Documents",
+      "startChat": "Chat with {{name}}",
+      "draftDoc": "Draft document",
+      "startDraft": "Draft",
+      "collapsePreview": "Hide PDF",
+      "showPreview": "Show PDF",
+      "loadingPreview": "Loading preview...",
+      "previewError": "Could not load preview.",
+      "placeholderPreview": "PDF preview",
+      "prevPage": "Previous page",
+      "nextPage": "Next page",
+      "empty": {
+        "title": "No chats yet",
+        "description": "Start a new chat about this PDF."
+      },
+      "emptyDocs": "No documents generated from this PDF yet."
+    },
+    "canvas": {
+      "untitled": "Untitled document",
+      "exportPDF": "Export PDF",
+      "exportDOCX": "Export DOCX",
+      "close": "Close canvas",
+      "aiWriting": "AI is drafting...",
+      "placeholder": "Start writing or ask the AI to draft..."
+    },
+    "library": {
+      "title": "Library",
+      "searchPlaceholder": "Search documents",
+      "newDoc": "New document",
+      "empty": {
+        "title": "No documents",
+        "description": "Documents you generate will appear here."
       }
     },
     "header": {

@@ -3,4 +3,5 @@ export interface Notebook {
   name: string
   color: string
   chats: string[]
+  context: string
 }

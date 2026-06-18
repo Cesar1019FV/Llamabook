@@ -5,6 +5,7 @@ import { SidebarProfile } from './SidebarProfile'
 import { SettingsModal } from './SettingsModal'
 import { CreateNotebookModal } from './CreateNotebookModal'
 import { CreateAgentModal } from './CreateAgentModal'
+import { UploadPDFModal } from './UploadPDFModal'
 
 export function LlamabookSidebar() {
   return (
@@ -20,6 +21,7 @@ export function LlamabookSidebar() {
       <SettingsModal />
       <CreateNotebookModal />
       <CreateAgentModal />
+      <UploadPDFModal />
     </div>
   )
 }
