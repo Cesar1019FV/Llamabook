@@ -77,7 +77,8 @@ coverage/
 *.temp
 .cache/
 
-# Database
+# Database & data
 *.sqlite
 *.sqlite3
 *.db
+backend/data/

@@ -7,6 +7,7 @@
 **Use `yarn` only.** Do not run `npm install` or generate `package-lock.json` files.
 
 ```bash
+cd frontend
 yarn install
 yarn build      # tsc + vite build → dist/
 yarn preview    # preview the production build
@@ -44,10 +45,16 @@ New strings require updating `src/shared/i18n/locales/es.json` **and** `en.json`
 There is no ESLint, Prettier, or similar configured. Do not assume defaults exist. Add new tooling only after confirming with the user.
 
 ### 6. Build artifact
-`npm run build` outputs to `frontend/dist/`. The root `.gitignore` already ignores it.
+`yarn build` outputs to `frontend/dist/`. The root `.gitignore` already ignores it.
 
 ### 7. No comments in code
 Do not add comments to source code. Code should be self-explanatory through clear naming, small functions, and explicit types. The only exception is a `TODO` comment when something is temporarily broken or intentionally left for immediate follow-up — and only if it is truly required. Do not write explanatory, section, or inline comments.
+
+### 8. Document / PDF dependencies are heavy
+`react-pdf`, `jspdf`, `html2canvas` and `docx` are bundled with the app. Expect a large chunk warning (~1.7 MB) from Vite. This is normal unless asked to code-split.
+
+### 9. `verbatimModuleSyntax` is enabled
+Use `import type` for type-only imports. Runtime imports of types will fail the build.
 
 ## Architecture — Feature-Sliced Design (FSD)
 
@@ -63,7 +70,7 @@ app > pages > widgets > features > entities > shared
 - `pages/` — top-level routes/views.
 - `widgets/` — composite UI blocks reused across pages (e.g. header, footer, feature list).
 - `features/` — user scenarios with business value (e.g. language switcher).
-- `entities/` — business entities (e.g. feature-card, message, chat).
+- `entities/` — business entities (e.g. feature-card, message, chat, notebook, agent, document).
 - `shared/` — reusable primitives not tied to business logic (UI-kit, i18n, helpers, config, constants, global types).
 
 ### Dependency rule
@@ -132,6 +139,10 @@ All locale files live in `shared/i18n/locales/`. Add new keys to `es.json` first
 ### Routing
 
 Routes are declared in `app/router/AppRouter.tsx` using `react-router-dom`. Pages live under `pages/` and are assembled from `widgets/` and `features/`.
+
+### Global state
+
+`app/providers/LlamabookDashboardProvider.tsx` holds the dashboard-level state: current view, selected chat/notebook/agent/PDF, messages, canvas, sidebar, popups, and generated documents. Widgets consume it via `useLlamabookDashboard()`.
 
 ## Component conventions
 
