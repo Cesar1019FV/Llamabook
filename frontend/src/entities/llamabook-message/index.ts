@@ -1,1 +1,1 @@
-export type { Message, CodeBlock } from './model/types'
+export type { Message, CodeBlock, BackendMessage, ChatStreamEvent, ChatStreamDelta, ChatStreamTitle, ChatStreamDone } from './model/types'

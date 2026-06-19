@@ -17,6 +17,7 @@ class Chat(SQLModel, table=True):
     notebook_id: uuid.UUID | None = Field(default=None, foreign_key="notebook.id", sa_type=GUID())
     agent_id: uuid.UUID | None = Field(default=None, foreign_key="agent.id", sa_type=GUID())
     model: str = Field(default="llama3.2", max_length=100)
+    pinned: bool = Field(default=False)
     created_at: datetime = Field(default_factory=now_utc)
     updated_at: datetime = Field(default_factory=now_utc)
 

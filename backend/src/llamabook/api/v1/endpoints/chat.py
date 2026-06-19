@@ -16,6 +16,7 @@ from llamabook.schemas.chat import (
     ChatCreateRequest,
     ChatResponse,
     ChatStreamEvent,
+    ChatUpdateRequest,
     MessageRequest,
     MessageResponse,
 )
@@ -29,6 +30,7 @@ async def _chat_service(settings: Annotated[Settings, Depends(get_settings)]) ->
         ChatRepository(),
         MessageRepository(),
         OllamaClient(settings),
+        settings,
     )
 
 
@@ -41,6 +43,7 @@ def _serialize_chat(chat) -> ChatResponse:
         id=str(chat.id),
         title=chat.title,
         model=chat.model,
+        pinned=bool(chat.pinned),
         created_at=chat.created_at.isoformat(),
         updated_at=chat.updated_at.isoformat(),
     )
@@ -93,8 +96,37 @@ async def get_chat(
     db: DbDep,
     current_user: CurrentUserDep,
 ):
-    chat = await service.get_chat(db, uuid.UUID(chat_id), current_user.id)
+    chat, _ = await service.get_chat(db, uuid.UUID(chat_id), current_user.id)
     return _serialize_chat(chat)
+
+
+@router.patch("/{chat_id}", response_model=ChatResponse)
+async def update_chat(
+    chat_id: str,
+    body: ChatUpdateRequest,
+    service: ChatServiceDep,
+    db: DbDep,
+    current_user: CurrentUserDep,
+):
+    chat = await service.update_chat(
+        db,
+        uuid.UUID(chat_id),
+        current_user.id,
+        title=body.title,
+        pinned=body.pinned,
+    )
+    return _serialize_chat(chat)
+
+
+@router.delete("/{chat_id}", status_code=204)
+async def delete_chat(
+    chat_id: str,
+    service: ChatServiceDep,
+    db: DbDep,
+    current_user: CurrentUserDep,
+):
+    await service.delete_chat(db, uuid.UUID(chat_id), current_user.id)
+    return None
 
 
 @router.get("/{chat_id}/messages", response_model=list[MessageResponse])
@@ -104,8 +136,8 @@ async def list_messages(
     db: DbDep,
     current_user: CurrentUserDep,
 ):
-    chat = await service.get_chat(db, uuid.UUID(chat_id), current_user.id)
-    return [_serialize_message(m) for m in chat.messages]
+    _, messages = await service.get_chat(db, uuid.UUID(chat_id), current_user.id)
+    return [_serialize_message(m) for m in messages]
 
 
 @router.post("/{chat_id}/messages")

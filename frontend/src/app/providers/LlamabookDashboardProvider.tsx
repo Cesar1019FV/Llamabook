@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +12,7 @@ import type { Message } from '@/entities/llamabook-message'
 import type { Model } from '@/entities/llamabook-model'
 import type { Notebook } from '@/entities/llamabook-notebook'
 import type { Agent } from '@/entities/llamabook-agent'
+import type { Chat } from '@/entities/llamabook-chat'
 import type { PDFSource, PDFChat, GeneratedDocument } from '@/entities/llamabook-document'
 import { defaultModel } from '@/entities/llamabook-model'
 import {
@@ -21,8 +23,16 @@ import {
   initialPDFChats,
   initialGeneratedDocs,
 } from '@/widgets/llamabook-sidebar'
-import { sampleMessages } from '@/widgets/llamabook-chat-view'
 import { toolNames } from '@/widgets/llamabook-dock'
+import {
+  createChatApi,
+  listChatsApi,
+  listMessagesApi,
+  sendMessageStreamApi,
+  mapBackendMessages,
+  updateChatApi,
+  deleteChatApi,
+} from '@/features/chat'
 
 type View =
   | 'dashboard'
@@ -68,6 +78,7 @@ interface DashboardState {
   pdfSources: PDFSource[]
   pdfChats: PDFChat[]
   generatedDocs: GeneratedDocument[]
+  chats: Chat[]
   i18n: ReturnType<typeof useTranslation>['i18n']
 }
 
@@ -92,6 +103,10 @@ interface DashboardActions {
   openPDFChat: (chatId: string) => void
   uploadPDF: (files: File[]) => void
   sendMessage: (text: string) => void
+  refreshChats: () => Promise<void>
+  pinChat: (chatId: string, pinned: boolean) => Promise<void>
+  renameChat: (chatId: string, title: string) => Promise<void>
+  deleteChat: (chatId: string) => Promise<void>
   toggleTool: (tool: string) => void
   toggleNotebook: (id: string) => void
   collapseNotebook: (id: string) => void
@@ -172,6 +187,8 @@ export function LlamabookDashboardProvider({
   const [pdfSources, setPdfSources] = useState<PDFSource[]>(initialPDFSources)
   const [pdfChats, setPdfChats] = useState<PDFChat[]>(initialPDFChats)
   const [generatedDocs, setGeneratedDocs] = useState<GeneratedDocument[]>(initialGeneratedDocs)
+  const [chats, setChats] = useState<Chat[]>([])
+  const abortRef = useRef<AbortController | null>(null)
 
   const showDashboard = useCallback(() => {
     setCurrentView('dashboard')
@@ -285,12 +302,83 @@ export function LlamabookDashboardProvider({
     setPdfPreviewOpen(true)
   }, [])
 
+  const refreshChats = useCallback(async () => {
+    try {
+      const list = await listChatsApi()
+      setChats(list)
+    } catch {
+      // ignore network errors; sidebar will just show empty
+    }
+  }, [])
+
+  const pinChat = useCallback(
+    async (chatId: string, pinned: boolean) => {
+      setChats((prev) =>
+        prev.map((c) => (c.id === chatId ? { ...c, pinned } : c))
+      )
+      try {
+        await updateChatApi(chatId, { pinned })
+        await refreshChats()
+      } catch {
+        setChats((prev) =>
+          prev.map((c) => (c.id === chatId ? { ...c, pinned: !pinned } : c))
+        )
+      }
+    },
+    [refreshChats]
+  )
+
+  const renameChat = useCallback(
+    async (chatId: string, title: string) => {
+      const trimmed = title.trim()
+      if (!trimmed) return
+      setChats((prev) =>
+        prev.map((c) => (c.id === chatId ? { ...c, title: trimmed } : c))
+      )
+      try {
+        await updateChatApi(chatId, { title: trimmed })
+        await refreshChats()
+      } catch {
+        await refreshChats()
+      }
+    },
+    [refreshChats]
+  )
+
+  const deleteChat = useCallback(
+    async (chatId: string) => {
+      setChats((prev) => prev.filter((c) => c.id !== chatId))
+      if (currentChatId === chatId) {
+        showDashboard()
+      }
+      try {
+        await deleteChatApi(chatId)
+        await refreshChats()
+      } catch {
+        await refreshChats()
+      }
+    },
+    [currentChatId, refreshChats, showDashboard]
+  )
+
   const openChat = useCallback(
-    (id: string | 'new') => {
-      const msgs = id === 'new' ? [] : sampleMessages.map((m) => ({ ...m }))
-      setMessages(msgs)
+    async (id: string | 'new') => {
+      if (id === 'new' || !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id)) {
+        setMessages([])
+        setCurrentView('chat')
+        setCurrentChatId(null)
+        setCurrentNotebookId(null)
+        setCurrentAgentId(null)
+        setCurrentPDFSourceId(null)
+        setCurrentPDFChatId(null)
+        setCurrentGeneratedDocId(null)
+        setCanvasOpen(false)
+        setPdfPreviewOpen(true)
+        setAttachedFiles([])
+        return
+      }
       setCurrentView('chat')
-      setCurrentChatId(id === 'new' ? null : id)
+      setCurrentChatId(id)
       setCurrentNotebookId(null)
       setCurrentAgentId(null)
       setCurrentPDFSourceId(null)
@@ -298,8 +386,11 @@ export function LlamabookDashboardProvider({
       setCurrentGeneratedDocId(null)
       setCanvasOpen(false)
       setPdfPreviewOpen(true)
-      if (id === 'new') {
-        setAttachedFiles([])
+      try {
+        const backendMessages = await listMessagesApi(id)
+        setMessages(mapBackendMessages(backendMessages))
+      } catch {
+        setMessages([])
       }
     },
     []
@@ -496,7 +587,7 @@ export function LlamabookDashboardProvider({
   }, [])
 
   const sendMessage = useCallback(
-    (text: string) => {
+    async (text: string) => {
       const txt = text.trim()
       if (!txt || isGenerating) return
 
@@ -510,6 +601,21 @@ export function LlamabookDashboardProvider({
         setCurrentView('chat')
       }
       setPlusPopupOpen(false)
+
+      let chatId = currentChatId
+
+      if (!chatId) {
+        try {
+          const chat = await createChatApi({})
+          chatId = chat.id
+          setCurrentChatId(chat.id)
+        } catch (err) {
+          console.error('Failed to create chat', err)
+          return
+        }
+      }
+
+      const activeChatId = chatId
 
       setMessages((prev) => {
         const next = [...prev]
@@ -535,52 +641,55 @@ export function LlamabookDashboardProvider({
       setAttachedFiles([])
       setIsGenerating(true)
 
-      setTimeout(() => {
-        setIsGenerating(false)
-        const responses = currentPDFSourceId
-          ? [
-              'He revisado el PDF. Basandome en el contenido, aqui va un analisis clave:\n\n<strong>1.</strong> El documento establece un marco conceptual solido.\n\n<strong>2.</strong> Se identifican tres trade-offs principales.\n\n<strong>3.</strong> Recomiendo profundizar en la seccion de implementacion.',
-              'Segun el PDF, la recomendacion principal es adoptar un enfoque incremental. Puedo ayudarte a redactar un documento con esta estructura si lo deseas.',
-            ]
-          : [
-              'Entendido. Dejame analizar tu consulta y proporcionar una respuesta fundamentada.',
-              'Buena pregunta. Aqui va mi analisis:\n\n<strong>1.</strong> Considera el contexto.\n\n<strong>2.</strong> Evalua los trade-offs.\n\n<strong>3.</strong> Implementa de forma incremental.',
-              'La clave esta en el balance entre consistencia, disponibilidad y latencia.',
-            ]
-        const responseText = responses[Math.floor(Math.random() * responses.length)]
-        const aiMessage: Message = {
-          id: 'a-' + Date.now(),
-          type: 'ai',
-          text: responseText,
-          time,
-          status: 'sent',
-        }
-        setMessages((prev) => [...prev, aiMessage])
+      const aiMessageId = 'a-' + Date.now()
+      setMessages((prev) => [
+        ...prev,
+        { id: aiMessageId, type: 'ai', text: '', time, status: 'sending' },
+      ])
 
-        if (currentPDFChatId) {
-          setPdfChats((prev) =>
-            prev.map((c) =>
-              c.id === currentPDFChatId
-                ? {
-                    ...c,
-                    messages: [
-                      ...c.messages,
-                      { id: 'u-' + Date.now(), type: 'user', text: txt, time, status: 'sent' },
-                      aiMessage,
-                    ],
-                  }
-                : c
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      try {
+        await sendMessageStreamApi(activeChatId, txt, {
+          signal: controller.signal,
+          onEvent: (event) => {
+            if (event.type === 'delta') {
+              const delta = event.content ?? ''
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === aiMessageId ? { ...m, text: m.text + delta } : m
+                )
+              )
+            } else if (event.type === 'title') {
+              setChats((prev) =>
+                prev.map((c) => (c.id === activeChatId ? { ...c, title: event.title } : c))
+              )
+            } else if (event.type === 'done') {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === aiMessageId ? { ...m, status: 'sent' } : m
+                )
+              )
+            }
+          },
+        })
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          console.error('Stream failed', err)
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === aiMessageId ? { ...m, status: 'error' } : m
             )
           )
         }
-
-        if (currentPDFSourceId && canvasOpen && currentGeneratedDocId) {
-          const draftParagraph = responseText.replace(/<\/?strong>/g, '').replace(/\n\n/g, '\n')
-          updateGeneratedDoc(currentGeneratedDocId, `<p>${draftParagraph}</p>`)
-        }
-      }, 1600)
+      } finally {
+        setIsGenerating(false)
+        abortRef.current = null
+        void refreshChats()
+      }
     },
-    [activeTools, currentModel, currentView, i18n.language, isGenerating, t, currentPDFSourceId, currentPDFChatId, canvasOpen, currentGeneratedDocId, updateGeneratedDoc]
+    [activeTools, currentModel, currentView, i18n.language, isGenerating, t, currentChatId, refreshChats]
   )
 
   const toggleTool = useCallback((tool: string) => {
@@ -696,6 +805,7 @@ export function LlamabookDashboardProvider({
       pdfSources,
       pdfChats,
       generatedDocs,
+      chats,
       i18n,
       toggleSidebar: () => setSidebarOpen((v) => !v),
       openMobileSidebar: () => setMobileSidebarOpen(true),
@@ -717,6 +827,10 @@ export function LlamabookDashboardProvider({
       openPDFChat,
       uploadPDF,
       sendMessage,
+      refreshChats,
+      pinChat,
+      renameChat,
+      deleteChat,
       toggleTool,
       toggleNotebook,
       collapseNotebook,
@@ -792,6 +906,7 @@ export function LlamabookDashboardProvider({
       pdfSources,
       pdfChats,
       generatedDocs,
+      chats,
       i18n,
       showDashboard,
       showNotebooksList,
@@ -810,6 +925,10 @@ export function LlamabookDashboardProvider({
       openPDFChat,
       uploadPDF,
       sendMessage,
+      refreshChats,
+      pinChat,
+      renameChat,
+      deleteChat,
       toggleTool,
       toggleNotebook,
       collapseNotebook,
@@ -876,6 +995,10 @@ export function LlamabookDashboardProvider({
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [currentView, modelPopupOpen, plusPopupOpen, profileDropdownOpen, settingsModalOpen, createNotebookModalOpen, createAgentModalOpen, uploadPDFModalOpen, canvasOpen, closeCanvas, showDashboard, currentPDFSourceId])
+
+  useEffect(() => {
+    void refreshChats()
+  }, [refreshChats])
 
   return (
     <DashboardContext.Provider value={value}>

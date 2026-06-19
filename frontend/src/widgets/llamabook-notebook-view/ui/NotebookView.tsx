@@ -119,19 +119,17 @@ export function NotebookView() {
           {hasChats ? (
             <div className="space-y-1">
               {notebook.chats.map((chat, idx) => (
-                <button
+                <div
                   key={`${notebook.id}-${idx}`}
                   className={clsx(
-                    'w-full flex items-center justify-between px-3 py-3 rounded-lg text-left transition-colors duration-100 hover:bg-llama-surface/50 border border-transparent',
-                    'hover:border-llama-border'
+                    'w-full flex items-center justify-between px-3 py-3 rounded-lg text-left border border-transparent'
                   )}
-                  onClick={() => openChat(chat)}
                 >
                   <div className="min-w-0">
                     <div className="text-[13.5px] text-llama-fg-2 truncate">{chat}</div>
                   </div>
                   <span className="text-[11px] text-llama-fg-5 shrink-0">{t('dashboard.notebookDetail.recently')}</span>
-                </button>
+                </div>
               ))}
             </div>
           ) : (

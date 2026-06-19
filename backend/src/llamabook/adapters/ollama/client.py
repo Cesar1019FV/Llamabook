@@ -26,6 +26,15 @@ class OllamaClient:
         async for chunk in stream:
             yield chunk
 
+    async def chat_complete(self, model: str, messages: list[dict], options: dict | None = None) -> str:
+        response = await self._client.chat(
+            model=model,
+            messages=messages,
+            stream=False,
+            options=options,
+        )
+        return response.message.content if response.message else ""
+
     async def embed(self, model: str, input_text: str | list[str]) -> list[float] | list[list[float]]:
         response = await self._client.embeddings(model=model, prompt=input_text if isinstance(input_text, str) else input_text[0])
         return response.embedding

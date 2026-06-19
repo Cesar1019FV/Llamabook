@@ -1,6 +1,5 @@
 import type { Notebook } from '@/entities/llamabook-notebook'
 import type { Agent } from '@/entities/llamabook-agent'
-import type { ChatGroup } from '@/entities/llamabook-chat'
 import type { PDFSource, PDFChat, GeneratedDocument } from '@/entities/llamabook-document'
 
 export const initialNotebooks: Notebook[] = [
@@ -118,30 +117,5 @@ export const initialGeneratedDocs: GeneratedDocument[] = [
     type: 'report',
     createdAt: Date.now() - 1000 * 60 * 60 * 24 * 2,
     updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 2,
-  },
-]
-
-export const recentChatGroups: ChatGroup[] = [
-  {
-    label: 'today',
-    chats: [
-      { id: 'c1', title: 'Arquitectura de caché distribuido' },
-      { id: 'c2', title: 'API Gateway design patterns' },
-      { id: 'c3', title: 'Estrategias de particionamiento DB' },
-    ],
-  },
-  {
-    label: 'yesterday',
-    chats: [
-      { id: 'c4', title: 'Microservicios auth flow' },
-      { id: 'c5', title: 'gRPC vs REST comparison' },
-    ],
-  },
-  {
-    label: 'last7Days',
-    chats: [
-      { id: 'c6', title: 'Transformer fine-tuning pipeline' },
-      { id: 'c7', title: 'Dataset augmentation strategies' },
-    ],
   },
 ]

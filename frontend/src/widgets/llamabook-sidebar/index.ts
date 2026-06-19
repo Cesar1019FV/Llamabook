@@ -1,7 +1,6 @@
 export { LlamabookSidebar } from './ui/LlamabookSidebar'
 export {
   initialNotebooks,
-  recentChatGroups,
   initialAgents,
   initialPDFSources,
   initialPDFChats,

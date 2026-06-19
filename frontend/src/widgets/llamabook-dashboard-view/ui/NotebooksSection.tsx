@@ -4,7 +4,7 @@ import { notebookCards } from '../model/data'
 
 export function NotebooksSection() {
   const { t } = useTranslation()
-  const { openChat, collapseNotebook } = useLlamabookDashboard()
+  const { showNotebookDetail } = useLlamabookDashboard()
 
   return (
     <section className="dash-section mb-5">
@@ -17,10 +17,7 @@ export function NotebooksSection() {
           <button
             key={card.id}
             className="card text-left p-[11px] pb-3 rounded-lg border border-llama-border bg-transparent cursor-pointer transition-all duration-150 hover:border-llama-border-2 hover:bg-white/[0.06]"
-            onClick={() => {
-              collapseNotebook(card.id)
-              openChat(card.id)
-            }}
+            onClick={() => showNotebookDetail(card.id)}
           >
             <div className="card-top flex items-center justify-between mb-[5px]">
               <span

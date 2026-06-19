@@ -37,9 +37,11 @@
       "searchPlaceholder": "Search...",
       "notebooks": "Notebooks",
       "recent": "Recent",
+      "pinned": "Pinned",
       "today": "Today",
       "yesterday": "Yesterday",
       "last7Days": "Previous 7 days",
+      "noRecentChats": "No recent chats",
       "addNotebookPrompt": "New notebook name:",
       "closeSidebar": "Close sidebar",
       "search": "Search",
@@ -277,6 +279,13 @@
         "pinned": "Pinned",
         "notebooks": "Notebooks"
       }
+    },
+    "chatMenu": {
+      "options": "Chat options",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "rename": "Rename",
+      "delete": "Delete"
     },
     "chatView": {
       "conversationStarted": "Conversation started · {{model}}",

@@ -37,9 +37,11 @@
       "searchPlaceholder": "Buscar...",
       "notebooks": "Cuadernos",
       "recent": "Recientes",
+      "pinned": "Fijados",
       "today": "Hoy",
       "yesterday": "Ayer",
       "last7Days": "7 dias anteriores",
+      "noRecentChats": "No hay chats recientes",
       "addNotebookPrompt": "Nombre del nuevo cuaderno:",
       "closeSidebar": "Cerrar sidebar",
       "search": "Buscar",
@@ -277,6 +279,13 @@
         "pinned": "Fijados",
         "notebooks": "Cuadernos"
       }
+    },
+    "chatMenu": {
+      "options": "Opciones del chat",
+      "pin": "Fijar",
+      "unpin": "Desfijar",
+      "rename": "Cambiar nombre",
+      "delete": "Eliminar"
     },
     "chatView": {
       "conversationStarted": "Conversacion iniciada · {{model}}",

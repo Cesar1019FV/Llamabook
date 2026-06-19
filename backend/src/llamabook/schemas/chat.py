@@ -11,10 +11,16 @@ class ChatCreateRequest(BaseModel):
     message: str | None = None
 
 
+class ChatUpdateRequest(BaseModel):
+    title: str | None = Field(default=None, max_length=255)
+    pinned: bool | None = None
+
+
 class ChatResponse(BaseModel):
     id: str
     title: str | None
     model: str
+    pinned: bool
     created_at: str
     updated_at: str
 
@@ -34,4 +40,5 @@ class ChatStreamEvent(BaseModel):
     type: str
     content: str | None = None
     message_id: str | None = None
+    title: str | None = None
     done: bool = False

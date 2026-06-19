@@ -11,3 +11,29 @@ export interface Message {
   status?: 'sending' | 'sent' | 'error'
   code?: CodeBlock
 }
+
+export interface BackendMessage {
+  id: string
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  created_at: string
+}
+
+export interface ChatStreamDelta {
+  type: 'delta'
+  content: string
+  message_id?: string
+}
+
+export interface ChatStreamTitle {
+  type: 'title'
+  title: string
+}
+
+export interface ChatStreamDone {
+  type: 'done'
+  done: boolean
+  message_id?: string
+}
+
+export type ChatStreamEvent = ChatStreamDelta | ChatStreamTitle | ChatStreamDone

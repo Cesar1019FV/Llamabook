@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlmodel import select
 
@@ -39,6 +40,15 @@ async def _purge_expired_tokens() -> None:
         await session.commit()
 
 
+async def _migrate_chat_pinned() -> None:
+    engine = _get_engine()
+    async with engine.begin() as conn:
+        result = await conn.execute(text("PRAGMA table_info(chat)"))
+        columns = {row[1] for row in result.fetchall()}
+        if "pinned" not in columns:
+            await conn.execute(text("ALTER TABLE chat ADD COLUMN pinned BOOLEAN NOT NULL DEFAULT 0"))
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
@@ -46,6 +56,7 @@ async def lifespan(app: FastAPI):
     settings.files_dir.mkdir(parents=True, exist_ok=True)
 
     await create_all_tables()
+    await _migrate_chat_pinned()
     await _purge_expired_tokens()
     await _seed_admin(settings)
 

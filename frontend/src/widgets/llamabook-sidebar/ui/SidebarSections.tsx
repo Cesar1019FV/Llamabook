@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
+import { groupChatsByDate } from '@/features/chat'
 import { IconChevron, IconPlus } from '@/shared/ui/icons'
-import { recentChatGroups } from '../model/data'
 import { SidebarCuaderno } from './SidebarCuaderno'
+import { ChatItem } from './ChatItem'
 
 import { SidebarAgentSection } from './SidebarAgentSection'
 import { SidebarPDFSection } from './SidebarPDFSection'
@@ -14,9 +15,9 @@ export function SidebarSections() {
     notebooks,
     openChat,
     currentChatId,
-    closeMobileSidebar,
     searchQuery,
     openCreateNotebookModal,
+    chats,
   } = useLlamabookDashboard()
 
   const filteredChats = (title: string) => {
@@ -25,9 +26,29 @@ export function SidebarSections() {
   }
 
   const hasNotebooks = notebooks.length > 0
+  const pinnedChats = chats.filter((c) => c.pinned)
+  const chatGroups = groupChatsByDate(chats)
 
   return (
     <nav className="pb-2">
+      {pinnedChats.length > 0 && (
+        <div className="mb-0.5">
+          <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 select-none">
+            <span className="text-[11.5px] font-medium text-llama-fg-3 tracking-wide">{t('dashboard.sidebar.pinned')}</span>
+          </div>
+          <div>
+            {pinnedChats.map((chat) => (
+              <ChatItem
+                key={chat.id}
+                chat={chat}
+                isActive={currentChatId === chat.id}
+                onOpen={() => void openChat(chat.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="mb-0.5">
         <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 select-none">
           <span className="text-[11.5px] font-medium text-llama-fg-3 tracking-wide">{t('dashboard.sidebar.notebooks')}</span>
@@ -76,8 +97,15 @@ export function SidebarSections() {
         </div>
 
         <div>
-          {recentChatGroups.map((group) => {
-            const visibleChats = group.chats.filter((chat) => filteredChats(chat.title))
+          {chatGroups.length === 0 && (
+            <div className="px-2.5 py-2 text-[12.5px] text-llama-fg-3 italic">
+              {t('dashboard.sidebar.noRecentChats')}
+            </div>
+          )}
+          {chatGroups.map((group) => {
+            const visibleChats = group.chats.filter((chat) =>
+              filteredChats(chat.title ?? '')
+            )
             if (visibleChats.length === 0) return null
             return (
               <div key={group.label}>
@@ -87,21 +115,12 @@ export function SidebarSections() {
                   </span>
                 </div>
                 {visibleChats.map((chat) => (
-                  <button
+                  <ChatItem
                     key={chat.id}
-                    className={clsx(
-                      'sb-chat block w-full min-w-0 py-[7px] px-2.5 rounded-lg text-llama-fg text-[13.5px] font-normal text-left transition-colors duration-100 whitespace-nowrap overflow-hidden text-ellipsis leading-[1.4]',
-                      'hover:bg-llama-sidebar-hover hover:text-llama-fg',
-                      currentChatId === chat.id && 'bg-llama-sidebar-active text-llama-fg active-indicator'
-                    )}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      openChat(chat.id)
-                      closeMobileSidebar()
-                    }}
-                  >
-                    {chat.title}
-                  </button>
+                    chat={chat}
+                    isActive={currentChatId === chat.id}
+                    onOpen={() => void openChat(chat.id)}
+                  />
                 ))}
               </div>
             )

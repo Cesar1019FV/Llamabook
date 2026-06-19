@@ -25,7 +25,7 @@ function NotebookAvatar({ name, color }: { name: string; color: string }) {
 
 export function SidebarCuaderno({ notebook, activeChatId }: SidebarCuadernoProps) {
   const { t } = useTranslation()
-  const { expandedNotebooks, openChat, currentChatId, showNotebookDetail } = useLlamabookDashboard()
+  const { expandedNotebooks, currentChatId, showNotebookDetail } = useLlamabookDashboard()
   const expanded = expandedNotebooks.has(notebook.id)
   const isActive = currentChatId === notebook.id
   const visibleChats = notebook.chats.slice(0, MAX_VISIBLE_CHATS)
@@ -55,20 +55,15 @@ export function SidebarCuaderno({ notebook, activeChatId }: SidebarCuadernoProps
       >
         {hasChats ? (
           visibleChats.map((chat, idx) => (
-              <button
-                key={`${notebook.id}-${idx}`}
-                className={clsx(
-                  'sb-cuaderno-chat block w-full min-w-0 py-[5px] px-2.5 rounded-md text-llama-fg-4 text-[12.5px] font-normal text-left transition-colors duration-100 whitespace-nowrap overflow-hidden text-ellipsis',
-                  'hover:bg-llama-sidebar-hover hover:text-llama-fg-2',
-                  activeChatId === chat && 'text-llama-fg bg-llama-sidebar-active active-indicator'
-                )}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  openChat(chat)
-                }}
-              >
-                {chat}
-              </button>
+            <div
+              key={`${notebook.id}-${idx}`}
+              className={clsx(
+                'sb-cuaderno-chat block w-full min-w-0 py-[5px] px-2.5 rounded-md text-llama-fg-4 text-[12.5px] font-normal text-left whitespace-nowrap overflow-hidden text-ellipsis',
+                activeChatId === chat && 'text-llama-fg bg-llama-sidebar-active active-indicator'
+              )}
+            >
+              {chat}
+            </div>
           ))
         ) : (
           <div className="py-[5px] px-2.5 text-[12px] text-llama-fg-5 italic">
