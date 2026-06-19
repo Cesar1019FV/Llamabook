@@ -102,6 +102,7 @@ Llamabook usa JWT con dos tokens: **access token** (corto plazo) y **refresh tok
 4. **Cuando el access token expire** (15 min por default), usar el refresh token:  
    `POST /api/v1/auth/refresh` con `{ refresh_token }` → devuelve nuevos `{ access_token, refresh_token }`
 5. **Obtener info del usuario actual** → `GET /api/v1/auth/me`
+6. **Cerrar sesión** → `POST /api/v1/auth/logout` → revoca el access token (blacklist)
 
 ### Ejemplo en el frontend
 
@@ -302,6 +303,24 @@ Obtiene la información del usuario autenticado actual.
   "is_active": true
 }
 ```
+
+---
+
+#### `POST /api/v1/auth/logout`
+
+Cierra la sesión del usuario revocando el access token actual (lo agrega a una blacklist en la base de datos).
+
+**Headers:** `Authorization: Bearer <access_token>`
+
+**Respuesta `204 No Content`:** Sin body.
+
+> **Nota:** El token revocado queda en una blacklist en SQLite hasta su fecha de expiración original. Al iniciar el servidor, los tokens expirados se purgan automáticamente. Cualquier request futura con ese token recibirá `401 Unauthorized` con `code: "unauthorized"` y `detail: "Token has been revoked"`.
+
+**Errores:**
+
+| Status | `code` | Detalle |
+|--------|--------|---------|
+| 401 | `unauthorized` | Token ausente, inválido o revocado |
 
 ---
 
@@ -1316,6 +1335,7 @@ Verifica que el servidor está funcionando. No requiere autenticación.
 | `POST` | `/api/v1/auth/register` | No | Registrar nuevo usuario |
 | `POST` | `/api/v1/auth/refresh` | No | Renovar tokens |
 | `GET` | `/api/v1/auth/me` | User | Info del usuario actual |
+| `POST` | `/api/v1/auth/logout` | User | Cerrar sesión (revocar token) |
 | `GET` | `/api/v1/users/` | Admin | Listar todos los usuarios |
 | `POST` | `/api/v1/users/` | Admin | Crear usuario (admin) |
 | `POST` | `/api/v1/chats/` | User | Crear chat |

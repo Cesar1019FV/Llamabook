@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
+import { useAuth } from '@/features/auth'
 import { IconSettings, IconLogout } from '@/shared/ui/icons'
 
 interface MenuItem {
@@ -14,6 +16,14 @@ interface MenuItem {
 export function ProfileDropdown() {
   const { t } = useTranslation()
   const { closeProfileDropdown, openSettingsModal } = useLlamabookDashboard()
+  const { logout } = useAuth()
+  const navigate = useNavigate()
+
+  async function handleLogout() {
+    closeProfileDropdown()
+    await logout()
+    navigate('/login')
+  }
 
   const items: MenuItem[] = [
     {
@@ -27,7 +37,7 @@ export function ProfileDropdown() {
       labelKey: 'dashboard.profile.logout',
       icon: IconLogout,
       variant: 'danger',
-      onClick: () => closeProfileDropdown(),
+      onClick: handleLogout,
     },
   ]
 

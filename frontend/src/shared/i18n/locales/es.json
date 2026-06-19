@@ -1,4 +1,34 @@
 {
+  "auth": {
+    "login": {
+      "title": "Iniciar sesión",
+      "subtitle": "Accede a tu workspace de Llamabook",
+      "email": "Email",
+      "password": "Contraseña",
+      "submit": "Iniciar sesión",
+      "loading": "Iniciando...",
+      "noAccount": "¿No tienes cuenta?",
+      "signupLink": "Regístrate"
+    },
+    "signup": {
+      "title": "Crear cuenta",
+      "subtitle": "Empieza a usar Llamabook",
+      "name": "Nombre",
+      "namePlaceholder": "Tu nombre",
+      "email": "Email",
+      "password": "Contraseña",
+      "submit": "Crear cuenta",
+      "loading": "Creando...",
+      "haveAccount": "¿Ya tienes cuenta?",
+      "loginLink": "Inicia sesión"
+    },
+    "errors": {
+      "invalidCredentials": "Email o contraseña incorrectos",
+      "emailExists": "Este email ya está registrado",
+      "network": "No se pudo conectar con el servidor",
+      "unknown": "Ocurrió un error inesperado"
+    }
+  },
   "dashboard": {
     "brand": "Llamabook",
     "brandPro": "Llamabook Pro",

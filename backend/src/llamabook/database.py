@@ -49,6 +49,7 @@ async def create_all_tables() -> None:
         file,
         notebook,
         output,
+        revoked_token,
         user,
     )
 

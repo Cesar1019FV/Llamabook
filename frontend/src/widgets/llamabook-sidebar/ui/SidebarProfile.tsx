@@ -2,11 +2,17 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { IconMore } from '@/shared/ui/icons'
 import { useLlamabookDashboard } from '@/app/providers'
+import { useAuth } from '@/features/auth'
 import { ProfileDropdown } from './ProfileDropdown'
 
 export function SidebarProfile() {
   const { t } = useTranslation()
   const { profileDropdownOpen, openProfileDropdown, closeProfileDropdown } = useLlamabookDashboard()
+  const { user } = useAuth()
+
+  const displayName = user?.name ?? user?.email ?? t('dashboard.sidebar.profile.name')
+  const displayEmail = user?.email ?? t('dashboard.sidebar.profile.plan')
+  const initial = displayName[0]?.toUpperCase() ?? 'U'
 
   return (
     <div className="sb-foot px-3 py-2 border-t border-llama-border shrink-0 bg-llama-sidebar">
@@ -16,14 +22,14 @@ export function SidebarProfile() {
           onClick={() => (profileDropdownOpen ? closeProfileDropdown() : openProfileDropdown())}
         >
           <div className="sb-av w-7 h-7 rounded-full bg-gradient-to-br from-llama-accent to-llama-accent-light flex items-center justify-center text-[12px] font-semibold text-white shrink-0">
-            {t('dashboard.sidebar.profile.name')[0]}
+            {initial}
           </div>
           <div className="flex-1 min-w-0">
             <div className="sb-pname text-[13px] font-medium text-llama-fg-2 overflow-hidden text-ellipsis whitespace-nowrap">
-              {t('dashboard.sidebar.profile.name')}
+              {displayName}
             </div>
             <div className="sb-ppro text-[11px] text-llama-fg-4 font-normal overflow-hidden text-ellipsis whitespace-nowrap">
-              {t('dashboard.sidebar.profile.plan')}
+              {displayEmail}
             </div>
           </div>
           <button

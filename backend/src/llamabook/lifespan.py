@@ -7,7 +7,9 @@ from sqlmodel import select
 from llamabook.config import Settings, get_settings
 from llamabook.core.security import hash_password
 from llamabook.database import _get_engine, create_all_tables
+from llamabook.models.base import now_utc
 from llamabook.models.user import User
+from llamabook.repositories.revoked_token_repository import RevokedTokenRepository
 
 
 async def _seed_admin(settings: Settings) -> None:
@@ -27,6 +29,16 @@ async def _seed_admin(settings: Settings) -> None:
             await session.commit()
 
 
+async def _purge_expired_tokens() -> None:
+    engine = _get_engine()
+    async_session_local = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    repo = RevokedTokenRepository()
+
+    async with async_session_local() as session:
+        await repo.purge_expired(session, now_utc())
+        await session.commit()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
@@ -34,6 +46,7 @@ async def lifespan(app: FastAPI):
     settings.files_dir.mkdir(parents=True, exist_ok=True)
 
     await create_all_tables()
+    await _purge_expired_tokens()
     await _seed_admin(settings)
 
     yield

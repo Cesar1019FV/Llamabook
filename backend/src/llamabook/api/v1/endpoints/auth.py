@@ -2,11 +2,19 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from llamabook.config import Settings, get_settings
+from llamabook.core.security import extract_exp, extract_jti
 from llamabook.database import get_db
-from llamabook.dependencies import CurrentUserDep, get_user_repository
+from llamabook.dependencies import (
+    CurrentUserDep,
+    get_revoked_token_repository,
+    get_user_repository,
+    oauth2_scheme,
+)
+from llamabook.repositories.revoked_token_repository import RevokedTokenRepository
 from llamabook.schemas.auth import (
     RefreshRequest,
     TokenResponse,
@@ -30,6 +38,8 @@ AuthServiceDep = Annotated[AuthService, Depends(_auth_service)]
 UserServiceDep = Annotated[UserService, Depends(_user_service)]
 DbDep = Annotated[AsyncSession, Depends(get_db)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
+RevokedTokenRepoDep = Annotated[RevokedTokenRepository, Depends(get_revoked_token_repository)]
+TokenDep = Annotated[str, Depends(oauth2_scheme)]
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -77,3 +87,23 @@ async def me(current_user: CurrentUserDep):
         role=current_user.role,
         is_active=current_user.is_active,
     )
+
+
+@router.post("/logout", status_code=204)
+async def logout(
+    current_user: CurrentUserDep,
+    token: TokenDep,
+    db: DbDep,
+    settings: SettingsDep,
+    revoked_repo: RevokedTokenRepoDep,
+) -> None:
+    payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    jti = extract_jti(payload)
+    if not jti:
+        return None
+    expires_at = extract_exp(payload)
+    if expires_at is None:
+        return None
+    await revoked_repo.revoke(db, jti, current_user.id, expires_at)
+    await db.commit()
+    return None

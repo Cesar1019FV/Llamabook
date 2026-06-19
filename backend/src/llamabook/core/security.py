@@ -36,6 +36,7 @@ def create_token(
         "type": token_type,
         "iat": now,
         "exp": now + delta,
+        "jti": secrets.token_hex(16),
     }
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
@@ -44,6 +45,17 @@ def decode_token(token: str, settings: Settings) -> dict:
     from jose import jwt
 
     return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+
+
+def extract_jti(payload: dict) -> str | None:
+    return payload.get("jti")
+
+
+def extract_exp(payload: dict) -> datetime | None:
+    exp = payload.get("exp")
+    if exp is None:
+        return None
+    return datetime.fromtimestamp(exp, tz=UTC)
 
 
 def generate_refresh_token_value() -> str:
