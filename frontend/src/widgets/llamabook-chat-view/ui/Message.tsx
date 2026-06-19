@@ -1,10 +1,83 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
-import type { Message as MessageType } from '@/entities/llamabook-message'
+import type { Message as MessageType, WebSearchResult } from '@/entities/llamabook-message'
 import { CodeBlock } from './CodeBlock'
 
 interface MessageProps {
   message: MessageType
+}
+
+function ThinkingBlock({ text }: { text: string }) {
+  const { t } = useTranslation()
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <div className="mb-2">
+      <button
+        className="flex items-center gap-1.5 text-[12px] text-llama-fg-4 hover:text-llama-fg-2 transition-colors duration-100"
+        onClick={() => setExpanded((v) => !v)}
+        type="button"
+      >
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={clsx('transition-transform duration-200', expanded && 'rotate-90')}>
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+        <span className="font-medium">{t('dashboard.chatView.thinking')}</span>
+      </button>
+      {expanded && (
+        <div className="mt-1.5 pl-4 border-l border-llama-border text-[13px] text-llama-fg-4 font-sans leading-[1.6] whitespace-pre-wrap break-words max-h-[300px] overflow-y-auto">
+          {text}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function WebSearchResults({ results }: { results: WebSearchResult[] }) {
+  const { t } = useTranslation()
+
+  return (
+    <div className="mb-2.5">
+      <div className="flex items-center gap-1.5 text-[12px] text-llama-fg-4 mb-1.5">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <span className="font-medium">{t('dashboard.chatView.webSearchResults')}</span>
+        <span className="text-llama-fg-5">({results.length})</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        {results.map((r, i) => (
+          <a
+            key={i}
+            href={r.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block px-2.5 py-2 rounded-lg border border-llama-border bg-llama-surface/50 hover:bg-llama-surface hover:border-llama-border-2 transition-all duration-100 group"
+          >
+            <div className="flex items-start gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="text-[12.5px] text-llama-fg-2 font-medium leading-tight truncate group-hover:text-llama-accent-light transition-colors">
+                  {r.title || r.url}
+                </div>
+                <div className="text-[10.5px] text-llama-fg-5 truncate mt-0.5">
+                  {r.url}
+                </div>
+                {r.content && (
+                  <div className="text-[11.5px] text-llama-fg-4 mt-1 line-clamp-2 leading-snug">
+                    {r.content}
+                  </div>
+                )}
+              </div>
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-llama-fg-5 shrink-0 mt-0.5">
+                <path d="M7 17l9.2-9.2M7 7h10v10" />
+              </svg>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 export function Message({ message }: MessageProps) {
@@ -60,6 +133,13 @@ export function Message({ message }: MessageProps) {
           <div className="msg-sender text-[12px] font-semibold text-llama-accent-light mb-[5px] leading-none">
             {t('dashboard.chatView.sender')}
           </div>
+
+          {message.webSearchResults && message.webSearchResults.length > 0 && (
+            <WebSearchResults results={message.webSearchResults} />
+          )}
+
+          {message.thinking && <ThinkingBlock text={message.thinking} />}
+
           <div
             className="msg-text-ai font-serif text-[15px] font-normal leading-[1.7] text-llama-fg max-w-full break-words [&_strong]:font-semibold"
             dangerouslySetInnerHTML={{

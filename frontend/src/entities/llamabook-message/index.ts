@@ -1,1 +1,1 @@
-export type { Message, CodeBlock, BackendMessage, ChatStreamEvent, ChatStreamDelta, ChatStreamTitle, ChatStreamDone } from './model/types'
+export type { Message, CodeBlock, WebSearchResult, BackendMessage, ChatStreamEvent, ChatStreamDelta, ChatStreamThinking, ChatStreamTitle, ChatStreamWebSearch, ChatStreamWebSearchResults, ChatStreamDone } from './model/types'

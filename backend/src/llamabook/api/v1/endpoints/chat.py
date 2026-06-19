@@ -50,10 +50,23 @@ def _serialize_chat(chat) -> ChatResponse:
 
 
 def _serialize_message(message) -> MessageResponse:
+    web_search_results = None
+    if message.web_search_results:
+        try:
+            import json
+            raw = json.loads(message.web_search_results)
+            web_search_results = [
+                {"title": r.get("title", ""), "url": r.get("url", ""), "content": r.get("content", "")}
+                for r in raw
+            ]
+        except Exception:
+            web_search_results = None
     return MessageResponse(
         id=str(message.id),
         role=message.role,
         content=message.content,
+        thinking=message.thinking,
+        web_search_results=web_search_results,
         created_at=message.created_at.isoformat(),
     )
 
@@ -150,7 +163,7 @@ async def send_message(
 ):
     async def event_generator():
         async for event in service.stream_response(
-            db, uuid.UUID(chat_id), current_user.id, body.content
+            db, uuid.UUID(chat_id), current_user.id, body.content, tools=body.tools
         ):
             yield f"data: {ChatStreamEvent(**event).model_dump_json()}\n\n"
         yield "event: done\ndata: {}\n\n"

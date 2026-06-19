@@ -650,6 +650,8 @@ export function LlamabookDashboardProvider({
       const controller = new AbortController()
       abortRef.current = controller
 
+      const activeToolsList = [...activeTools]
+
       try {
         await sendMessageStreamApi(activeChatId, txt, {
           signal: controller.signal,
@@ -659,6 +661,37 @@ export function LlamabookDashboardProvider({
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === aiMessageId ? { ...m, text: m.text + delta } : m
+                )
+              )
+            } else if (event.type === 'thinking') {
+              const thinkingDelta = event.thinking ?? ''
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === aiMessageId
+                    ? { ...m, thinking: (m.thinking ?? '') + thinkingDelta }
+                    : m
+                )
+              )
+            } else if (event.type === 'web_search') {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === aiMessageId
+                    ? { ...m, webSearchQuery: event.web_search_query }
+                    : m
+                )
+              )
+            } else if (event.type === 'web_search_results') {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === aiMessageId
+                    ? {
+                        ...m,
+                        webSearchResults: [
+                          ...(m.webSearchResults ?? []),
+                          ...(event.web_search_results ?? []),
+                        ],
+                      }
+                    : m
                 )
               )
             } else if (event.type === 'title') {
@@ -673,7 +706,7 @@ export function LlamabookDashboardProvider({
               )
             }
           },
-        })
+        }, activeToolsList)
       } catch (err) {
         if (!controller.signal.aborted) {
           console.error('Stream failed', err)

@@ -29,4 +29,6 @@ class Message(SQLModel, table=True):
     chat_id: uuid.UUID = Field(foreign_key="chat.id", sa_type=GUID())
     role: str = Field(default="user", max_length=20)
     content: str
+    thinking: str | None = Field(default=None)
+    web_search_results: str | None = Field(default=None)
     created_at: datetime = Field(default_factory=now_utc)

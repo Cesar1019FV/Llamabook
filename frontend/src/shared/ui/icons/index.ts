@@ -47,6 +47,8 @@ export {
   IconPen,
   IconBookOpen,
   IconMessage,
+  IconThinking,
+  IconWebSearch,
   iconsByToolId,
   iconsByActionId,
 } from './LlamabookIcons'

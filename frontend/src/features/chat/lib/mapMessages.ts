@@ -19,6 +19,8 @@ export function mapBackendMessage(m: BackendMessage): Message {
     id: m.id,
     type,
     text: m.content,
+    thinking: m.thinking ?? undefined,
+    webSearchResults: m.web_search_results ?? undefined,
     time: formatTime(m.created_at),
     status: 'sent',
   }

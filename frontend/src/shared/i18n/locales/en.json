@@ -292,6 +292,8 @@
       "conversationStartedWithTools": "Conversation started · {{model}} · {{tools}}",
       "sender": "Llamabook",
       "scrollToBottom": "Go to bottom",
+      "thinking": "Thinking",
+      "webSearchResults": "Web search results",
       "status": {
         "sending": "Sending...",
         "error": "Error · Retry",
@@ -317,6 +319,10 @@
         "title": "Tools"
       },
       "tools": {
+        "thinking": "Thinking",
+        "thinkingDesc": "Show the reasoning process",
+        "web_search": "Web search",
+        "web_searchDesc": "Search the web for up-to-date info",
         "audio": "Audio summary",
         "audioDesc": "AI-generated audio",
         "slides": "Slide presentation",

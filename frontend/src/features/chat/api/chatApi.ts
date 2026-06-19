@@ -73,14 +73,18 @@ export interface StreamHandlers {
   signal?: AbortSignal
 }
 
-async function openSSE(chatId: string, content: string, token: string): Promise<Response> {
+async function openSSE(chatId: string, content: string, token: string, tools?: string[]): Promise<Response> {
+  const body: Record<string, unknown> = { content }
+  if (tools && tools.length > 0) {
+    body.tools = tools
+  }
   return fetch(`${API_URL}/chats/${chatId}/messages`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ content }),
+    body: JSON.stringify(body),
   })
 }
 
@@ -88,6 +92,7 @@ export async function sendMessageStreamApi(
   chatId: string,
   content: string,
   handlers: StreamHandlers,
+  tools?: string[],
 ): Promise<void> {
   let token = getAccessToken()
   if (!token) {
@@ -95,13 +100,13 @@ export async function sendMessageStreamApi(
     return
   }
 
-  let res = await openSSE(chatId, content, token)
+  let res = await openSSE(chatId, content, token, tools)
 
   if (res.status === 401) {
     const refreshed = await refreshAccessToken()
     if (refreshed) {
       token = refreshed
-      res = await openSSE(chatId, content, token)
+      res = await openSSE(chatId, content, token, tools)
     }
   }
 

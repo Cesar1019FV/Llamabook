@@ -15,6 +15,8 @@ export const attachItems: AttachItem[] = [
 ]
 
 export const toolItems: ToolItem[] = [
+  { id: 'thinking', iconKey: 'thinking' },
+  { id: 'web_search', iconKey: 'web_search' },
   { id: 'audio', iconKey: 'audio' },
   { id: 'slides', iconKey: 'slides' },
   { id: 'video', iconKey: 'video' },

@@ -35,6 +35,8 @@
   --color-tool-upload: var(--color-llama-fg-3);
   --color-tool-drive: #4ade80;
   --color-tool-link: #818cf8;
+  --color-tool-thinking: #d97757;
+  --color-tool-web_search: #60a5fa;
   --color-tool-audio: #c084fc;
   --color-tool-slides: #fb923c;
   --color-tool-video: #ef4444;

@@ -27,18 +27,30 @@ class ChatResponse(BaseModel):
 
 class MessageRequest(BaseModel):
     content: str = Field(min_length=1)
+    tools: list[str] | None = None
+
+
+class WebSearchResultItem(BaseModel):
+    title: str
+    url: str
+    content: str
 
 
 class MessageResponse(BaseModel):
     id: str
     role: str
     content: str
+    thinking: str | None = None
+    web_search_results: list[WebSearchResultItem] | None = None
     created_at: str
 
 
 class ChatStreamEvent(BaseModel):
     type: str
     content: str | None = None
+    thinking: str | None = None
     message_id: str | None = None
     title: str | None = None
+    web_search_results: list[WebSearchResultItem] | None = None
+    web_search_query: str | None = None
     done: bool = False

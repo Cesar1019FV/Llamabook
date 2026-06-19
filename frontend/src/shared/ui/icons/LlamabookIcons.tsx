@@ -214,6 +214,14 @@ export function IconMessage({ className }: IconProps) {
   return baseSvg(className, <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></>, 16)
 }
 
+export function IconThinking({ className }: IconProps) {
+  return baseSvg(className, <><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v3A2.5 2.5 0 0 1 9.5 10H4a2 2 0 0 1-2-2V4.5A2.5 2.5 0 0 1 4.5 2z" /><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v3a2.5 2.5 0 0 0 2.5 2.5H20a2 2 0 0 0 2-2V4.5A2.5 2.5 0 0 0 19.5 2z" /><path d="M4 14a2 2 0 0 0-2 2v1.5A2.5 2.5 0 0 0 4.5 20H10a2.5 2.5 0 0 0 2.5-2.5v-3A2.5 2.5 0 0 0 10 12z" /><path d="M14 12a2.5 2.5 0 0 0-2.5 2.5v3A2.5 2.5 0 0 0 14 20h5.5A2.5 2.5 0 0 0 22 17.5V16a2 2 0 0 0-2-2z" /><circle cx="5.5" cy="5.5" r="0.5" fill="currentColor" /><circle cx="18.5" cy="5.5" r="0.5" fill="currentColor" /><circle cx="5.5" cy="16.5" r="0.5" fill="currentColor" /><circle cx="18.5" cy="16.5" r="0.5" fill="currentColor" /></>, 16)
+}
+
+export function IconWebSearch({ className }: IconProps) {
+  return baseSvg(className, <><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><path d="M11 3a8 8 0 0 1 0 16" /><line x1="3" y1="11" x2="19" y2="11" /><path d="M11 3a8 8 0 0 0-4 8 8 8 0 0 0 4 8 8 8 0 0 0 4-8 8 8 0 0 0-4-8z" /></>, 16)
+}
+
 export const iconsByToolId: Record<string, React.FC<IconProps>> = {
   audio: IconAudio,
   slides: IconSlides,
@@ -224,6 +232,8 @@ export const iconsByToolId: Record<string, React.FC<IconProps>> = {
   quiz: IconQuiz,
   infographic: IconInfographic,
   table: IconTable,
+  thinking: IconThinking,
+  web_search: IconWebSearch,
 }
 
 export const iconsByActionId: Record<string, React.FC<IconProps>> = {

@@ -49,6 +49,17 @@ async def _migrate_chat_pinned() -> None:
             await conn.execute(text("ALTER TABLE chat ADD COLUMN pinned BOOLEAN NOT NULL DEFAULT 0"))
 
 
+async def _migrate_message_columns() -> None:
+    engine = _get_engine()
+    async with engine.begin() as conn:
+        result = await conn.execute(text("PRAGMA table_info(message)"))
+        columns = {row[1] for row in result.fetchall()}
+        if "thinking" not in columns:
+            await conn.execute(text("ALTER TABLE message ADD COLUMN thinking TEXT"))
+        if "web_search_results" not in columns:
+            await conn.execute(text("ALTER TABLE message ADD COLUMN web_search_results TEXT"))
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
@@ -57,6 +68,7 @@ async def lifespan(app: FastAPI):
 
     await create_all_tables()
     await _migrate_chat_pinned()
+    await _migrate_message_columns()
     await _purge_expired_tokens()
     await _seed_admin(settings)
 

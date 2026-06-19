@@ -292,6 +292,8 @@
       "conversationStartedWithTools": "Conversacion iniciada · {{model}} · {{tools}}",
       "sender": "Llamabook",
       "scrollToBottom": "Ir al final",
+      "thinking": "Razonamiento",
+      "webSearchResults": "Resultados de busqueda",
       "status": {
         "sending": "Enviando...",
         "error": "Error · Reintentar",
@@ -317,6 +319,10 @@
         "title": "Herramientas"
       },
       "tools": {
+        "thinking": "Razonamiento",
+        "thinkingDesc": "Mostrar el proceso de razonamiento",
+        "web_search": "Busqueda web",
+        "web_searchDesc": "Buscar informacion actualizada en la web",
         "audio": "Resumen en audio",
         "audioDesc": "Audio generado con IA",
         "slides": "Presentacion con diapositivas",

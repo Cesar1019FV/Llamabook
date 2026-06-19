@@ -1,5 +1,7 @@
 export const toolNames: Record<string, Record<string, string>> = {
   es: {
+    thinking: 'Razonamiento',
+    web_search: 'Busqueda web',
     audio: 'Resumen en audio',
     slides: 'Presentación',
     video: 'Resumen en video',
@@ -11,6 +13,8 @@ export const toolNames: Record<string, Record<string, string>> = {
     table: 'Tabla de datos',
   },
   en: {
+    thinking: 'Thinking',
+    web_search: 'Web search',
     audio: 'Audio summary',
     slides: 'Slides',
     video: 'Video summary',
@@ -24,6 +28,8 @@ export const toolNames: Record<string, Record<string, string>> = {
 }
 
 export const toolColors: Record<string, string> = {
+  thinking: '#d97757',
+  web_search: '#60a5fa',
   audio: '#c084fc',
   slides: '#fb923c',
   video: '#ef4444',
@@ -36,6 +42,8 @@ export const toolColors: Record<string, string> = {
 }
 
 export const toolIconBackgrounds: Record<string, string> = {
+  thinking: 'rgba(217,119,87,0.12)',
+  web_search: 'rgba(96,165,250,0.12)',
   audio: 'rgba(168,85,247,0.12)',
   slides: 'rgba(251,146,60,0.12)',
   video: 'rgba(239,68,68,0.12)',
