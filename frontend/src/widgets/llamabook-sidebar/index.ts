@@ -5,5 +5,6 @@ export {
   initialPDFSources,
   initialPDFChats,
   initialGeneratedDocs,
-} from './model/data'
-export { newNotebookColors, newAgentAvatars } from './model/consts'
+  newNotebookColors,
+  newAgentAvatars,
+} from '@/shared/data'

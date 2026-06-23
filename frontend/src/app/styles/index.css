@@ -30,6 +30,7 @@
 
   --animate-msg-in: msgIn 0.2s ease;
   --animate-blink: blink 1s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
 
   /* Tool icon colors */
   --color-tool-upload: var(--color-llama-fg-3);
@@ -56,6 +57,11 @@
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 :root {
@@ -192,6 +198,12 @@
 
 @utility blink-dot {
   animation: blink 1s ease-in-out infinite;
+}
+
+@utility shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
 }
 
 a {

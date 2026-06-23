@@ -30,6 +30,10 @@ export async function meApi(): Promise<User> {
   return http.get<User>('/auth/me')
 }
 
+export async function updateMeApi(data: { name: string }): Promise<User> {
+  return http.patch<User>('/auth/me', data)
+}
+
 export async function logoutApi(): Promise<void> {
   try {
     await http.post<void>('/auth/logout')

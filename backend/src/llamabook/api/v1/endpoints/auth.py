@@ -20,6 +20,7 @@ from llamabook.schemas.auth import (
     TokenResponse,
     UserCreateRequest,
     UserResponse,
+    UserUpdateRequest,
 )
 from llamabook.services.auth_service import AuthService, UserService
 
@@ -86,6 +87,23 @@ async def me(current_user: CurrentUserDep):
         name=current_user.name,
         role=current_user.role,
         is_active=current_user.is_active,
+    )
+
+
+@router.patch("/me", response_model=UserResponse)
+async def update_me(
+    body: UserUpdateRequest,
+    current_user: CurrentUserDep,
+    service: UserServiceDep,
+    db: DbDep,
+):
+    user = await service.update_user(db, current_user.id, body)
+    return UserResponse(
+        id=str(user.id),
+        email=user.email,
+        name=user.name,
+        role=user.role,
+        is_active=user.is_active,
     )
 
 

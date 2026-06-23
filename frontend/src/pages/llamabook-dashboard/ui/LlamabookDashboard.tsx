@@ -68,7 +68,7 @@ function DashboardContent() {
 
       <main className="flex flex-col min-w-0 flex-1 h-dvh overflow-hidden">
         <LlamabookHeader />
-        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+        <div className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
           {!isPDFChat && !canvasOpen && (
             <>
               <DashboardView />
@@ -78,7 +78,7 @@ function DashboardContent() {
 
           {isPDFChat && !canvasOpen && currentPDFSourceId && (
             <div className="flex flex-1 min-h-0 overflow-hidden">
-              <div className="flex flex-col min-h-0 overflow-hidden border-r border-llama-border w-1/2">
+              <div className="relative flex flex-col min-h-0 overflow-hidden border-r border-llama-border w-1/2">
                 <ChatView embedded />
               </div>
               <div className="flex flex-col min-h-0 overflow-hidden w-1/2">
@@ -89,7 +89,7 @@ function DashboardContent() {
 
           {canvasOpen && (
             <div className="flex flex-1 min-h-0 overflow-hidden">
-              <div className="flex flex-col min-h-0 overflow-hidden border-r border-llama-border w-1/2">
+              <div className="relative flex flex-col min-h-0 overflow-hidden border-r border-llama-border w-1/2">
                 <ChatView embedded />
               </div>
 

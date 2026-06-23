@@ -76,7 +76,11 @@
       },
       "profile": {
         "title": "Profile",
-        "fullName": "Full name"
+        "fullName": "Full name",
+        "save": "Save",
+        "saving": "Saving...",
+        "saved": "Saved",
+        "role": "Role"
       },
       "preferences": {
         "title": "Preferences",
@@ -87,6 +91,13 @@
           "light": "Light",
           "dark": "Dark"
         }
+      },
+      "spinner": {
+        "title": "Spinner",
+        "asterisk": "Asterisk",
+        "llama": "Llama",
+        "nova": "Nova",
+        "orbit": "Orbit"
       }
     },
     "createNotebook": {
@@ -292,8 +303,14 @@
       "conversationStartedWithTools": "Conversation started · {{model}} · {{tools}}",
       "sender": "Llamabook",
       "scrollToBottom": "Go to bottom",
-      "thinking": "Thinking",
+      "thinking": "thinking",
       "webSearchResults": "Web search results",
+      "actions": {
+        "copy": "Copy",
+        "copied": "Copied",
+        "play": "Read aloud",
+        "refresh": "Regenerate response"
+      },
       "status": {
         "sending": "Sending...",
         "error": "Error · Retry",

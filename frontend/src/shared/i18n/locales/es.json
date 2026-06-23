@@ -76,7 +76,11 @@
       },
       "profile": {
         "title": "Perfil",
-        "fullName": "Nombre completo"
+        "fullName": "Nombre completo",
+        "save": "Guardar",
+        "saving": "Guardando...",
+        "saved": "Guardado",
+        "role": "Rol"
       },
       "preferences": {
         "title": "Preferencias",
@@ -87,6 +91,13 @@
           "light": "Claro",
           "dark": "Oscuro"
         }
+      },
+      "spinner": {
+        "title": "Spinner",
+        "asterisk": "Asterisco",
+        "llama": "Llama",
+        "nova": "Nova",
+        "orbit": "Orbita"
       }
     },
     "createNotebook": {
@@ -292,8 +303,14 @@
       "conversationStartedWithTools": "Conversacion iniciada · {{model}} · {{tools}}",
       "sender": "Llamabook",
       "scrollToBottom": "Ir al final",
-      "thinking": "Razonamiento",
+      "thinking": "thinking",
       "webSearchResults": "Resultados de busqueda",
+      "actions": {
+        "copy": "Copiar",
+        "copied": "Copiado",
+        "play": "Leer en voz alta",
+        "refresh": "Regenerar respuesta"
+      },
       "status": {
         "sending": "Enviando...",
         "error": "Error · Reintentar",

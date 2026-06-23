@@ -1,11 +1,16 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import type { Message as MessageType, WebSearchResult } from '@/entities/llamabook-message'
+import { LlamabookSpinner } from '@/shared/ui/icons/LlamabookSpinner'
+import { IconCopy, IconPlay, IconRefresh } from '@/shared/ui/icons'
+import { useLlamabookDashboard } from '@/app/providers'
 import { CodeBlock } from './CodeBlock'
 
 interface MessageProps {
   message: MessageType
+  isLast?: boolean
+  userText?: string
 }
 
 function ThinkingBlock({ text }: { text: string }) {
@@ -15,7 +20,7 @@ function ThinkingBlock({ text }: { text: string }) {
   return (
     <div className="mb-2">
       <button
-        className="flex items-center gap-1.5 text-[12px] text-llama-fg-4 hover:text-llama-fg-2 transition-colors duration-100"
+        className="group flex items-center gap-1.5 text-[12px] text-llama-fg-4 hover:text-llama-fg-2 transition-colors duration-100"
         onClick={() => setExpanded((v) => !v)}
         type="button"
       >
@@ -29,6 +34,21 @@ function ThinkingBlock({ text }: { text: string }) {
           {text}
         </div>
       )}
+    </div>
+  )
+}
+
+function SearchingBlock({ query }: { query: string }) {
+  return (
+    <div className="mb-2.5 flex items-center gap-2 text-[12px] text-llama-fg-4">
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <span className="font-medium">{query}</span>
+      <span className="w-1 h-1 rounded-full bg-llama-fg-4 animate-bounce" />
+      <span className="w-1 h-1 rounded-full bg-llama-fg-4 animate-bounce [animation-delay:150ms]" />
+      <span className="w-1 h-1 rounded-full bg-llama-fg-4 animate-bounce [animation-delay:300ms]" />
     </div>
   )
 }
@@ -80,8 +100,25 @@ function WebSearchResults({ results }: { results: WebSearchResult[] }) {
   )
 }
 
-export function Message({ message }: MessageProps) {
+export function Message({ message, isLast, userText }: MessageProps) {
   const { t } = useTranslation()
+  const { spinnerVariant, regenerateMessage, isGenerating } = useLlamabookDashboard()
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(message.text)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1500)
+    } catch {
+      // ignore
+    }
+  }, [message.text])
+
+  const handleRefresh = useCallback(() => {
+    if (!userText) return
+    regenerateMessage(message.id, userText)
+  }, [message.id, userText, regenerateMessage])
 
   if (message.type === 'system') {
     return (
@@ -124,8 +161,8 @@ export function Message({ message }: MessageProps) {
     <div className="msg py-3.5 msg-in">
       <div className="msg-row-ai flex gap-3.5 items-start">
         <div className="msg-label w-[26px] shrink-0 flex items-center justify-center pt-0.5">
-          <div className="msg-label-icon ai w-[22px] h-[22px] rounded-full bg-gradient-to-br from-llama-accent to-llama-accent-light flex items-center justify-center text-[10px] font-semibold text-white shrink-0">
-            {t('dashboard.brand')[0]}
+          <div className="msg-label-icon ai w-[22px] h-[22px] rounded-full bg-llama-surface border border-llama-border-2 flex items-center justify-center text-[10px] font-semibold text-llama-accent shrink-0">
+            <LlamabookSpinner size={14} variant={spinnerVariant} spinning={isLast && isGenerating} />
           </div>
         </div>
 
@@ -133,6 +170,10 @@ export function Message({ message }: MessageProps) {
           <div className="msg-sender text-[12px] font-semibold text-llama-accent-light mb-[5px] leading-none">
             {t('dashboard.chatView.sender')}
           </div>
+
+          {message.webSearchQuery && message.webSearchQuery.length > 0 && (
+            <SearchingBlock query={message.webSearchQuery} />
+          )}
 
           {message.webSearchResults && message.webSearchResults.length > 0 && (
             <WebSearchResults results={message.webSearchResults} />
@@ -166,6 +207,34 @@ export function Message({ message }: MessageProps) {
               </span>
             )}
           </div>
+
+          {!isGenerating && message.status === 'sent' && (
+            <div className="flex items-center gap-0.5 mt-2.5 pl-10">
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="w-7 h-7 flex items-center justify-center rounded-lg text-llama-fg-5 hover:text-llama-fg-3 hover:bg-white/[0.06] transition-colors duration-100"
+                aria-label={copied ? t('dashboard.chatView.actions.copied') : t('dashboard.chatView.actions.copy')}
+              >
+                <IconCopy className="w-3.5 h-3.5 stroke-[1.8]" />
+              </button>
+              <button
+                type="button"
+                className="w-7 h-7 flex items-center justify-center rounded-lg text-llama-fg-5 hover:text-llama-fg-3 hover:bg-white/[0.06] transition-colors duration-100"
+                aria-label={t('dashboard.chatView.actions.play')}
+              >
+                <IconPlay className="w-3.5 h-3.5 stroke-[1.8]" />
+              </button>
+              <button
+                type="button"
+                onClick={handleRefresh}
+                className="w-7 h-7 flex items-center justify-center rounded-lg text-llama-fg-5 hover:text-llama-fg-3 hover:bg-white/[0.06] transition-colors duration-100"
+                aria-label={t('dashboard.chatView.actions.refresh')}
+              >
+                <IconRefresh className="w-3.5 h-3.5 stroke-[1.8]" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
