@@ -73,6 +73,43 @@ export interface StreamHandlers {
   signal?: AbortSignal
 }
 
+async function readSSEStream(res: Response, handlers: StreamHandlers): Promise<void> {
+  if (!res.body) {
+    handlers.onError?.(new Error('Empty response body'))
+    return
+  }
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  try {
+    while (true) {
+      if (handlers.signal?.aborted) break
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+
+      const lines = buffer.split('\n')
+      buffer = lines.pop() ?? ''
+
+      for (const raw of lines) {
+        const line = raw.trim()
+        if (!line.startsWith('data:')) continue
+        const payload = line.slice(5).trim()
+        if (!payload || payload === '{}') continue
+        try {
+          const event = JSON.parse(payload) as ChatStreamEvent
+          handlers.onEvent(event)
+        } catch {
+          // ignore malformed line
+        }
+      }
+    }
+  } catch (err) {
+    if (!handlers.signal?.aborted) handlers.onError?.(err)
+  }
+}
+
 async function openSSE(chatId: string, content: string, token: string, tools?: string[]): Promise<Response> {
   const body: Record<string, unknown> = { content }
   if (tools && tools.length > 0) {
@@ -115,34 +152,51 @@ export async function sendMessageStreamApi(
     return
   }
 
-  const reader = res.body.getReader()
-  const decoder = new TextDecoder()
-  let buffer = ''
+  await readSSEStream(res, handlers)
+}
 
-  try {
-    while (true) {
-      if (handlers.signal?.aborted) break
-      const { done, value } = await reader.read()
-      if (done) break
-      buffer += decoder.decode(value, { stream: true })
-
-      const lines = buffer.split('\n')
-      buffer = lines.pop() ?? ''
-
-      for (const raw of lines) {
-        const line = raw.trim()
-        if (!line.startsWith('data:')) continue
-        const payload = line.slice(5).trim()
-        if (!payload || payload === '{}') continue
-        try {
-          const event = JSON.parse(payload) as ChatStreamEvent
-          handlers.onEvent(event)
-        } catch {
-          // ignore malformed line
-        }
-      }
-    }
-  } catch (err) {
-    if (!handlers.signal?.aborted) handlers.onError?.(err)
+export async function editMessageStreamApi(
+  chatId: string,
+  messageId: string,
+  newContent: string,
+  handlers: StreamHandlers,
+  tools?: string[],
+): Promise<void> {
+  let token = getAccessToken()
+  if (!token) {
+    handlers.onError?.(new Error('Missing auth token'))
+    return
   }
+
+  const body: Record<string, unknown> = { new_content: newContent }
+  if (tools && tools.length > 0) {
+    body.tools = tools
+  }
+
+  const doFetch = (tok: string) =>
+    fetch(`${API_URL}/chats/${chatId}/messages/${messageId}/edit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${tok}`,
+      },
+      body: JSON.stringify(body),
+    })
+
+  let res = await doFetch(token)
+
+  if (res.status === 401) {
+    const refreshed = await refreshAccessToken()
+    if (refreshed) {
+      token = refreshed
+      res = await doFetch(token)
+    }
+  }
+
+  if (!res.ok || !res.body) {
+    handlers.onError?.(new Error(`Edit stream failed: HTTP ${res.status}`))
+    return
+  }
+
+  await readSSEStream(res, handlers)
 }

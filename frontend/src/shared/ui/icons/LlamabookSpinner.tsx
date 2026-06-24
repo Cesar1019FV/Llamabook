@@ -1,3 +1,5 @@
+import clsx from 'clsx'
+
 interface LlamabookSpinnerProps {
   className?: string
   size?: number
@@ -11,8 +13,7 @@ export function LlamabookSpinner({
   spinning = false,
   variant = 'asterisk',
 }: LlamabookSpinnerProps) {
-  const baseClasses = spinning ? 'animate-spin' : ''
-  const rootClass = `${baseClasses} origin-center ${className ?? ''}`.trim() || undefined
+  const rootClass = spinning ? 'animate-spin origin-center' : 'origin-center'
 
   if (variant === 'llama') {
     return (
@@ -25,7 +26,7 @@ export function LlamabookSpinner({
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={rootClass}
+        className={clsx(rootClass, className)}
       >
         <path d="M12 2c-1.5 0-2.5 1-3 2.5C8 6 8.5 8 10 9c-1 .5-2 1.5-2.5 3-.5 1.5-.5 3.5 0 5 .5 1.5 1.5 3 3 3.5" />
         <path d="M12 2c1.5 0 2.5 1 3 2.5C16 6 15.5 8 14 9c1 .5 2 1.5 2.5 3 .5 1.5.5 3.5 0 5-.5 1.5-1.5 3-3 3.5" />
@@ -47,7 +48,7 @@ export function LlamabookSpinner({
         strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={rootClass}
+        className={clsx(rootClass, className)}
       >
         <path d="M12 2v4" />
         <path d="M12 18v4" />
@@ -72,7 +73,7 @@ export function LlamabookSpinner({
         strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={rootClass}
+        className={clsx(rootClass, className)}
       >
         <circle cx="12" cy="12" r="2" />
         <path d="M12 6a6 6 0 0 1 6 6" />
@@ -97,7 +98,7 @@ export function LlamabookSpinner({
       strokeWidth="2.2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={rootClass}
+      className={clsx(rootClass, className)}
     >
       <path d="M12 2c.5 2.5 1.5 4 3.5 5" />
       <path d="M12 2c-.5 2.5-1.5 4-3.5 5" />

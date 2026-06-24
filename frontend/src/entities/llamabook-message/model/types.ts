@@ -11,6 +11,7 @@ export interface WebSearchResult {
 
 export interface Message {
   id: string
+  localKey: string
   type: 'system' | 'user' | 'ai'
   text: string
   thinking?: string
@@ -65,6 +66,11 @@ export interface ChatStreamDone {
   message_id?: string
 }
 
+export interface ChatStreamUserMessage {
+  type: 'user_message'
+  message_id: string
+}
+
 export type ChatStreamEvent =
   | ChatStreamDelta
   | ChatStreamThinking
@@ -72,3 +78,4 @@ export type ChatStreamEvent =
   | ChatStreamWebSearch
   | ChatStreamWebSearchResults
   | ChatStreamDone
+  | ChatStreamUserMessage

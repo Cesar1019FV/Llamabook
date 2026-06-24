@@ -80,6 +80,7 @@ export interface DashboardActions {
   openPDFChat: (chatId: string) => void
   uploadPDF: (files: File[]) => void
   sendMessage: (text: string) => void
+  editMessage: (messageId: string, newText: string) => void
   regenerateMessage: (aiMessageId: string, userText: string) => void
   refreshChats: () => Promise<void>
   pinChat: (chatId: string, pinned: boolean) => Promise<void>

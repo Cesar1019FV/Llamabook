@@ -30,6 +30,11 @@ class MessageRequest(BaseModel):
     tools: list[str] | None = None
 
 
+class MessageEditRequest(BaseModel):
+    new_content: str = Field(min_length=1)
+    tools: list[str] | None = None
+
+
 class WebSearchResultItem(BaseModel):
     title: str
     url: str

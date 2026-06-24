@@ -3,9 +3,10 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import type { Message as MessageType, WebSearchResult } from '@/entities/llamabook-message'
 import { LlamabookSpinner } from '@/shared/ui/icons/LlamabookSpinner'
-import { IconCopy, IconPlay, IconRefresh } from '@/shared/ui/icons'
+import { IconCopy, IconCheck, IconPlay, IconRefresh, IconPen } from '@/shared/ui/icons'
 import { useLlamabookDashboard } from '@/app/providers'
 import { CodeBlock } from './CodeBlock'
+import { MarkdownRenderer } from './MarkdownRenderer'
 
 interface MessageProps {
   message: MessageType
@@ -13,27 +14,43 @@ interface MessageProps {
   userText?: string
 }
 
-function ThinkingBlock({ text }: { text: string }) {
+function ThinkingBlock({ text, active }: { text: string; active?: boolean }) {
   const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
+  const preview = text.slice(0, 70).trim()
+  const hasMore = text.length > 70
 
   return (
     <div className="mb-2">
       <button
-        className="group flex items-center gap-1.5 text-[12px] text-llama-fg-4 hover:text-llama-fg-2 transition-colors duration-100"
-        onClick={() => setExpanded((v) => !v)}
         type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="group flex items-center gap-1.5 text-left"
       >
-        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={clsx('transition-transform duration-200', expanded && 'rotate-90')}>
-          <path d="M9 18l6-6-6-6" />
-        </svg>
-        <span className="font-medium">{t('dashboard.chatView.thinking')}</span>
+        <span className={clsx('text-[12.5px] font-medium', active ? 'thinking-text' : 'text-llama-fg-5 group-hover:text-llama-fg-3 transition-colors duration-150')}>
+          {t('dashboard.chatView.thinking')}
+        </span>
+        {!expanded && (
+          <span className="text-[12.5px] text-llama-fg-5 group-hover:text-llama-fg-3 transition-colors duration-150">
+            {' · '}
+            {preview}
+            {hasMore && '...'}
+          </span>
+        )}
       </button>
-      {expanded && (
-        <div className="mt-1.5 pl-4 border-l border-llama-border text-[13px] text-llama-fg-4 font-sans leading-[1.6] whitespace-pre-wrap break-words max-h-[300px] overflow-y-auto">
-          {text}
+
+      <div
+        className={clsx(
+          'overflow-hidden transition-all duration-300 ease-out',
+          expanded ? 'max-h-[600px] opacity-100 mt-1.5' : 'max-h-0 opacity-0 mt-0'
+        )}
+      >
+        <div className="pl-3 border-l border-llama-border-2">
+          <div className="thinking-glow rounded-lg px-2.5 py-2">
+            <MarkdownRenderer>{text}</MarkdownRenderer>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -102,8 +119,10 @@ function WebSearchResults({ results }: { results: WebSearchResult[] }) {
 
 export function Message({ message, isLast, userText }: MessageProps) {
   const { t } = useTranslation()
-  const { spinnerVariant, regenerateMessage, isGenerating } = useLlamabookDashboard()
+  const { spinnerVariant, regenerateMessage, isGenerating, editMessage } = useLlamabookDashboard()
   const [copied, setCopied] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editText, setEditText] = useState(message.text)
 
   const handleCopy = useCallback(async () => {
     try {
@@ -120,6 +139,21 @@ export function Message({ message, isLast, userText }: MessageProps) {
     regenerateMessage(message.id, userText)
   }, [message.id, userText, regenerateMessage])
 
+  const handleEditSubmit = useCallback(() => {
+    const trimmed = editText.trim()
+    if (!trimmed || trimmed === message.text) {
+      setIsEditing(false)
+      return
+    }
+    editMessage(message.id, trimmed)
+    setIsEditing(false)
+  }, [editText, message.id, message.text, editMessage])
+
+  const handleEditCancel = useCallback(() => {
+    setEditText(message.text)
+    setIsEditing(false)
+  }, [message.text])
+
   if (message.type === 'system') {
     return (
       <div className="msg-sys text-center py-4">
@@ -129,29 +163,71 @@ export function Message({ message, isLast, userText }: MessageProps) {
   }
 
   if (message.type === 'user') {
-    return (
-      <div className="msg py-3.5 msg-in">
-        <div className="msg-row-user flex justify-end">
-          <div className="msg-text-user font-sans text-[15px] font-normal leading-relaxed text-llama-fg text-right max-w-[85%] break-words">
-            {message.text.replace(/\n/g, '\n')}
+    if (isEditing) {
+      return (
+        <div className="msg py-3.5 msg-in">
+          <div className="flex flex-col items-end gap-2">
+            <textarea
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  handleEditSubmit()
+                }
+                if (e.key === 'Escape') {
+                  handleEditCancel()
+                }
+              }}
+              className="w-full max-w-[85%] min-h-[60px] rounded-2xl bg-llama-surface border border-llama-border px-4 py-3 text-[15px] font-normal text-llama-fg outline-none focus:border-llama-border-2 resize-none"
+              autoFocus
+            />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleEditCancel}
+                className="px-3 py-1.5 rounded-lg text-[12px] font-medium text-llama-fg-4 hover:text-llama-fg-2 hover:bg-white/[0.06] transition-colors duration-100"
+              >
+                {t('dashboard.chatView.actions.cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={handleEditSubmit}
+                disabled={!editText.trim() || editText.trim() === message.text}
+                className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-llama-accent text-white hover:bg-llama-accent-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-100"
+              >
+                {t('dashboard.chatView.actions.send')}
+              </button>
+            </div>
           </div>
         </div>
-        <div className="msg-meta-user flex items-center gap-2 mt-1.5 justify-end">
-          {message.time && <span className="msg-time text-[11px] text-llama-fg-5 font-normal">{message.time}</span>}
-          {message.status && (
-            <span
-              className={clsx(
-                'msg-status text-[11px] text-llama-fg-5 font-normal',
-                message.status === 'error' && 'text-llama-error cursor-pointer'
-              )}
+      )
+    }
+
+    return (
+      <div className="msg py-3.5 msg-in group">
+        <div className="flex flex-col items-end gap-1">
+          <div className="msg-text-user font-sans text-[15px] font-normal leading-relaxed text-llama-fg text-right max-w-[85%] break-words rounded-2xl bg-llama-surface border border-llama-border px-4 py-2.5">
+            {message.text.replace(/\n/g, '\n')}
+          </div>
+          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150 px-1">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-llama-fg-5 hover:text-llama-fg-3 hover:bg-white/[0.06] transition-colors duration-100"
+              aria-label={copied ? t('dashboard.chatView.actions.copied') : t('dashboard.chatView.actions.copy')}
             >
-              {message.status === 'error'
-                ? t('dashboard.chatView.status.error')
-                : message.status === 'sending'
-                  ? t('dashboard.chatView.status.sending')
-                  : t('dashboard.chatView.status.sent')}
-            </span>
-          )}
+              {copied ? <IconCheck className="w-3.5 h-3.5 stroke-[1.8] text-llama-online" /> : <IconCopy className="w-3.5 h-3.5 stroke-[1.8]" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-llama-fg-5 hover:text-llama-fg-3 hover:bg-white/[0.06] transition-colors duration-100"
+              aria-label={t('dashboard.chatView.actions.edit')}
+            >
+              <IconPen className="w-3.5 h-3.5 stroke-[1.8]" />
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -160,17 +236,13 @@ export function Message({ message, isLast, userText }: MessageProps) {
   return (
     <div className="msg py-3.5 msg-in">
       <div className="msg-row-ai flex gap-3.5 items-start">
-        <div className="msg-label w-[26px] shrink-0 flex items-center justify-center pt-0.5">
-          <div className="msg-label-icon ai w-[22px] h-[22px] rounded-full bg-llama-surface border border-llama-border-2 flex items-center justify-center text-[10px] font-semibold text-llama-accent shrink-0">
-            <LlamabookSpinner size={14} variant={spinnerVariant} spinning={isLast && isGenerating} />
-          </div>
+        <div className="msg-label w-[32px] shrink-0 flex items-start justify-center pt-0.5">
+          {message.text.length === 0 && (
+            <LlamabookSpinner size={28} variant={spinnerVariant} spinning={isLast && isGenerating} className="text-llama-accent" />
+          )}
         </div>
 
         <div className="msg-content flex-1 min-w-0">
-          <div className="msg-sender text-[12px] font-semibold text-llama-accent-light mb-[5px] leading-none">
-            {t('dashboard.chatView.sender')}
-          </div>
-
           {message.webSearchQuery && message.webSearchQuery.length > 0 && (
             <SearchingBlock query={message.webSearchQuery} />
           )}
@@ -179,44 +251,32 @@ export function Message({ message, isLast, userText }: MessageProps) {
             <WebSearchResults results={message.webSearchResults} />
           )}
 
-          {message.thinking && <ThinkingBlock text={message.thinking} />}
+          {message.thinking && (
+            <div className="mb-2">
+              <ThinkingBlock text={message.thinking} active={message.status === 'sending'} />
+            </div>
+          )}
 
-          <div
-            className="msg-text-ai font-serif text-[15px] font-normal leading-[1.7] text-llama-fg max-w-full break-words [&_strong]:font-semibold"
-            dangerouslySetInnerHTML={{
-              __html: message.text.replace(/\n/g, '<br />'),
-            }}
-          />
+          <MarkdownRenderer>{message.text}</MarkdownRenderer>
+
+          {message.text.length > 0 && message.status !== 'sent' && (
+            <div className="mt-4">
+              <LlamabookSpinner size={28} variant={spinnerVariant} spinning={isLast && isGenerating} className="text-llama-accent" />
+            </div>
+          )}
+
           {message.code && (
             <CodeBlock lang={message.code.lang} body={message.code.body} />
           )}
-          <div className="msg-meta flex items-center gap-2 mt-1.5 pl-10">
-            {message.time && <span className="msg-time text-[11px] text-llama-fg-5 font-normal">{message.time}</span>}
-            {message.status && (
-              <span
-                className={clsx(
-                  'msg-status text-[11px] text-llama-fg-5 font-normal',
-                  message.status === 'error' && 'text-llama-error cursor-pointer'
-                )}
-              >
-                {message.status === 'error'
-                  ? t('dashboard.chatView.status.error')
-                  : message.status === 'sending'
-                    ? t('dashboard.chatView.status.sending')
-                    : t('dashboard.chatView.status.sent')}
-              </span>
-            )}
-          </div>
 
-          {!isGenerating && message.status === 'sent' && (
-            <div className="flex items-center gap-0.5 mt-2.5 pl-10">
+          {message.status === 'sent' && isLast && (
+            <div className="flex items-center gap-0.5 mt-2.5">
               <button
                 type="button"
                 onClick={handleCopy}
                 className="w-7 h-7 flex items-center justify-center rounded-lg text-llama-fg-5 hover:text-llama-fg-3 hover:bg-white/[0.06] transition-colors duration-100"
                 aria-label={copied ? t('dashboard.chatView.actions.copied') : t('dashboard.chatView.actions.copy')}
-              >
-                <IconCopy className="w-3.5 h-3.5 stroke-[1.8]" />
+              >                {copied ? <IconCheck className="w-3.5 h-3.5 stroke-[1.8] text-llama-online" /> : <IconCopy className="w-3.5 h-3.5 stroke-[1.8]" />}
               </button>
               <button
                 type="button"
@@ -233,6 +293,12 @@ export function Message({ message, isLast, userText }: MessageProps) {
               >
                 <IconRefresh className="w-3.5 h-3.5 stroke-[1.8]" />
               </button>
+            </div>
+          )}
+
+          {message.status === 'sent' && (
+            <div className="mt-4">
+              <LlamabookSpinner size={28} variant={spinnerVariant} spinning={false} className="text-llama-accent" />
             </div>
           )}
         </div>

@@ -1,37 +1,55 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
-import { IconPlus } from '@/shared/ui/icons'
+import { IconChevron, IconPlus } from '@/shared/ui/icons'
+
+const MAX_VISIBLE = 3
 
 export function SidebarAgentSection() {
   const { t } = useTranslation()
   const { agents, showAgentDetail, openCreateAgentModal } = useLlamabookDashboard()
-
+  const [expanded, setExpanded] = useState(false)
   const hasAgents = agents.length > 0
+  const visibleAgents = agents.slice(0, MAX_VISIBLE)
 
   return (
     <div className="mb-0.5">
-      <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 select-none">
+      <div
+        className="flex items-center justify-between py-2.5 pb-1.5 px-2 cursor-pointer select-none"
+        onClick={() => setExpanded((v) => !v)}
+      >
         <span className="text-[11.5px] font-medium text-llama-fg-3 tracking-wide">{t('dashboard.sidebar.agents')}</span>
-        <div className="relative group/tooltip">
-          <button
-            className="sb-section-add w-[18px] h-[18px] flex items-center justify-center rounded text-llama-fg-3 transition-all duration-100 hover:text-llama-fg hover:bg-white/[0.12] shrink-0"
-            onClick={() => {
-              openCreateAgentModal()
-            }}
-            aria-label={t('dashboard.sidebar.newAgent')}
-            type="button"
-          >
-            <IconPlus className="w-3 h-3 stroke-[2.5]" />
-          </button>
-          <span className="absolute right-full top-1/2 -translate-y-1/2 mr-2 px-2 py-1 rounded-md bg-llama-surface-2 border border-llama-border text-[11px] text-llama-fg-2 whitespace-nowrap opacity-0 pointer-events-none transition-opacity duration-100 group-hover/tooltip:opacity-100 z-[70]">
-            {t('dashboard.sidebar.newAgent')}
-          </span>
+        <div className="flex items-center">
+          <div className="relative group/tooltip">
+            <button
+              className="sb-section-add w-[18px] h-[18px] flex items-center justify-center rounded text-llama-fg-3 transition-all duration-100 hover:text-llama-fg hover:bg-white/[0.12] shrink-0"
+              onClick={(e) => {
+                e.stopPropagation()
+                openCreateAgentModal()
+              }}
+              aria-label={t('dashboard.sidebar.newAgent')}
+              type="button"
+            >
+              <IconPlus className="w-3 h-3 stroke-[2.5]" />
+            </button>
+            <span className="absolute right-full top-1/2 -translate-y-1/2 mr-2 px-2 py-1 rounded-md bg-llama-surface-2 border border-llama-border text-[11px] text-llama-fg-2 whitespace-nowrap opacity-0 pointer-events-none transition-opacity duration-100 group-hover/tooltip:opacity-100 z-[70]">
+              {t('dashboard.sidebar.newAgent')}
+            </span>
+          </div>
+          <IconChevron className={clsx('chevron w-3 h-3 stroke-llama-fg-3 transition-transform duration-200', expanded && 'rotate-90')} />
         </div>
       </div>
 
-      <div>
+      <div
+        className={clsx(
+          'overflow-hidden transition-[max-height] duration-200',
+          !expanded && 'hidden'
+        )}
+        style={{ maxHeight: expanded ? 300 : 0 }}
+      >
         {hasAgents ? (
-          agents.map((agent) => (
+          visibleAgents.map((agent) => (
             <button
               key={agent.id}
               className="sb-agent sb-chat block w-full min-w-0 py-[7px] px-2.5 rounded-lg text-llama-fg text-[13.5px] font-normal text-left transition-colors duration-100 whitespace-nowrap overflow-hidden text-ellipsis leading-[1.4] hover:bg-llama-sidebar-hover hover:text-llama-fg"

@@ -21,7 +21,7 @@ export function MessageList() {
       <div>
         {messages.map((message, index) => (
           <Message
-            key={message.id}
+            key={message.localKey}
             message={message}
             isLast={index === lastAiIndex && message.type === 'ai'}
             userText={message.type === 'ai' ? userTextByIndex[index] : undefined}

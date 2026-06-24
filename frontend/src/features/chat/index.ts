@@ -6,6 +6,7 @@ export {
   deleteChatApi,
   updateChatApi,
   sendMessageStreamApi,
+  editMessageStreamApi,
 } from './api/chatApi'
 export type { CreateChatPayload, StreamHandlers } from './api/chatApi'
 export { groupChatsByDate, formatRelativeTime } from './lib/groupChats'

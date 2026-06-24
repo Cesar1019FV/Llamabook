@@ -303,13 +303,22 @@
       "conversationStartedWithTools": "Conversation started · {{model}} · {{tools}}",
       "sender": "Llamabook",
       "scrollToBottom": "Go to bottom",
-      "thinking": "thinking",
+      "thinking": "Thinking",
       "webSearchResults": "Web search results",
       "actions": {
         "copy": "Copy",
         "copied": "Copied",
         "play": "Read aloud",
         "refresh": "Regenerate response"
+      },
+      "actions": {
+        "copy": "Copy",
+        "copied": "Copied",
+        "play": "Read aloud",
+        "refresh": "Regenerate response",
+        "edit": "Edit message",
+        "cancel": "Cancel",
+        "send": "Send"
       },
       "status": {
         "sending": "Sending...",

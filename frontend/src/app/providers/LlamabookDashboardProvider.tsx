@@ -54,7 +54,6 @@ export function LlamabookDashboardProvider({
 
   const chatState = useChatState({
     currentView: navigation.currentView,
-    currentModel,
     setCurrentView: navigation.setCurrentView,
     currentChatId: navigation.currentChatId,
     setCurrentChatId: navigation.setCurrentChatId,
@@ -190,6 +189,7 @@ export function LlamabookDashboardProvider({
       openPDFChat: pdfState.openPDFChat,
       uploadPDF: pdfState.uploadPDF,
       sendMessage: chatState.sendMessage,
+      editMessage: chatState.editMessage,
       regenerateMessage: chatState.regenerateMessage,
       refreshChats: chatList.refreshChats,
       pinChat: chatList.pinChat,

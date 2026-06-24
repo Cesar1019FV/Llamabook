@@ -31,24 +31,6 @@ export function SidebarSections() {
 
   return (
     <nav className="pb-2">
-      {pinnedChats.length > 0 && (
-        <div className="mb-0.5">
-          <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 select-none">
-            <span className="text-[11.5px] font-medium text-llama-fg-3 tracking-wide">{t('dashboard.sidebar.pinned')}</span>
-          </div>
-          <div>
-            {pinnedChats.map((chat) => (
-              <ChatItem
-                key={chat.id}
-                chat={chat}
-                isActive={currentChatId === chat.id}
-                onOpen={() => void openChat(chat.id)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className="mb-0.5">
         <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 select-none">
           <span className="text-[11.5px] font-medium text-llama-fg-3 tracking-wide">{t('dashboard.sidebar.notebooks')}</span>
@@ -71,11 +53,10 @@ export function SidebarSections() {
 
         <div>
           {hasNotebooks ? (
-            notebooks.map((notebook) => (
+            notebooks.slice(0, 3).map((notebook) => (
               <SidebarCuaderno
                 key={notebook.id}
                 notebook={notebook}
-                activeChatId={currentChatId}
               />
             ))
           ) : (
@@ -89,6 +70,24 @@ export function SidebarSections() {
       <SidebarAgentSection />
 
       <SidebarPDFSection />
+
+      {pinnedChats.length > 0 && (
+        <div className="mb-0.5">
+          <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 select-none">
+            <span className="text-[11.5px] font-medium text-llama-fg-3 tracking-wide">{t('dashboard.sidebar.pinned')}</span>
+          </div>
+          <div>
+            {pinnedChats.map((chat) => (
+              <ChatItem
+                key={chat.id}
+                chat={chat}
+                isActive={currentChatId === chat.id}
+                onOpen={() => void openChat(chat.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mb-0.5">
         <div className="flex items-center justify-between py-2.5 pb-1.5 px-2 cursor-pointer select-none">

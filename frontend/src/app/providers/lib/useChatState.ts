@@ -3,22 +3,19 @@ import {
   useCallback,
   useRef,
 } from 'react'
-import { useTranslation } from 'react-i18next'
 import type { Message } from '@/entities/llamabook-message'
 import type { Chat } from '@/entities/llamabook-chat'
-import { toolNames } from '@/widgets/llamabook-dock'
-import type { Model } from '@/entities/llamabook-model'
 import {
   createChatApi,
   listMessagesApi,
   sendMessageStreamApi,
+  editMessageStreamApi,
   mapBackendMessages,
 } from '@/features/chat'
 import type { View } from '../model/types'
 
 interface UseChatStateProps {
   currentView: View
-  currentModel: Model
   setCurrentView: (view: View) => void
   currentChatId: string | null
   setCurrentChatId: (id: string | null) => void
@@ -35,7 +32,6 @@ interface UseChatStateProps {
 
 export function useChatState({
   currentView,
-  currentModel,
   setCurrentView,
   currentChatId,
   setCurrentChatId,
@@ -48,7 +44,6 @@ export function useChatState({
   setChats,
   refreshChats,
 }: UseChatStateProps) {
-  const { t, i18n } = useTranslation()
   const [messages, setMessages] = useState<Message[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [attachedFiles, setAttachedFiles] = useState<string[]>([])
@@ -207,35 +202,21 @@ export function useChatState({
 
       const activeChatId = chatId
 
-      setMessages((prev) => {
-        const next = [...prev]
-        if (next.length === 0) {
-          const activeToolNames = [...activeTools]
-            .map((id) => toolNames[i18n.language]?.[id] || toolNames.es[id])
-            .filter(Boolean)
-            .join(', ')
-          const systemText = activeToolNames
-            ? t('dashboard.chatView.conversationStartedWithTools', {
-                model: currentModel.name,
-                tools: activeToolNames,
-              })
-            : t('dashboard.chatView.conversationStarted', {
-                model: currentModel.name,
-              })
-          next.push({ id: 'sys-' + Date.now(), type: 'system', text: systemText })
-        }
-        next.push({ id: 'u-' + Date.now(), type: 'user', text: txt, time, status: 'sent' })
-        return next
-      })
+      const userLocalKey = 'u-' + Date.now()
+      setMessages((prev) => [
+        ...prev,
+        { id: userLocalKey, localKey: userLocalKey, type: 'user', text: txt, time, status: 'sent' },
+      ])
 
       setAttachedFiles([])
       setIsGenerating(true)
 
-      const aiMessageId = 'a-' + Date.now()
+      const aiLocalKey = 'a-' + Date.now()
       setMessages((prev) => [
         ...prev,
         {
-          id: aiMessageId,
+          id: aiLocalKey,
+          localKey: aiLocalKey,
           type: 'ai',
           text: '',
           time,
@@ -255,18 +236,28 @@ export function useChatState({
           {
             signal: controller.signal,
             onEvent: (event) => {
+              if (event.type === 'user_message') {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.localKey === userLocalKey
+                      ? { ...m, id: event.message_id }
+                      : m
+                  )
+                )
+                return
+              }
               if (event.type === 'delta') {
                 const delta = event.content ?? ''
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === aiMessageId ? { ...m, text: m.text + delta } : m
+                    m.localKey === aiLocalKey ? { ...m, text: m.text + delta } : m
                   )
                 )
               } else if (event.type === 'thinking') {
                 const thinkingDelta = event.thinking ?? ''
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === aiMessageId
+                    m.localKey === aiLocalKey
                       ? { ...m, thinking: (m.thinking ?? '') + thinkingDelta }
                       : m
                   )
@@ -274,7 +265,7 @@ export function useChatState({
               } else if (event.type === 'web_search') {
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === aiMessageId
+                    m.localKey === aiLocalKey
                       ? { ...m, webSearchQuery: event.web_search_query }
                       : m
                   )
@@ -282,7 +273,7 @@ export function useChatState({
               } else if (event.type === 'web_search_results') {
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === aiMessageId
+                    m.localKey === aiLocalKey
                       ? {
                           ...m,
                           webSearchResults: [
@@ -300,7 +291,9 @@ export function useChatState({
               } else if (event.type === 'done') {
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === aiMessageId ? { ...m, status: 'sent' } : m
+                    m.localKey === aiLocalKey
+                      ? { ...m, id: event.message_id ?? m.id, status: 'sent' }
+                      : m
                   )
                 )
               }
@@ -313,7 +306,7 @@ export function useChatState({
           console.error('Stream failed', err)
           setMessages((prev) =>
             prev.map((m) =>
-              m.id === aiMessageId ? { ...m, status: 'error' } : m
+              m.localKey === aiLocalKey ? { ...m, status: 'error' } : m
             )
           )
         }
@@ -323,7 +316,124 @@ export function useChatState({
         void refreshChats()
       }
     },
-    [activeTools, currentModel, currentView, i18n.language, isGenerating, t, currentChatId, refreshChats, setChats]
+    [activeTools, currentView, isGenerating, currentChatId, refreshChats, setChats]
+  )
+
+  const editMessage = useCallback(
+    async (messageId: string, newText: string) => {
+      const trimmed = newText.trim()
+      if (!trimmed || isGenerating || !currentChatId) return
+
+      if (abortRef.current) {
+        abortRef.current.abort()
+        abortRef.current = null
+      }
+
+      const messageIndex = messages.findIndex((m) => m.id === messageId)
+      if (messageIndex === -1) return
+      const targetMessage = messages[messageIndex]
+      if (targetMessage.type !== 'user') return
+
+      setMessages((prev) => {
+        const next = prev.slice(0, messageIndex + 1)
+        next[messageIndex] = { ...targetMessage, text: trimmed }
+        return next
+      })
+
+      setIsGenerating(true)
+
+      const aiLocalKey = 'a-' + Date.now()
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: aiLocalKey,
+          localKey: aiLocalKey,
+          type: 'ai',
+          text: '',
+          status: 'sending',
+        },
+      ])
+
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      const activeToolsList = [...activeTools]
+
+      try {
+        await editMessageStreamApi(
+          currentChatId,
+          messageId,
+          trimmed,
+          {
+            signal: controller.signal,
+            onEvent: (event) => {
+              if (event.type === 'delta') {
+                const delta = event.content ?? ''
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.localKey === aiLocalKey ? { ...m, text: m.text + delta } : m
+                  )
+                )
+              } else if (event.type === 'thinking') {
+                const thinkingDelta = event.thinking ?? ''
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.localKey === aiLocalKey
+                      ? { ...m, thinking: (m.thinking ?? '') + thinkingDelta }
+                      : m
+                  )
+                )
+              } else if (event.type === 'web_search') {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.localKey === aiLocalKey
+                      ? { ...m, webSearchQuery: event.web_search_query }
+                      : m
+                  )
+                )
+              } else if (event.type === 'web_search_results') {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.localKey === aiLocalKey
+                      ? {
+                          ...m,
+                          webSearchResults: [
+                            ...(m.webSearchResults ?? []),
+                            ...(event.web_search_results ?? []),
+                          ],
+                        }
+                      : m
+                  )
+                )
+              } else if (event.type === 'done') {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.localKey === aiLocalKey
+                      ? { ...m, id: event.message_id ?? m.id, status: 'sent' }
+                      : m
+                  )
+                )
+              }
+            },
+          },
+          activeToolsList
+        )
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          console.error('Edit stream failed', err)
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.localKey === aiLocalKey ? { ...m, status: 'error' } : m
+            )
+          )
+        }
+      } finally {
+        setIsGenerating(false)
+        abortRef.current = null
+        void refreshChats()
+      }
+    },
+    [activeTools, currentChatId, isGenerating, messages, refreshChats]
   )
 
   const regenerateMessage = useCallback(
@@ -338,6 +448,7 @@ export function useChatState({
         ...prev,
         {
           id: newAiMessageId,
+          localKey: newAiMessageId,
           type: 'ai',
           text: '',
           status: 'sending',
@@ -441,6 +552,7 @@ export function useChatState({
     attachFile,
     removeFile,
     sendMessage,
+    editMessage,
     regenerateMessage,
   }
 }

@@ -88,6 +88,24 @@ class ChatService:
         await self.message_repo.create(db, message)
         return message
 
+    async def edit_user_message(
+        self,
+        db: AsyncSession,
+        chat_id: uuid.UUID,
+        user_id: uuid.UUID,
+        message_id: uuid.UUID,
+        new_content: str,
+    ) -> None:
+        chat, messages = await self.get_chat(db, chat_id, user_id)
+        message = next((m for m in messages if m.id == message_id), None)
+        if not message or message.role != "user":
+            raise NotFoundError("Message not found")
+        message.content = new_content.strip()
+        await self.message_repo.save(db, message)
+        await self.chat_repo.delete_messages_after(db, chat_id, message_id)
+        chat.updated_at = datetime.now(UTC)
+        await db.commit()
+
     async def list_user_chats(
         self, db: AsyncSession, user_id: uuid.UUID, skip: int = 0, limit: int = 100
     ) -> list[Chat]:
@@ -134,11 +152,14 @@ class ChatService:
         user_id: uuid.UUID,
         content: str,
         tools: list[str] | None = None,
+        skip_user_insert: bool = False,
     ):
         chat, existing_messages = await self.get_chat(db, chat_id, user_id)
         is_first_message = len(existing_messages) == 0
-        await self.add_message(db, chat.id, "user", content)
-        await db.commit()
+        if not skip_user_insert:
+            user_message = await self.add_message(db, chat.id, "user", content)
+            await db.commit()
+            yield {"type": "user_message", "message_id": str(user_message.id)}
 
         messages = await self.chat_repo._load_messages(db, chat.id)
         history = self.build_history(messages)

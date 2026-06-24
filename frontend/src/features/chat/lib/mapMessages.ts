@@ -17,6 +17,7 @@ export function mapBackendMessage(m: BackendMessage): Message {
   const type: Message['type'] = m.role === 'user' ? 'user' : m.role === 'assistant' ? 'ai' : 'system'
   return {
     id: m.id,
+    localKey: m.id,
     type,
     text: m.content,
     thinking: m.thinking ?? undefined,

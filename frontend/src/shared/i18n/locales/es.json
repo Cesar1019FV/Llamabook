@@ -303,13 +303,15 @@
       "conversationStartedWithTools": "Conversacion iniciada · {{model}} · {{tools}}",
       "sender": "Llamabook",
       "scrollToBottom": "Ir al final",
-      "thinking": "thinking",
-      "webSearchResults": "Resultados de busqueda",
+      "thinking": "Pensando",
       "actions": {
         "copy": "Copiar",
         "copied": "Copiado",
         "play": "Leer en voz alta",
-        "refresh": "Regenerar respuesta"
+        "refresh": "Regenerar respuesta",
+        "edit": "Editar mensaje",
+        "cancel": "Cancelar",
+        "send": "Enviar"
       },
       "status": {
         "sending": "Enviando...",

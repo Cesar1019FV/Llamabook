@@ -17,6 +17,7 @@ from llamabook.schemas.chat import (
     ChatResponse,
     ChatStreamEvent,
     ChatUpdateRequest,
+    MessageEditRequest,
     MessageRequest,
     MessageResponse,
 )
@@ -164,6 +165,41 @@ async def send_message(
     async def event_generator():
         async for event in service.stream_response(
             db, uuid.UUID(chat_id), current_user.id, body.content, tools=body.tools
+        ):
+            yield f"data: {ChatStreamEvent(**event).model_dump_json()}\n\n"
+        yield "event: done\ndata: {}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@router.post("/{chat_id}/messages/{message_id}/edit")
+async def edit_message(
+    chat_id: str,
+    message_id: str,
+    body: MessageEditRequest,
+    service: ChatServiceDep,
+    db: DbDep,
+    current_user: CurrentUserDep,
+):
+    async def event_generator():
+        await service.edit_user_message(
+            db, uuid.UUID(chat_id), current_user.id, uuid.UUID(message_id), body.new_content
+        )
+        async for event in service.stream_response(
+            db,
+            uuid.UUID(chat_id),
+            current_user.id,
+            body.new_content,
+            tools=body.tools,
+            skip_user_insert=True,
         ):
             yield f"data: {ChatStreamEvent(**event).model_dump_json()}\n\n"
         yield "event: done\ndata: {}\n\n"

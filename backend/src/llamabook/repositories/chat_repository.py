@@ -46,6 +46,25 @@ class ChatRepository(BaseRepository[Chat]):
         result = await db.execute(statement)
         return list(result.scalars().all())
 
+    async def delete_messages_after(
+        self, db: AsyncSession, chat_id: uuid.UUID, message_id: uuid.UUID
+    ) -> None:
+        messages = await self._load_messages(db, chat_id)
+        target = next((m for m in messages if m.id == message_id), None)
+        if not target:
+            return
+        threshold = target.created_at
+        statement = (
+            select(Message)
+            .where(Message.chat_id == chat_id)
+            .where(Message.created_at > threshold)
+            .order_by(Message.created_at.asc())
+        )
+        result = await db.execute(statement)
+        for msg in result.scalars().all():
+            await db.delete(msg)
+        await db.flush()
+
 
 class MessageRepository(BaseRepository[Message]):
     def __init__(self) -> None:
