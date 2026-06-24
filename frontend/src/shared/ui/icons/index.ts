@@ -47,6 +47,7 @@ export {
   IconPen,
   IconCopy,
   IconPlay,
+  IconPause,
   IconRefresh,
   IconBookOpen,
   IconMessage,

@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import type { Message as MessageType, WebSearchResult } from '@/entities/llamabook-message'
 import { LlamabookSpinner } from '@/shared/ui/icons/LlamabookSpinner'
-import { IconCopy, IconCheck, IconPlay, IconRefresh, IconPen } from '@/shared/ui/icons'
+import { IconCopy, IconCheck, IconPlay, IconPause, IconRefresh, IconPen } from '@/shared/ui/icons'
 import { useLlamabookDashboard } from '@/app/providers'
+import { getVoiceSettings } from '@/features/tts'
 import { CodeBlock } from './CodeBlock'
 import { MarkdownRenderer } from './MarkdownRenderer'
 
@@ -12,6 +13,10 @@ interface MessageProps {
   message: MessageType
   isLast?: boolean
   userText?: string
+  ttsPlayingKey: string | null
+  ttsLoadingKey: string | null
+  onTtsPlay: (chatId: string, messageId: string, text: string, voice: string, lang: string) => void
+  onTtsStop: () => void
 }
 
 function ThinkingBlock({ text, active }: { text: string; active?: boolean }) {
@@ -117,12 +122,25 @@ function WebSearchResults({ results }: { results: WebSearchResult[] }) {
   )
 }
 
-export function Message({ message, isLast, userText }: MessageProps) {
+export function Message({ message, isLast, userText, ttsPlayingKey, ttsLoadingKey, onTtsPlay, onTtsStop }: MessageProps) {
   const { t } = useTranslation()
-  const { spinnerVariant, regenerateMessage, isGenerating, editMessage } = useLlamabookDashboard()
+  const { spinnerVariant, regenerateMessage, isGenerating, editMessage, currentChatId } = useLlamabookDashboard()
   const [copied, setCopied] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(message.text)
+
+  const isPlaying = ttsPlayingKey !== null && ttsPlayingKey.startsWith(`${message.id}:`)
+  const isLoadingAudio = ttsLoadingKey !== null && ttsLoadingKey.startsWith(`${message.id}:`)
+
+  const handlePlay = useCallback(() => {
+    if (!currentChatId) return
+    if (isPlaying) {
+      onTtsStop()
+      return
+    }
+    const settings = getVoiceSettings()
+    onTtsPlay(currentChatId, message.id, message.text, settings.voice, settings.lang)
+  }, [currentChatId, message.id, message.text, isPlaying, onTtsPlay, onTtsStop])
 
   const handleCopy = useCallback(async () => {
     try {
@@ -280,10 +298,18 @@ export function Message({ message, isLast, userText }: MessageProps) {
               </button>
               <button
                 type="button"
-                className="w-7 h-7 flex items-center justify-center rounded-lg text-llama-fg-5 hover:text-llama-fg-3 hover:bg-white/[0.06] transition-colors duration-100"
-                aria-label={t('dashboard.chatView.actions.play')}
+                onClick={handlePlay}
+                disabled={isLoadingAudio}
+                className="w-7 h-7 flex items-center justify-center rounded-lg text-llama-fg-5 hover:text-llama-fg-3 hover:bg-white/[0.06] transition-colors duration-100 disabled:opacity-50"
+                aria-label={isPlaying ? t('dashboard.chatView.actions.pause') : t('dashboard.chatView.actions.play')}
               >
-                <IconPlay className="w-3.5 h-3.5 stroke-[1.8]" />
+                {isLoadingAudio ? (
+                  <LlamabookSpinner size={14} variant={spinnerVariant} spinning className="text-llama-accent" />
+                ) : isPlaying ? (
+                  <IconPause className="w-3.5 h-3.5 stroke-[1.8]" />
+                ) : (
+                  <IconPlay className="w-3.5 h-3.5 stroke-[1.8]" />
+                )}
               </button>
               <button
                 type="button"

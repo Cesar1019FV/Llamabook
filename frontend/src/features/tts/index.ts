@@ -1,0 +1,7 @@
+export { fetchTtsAudio } from './api/ttsApi'
+export { useTtsPlayer } from './lib/useTtsPlayer'
+export { getCachedAudio, setCachedAudio, cleanupExpiredAudio } from './lib/ttsCache'
+export { hashText } from './lib/hashText'
+export { getVoiceSettings, saveVoiceSettings } from './lib/voiceSettings'
+export { TTS_VOICES } from './model/types'
+export type { TTSVoiceItem, TTSVoicesData, VoiceSettings } from './model/types'

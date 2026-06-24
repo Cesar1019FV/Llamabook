@@ -72,7 +72,8 @@
       "title": "Settings",
       "close": "Close settings",
       "sections": {
-        "general": "General"
+        "general": "General",
+        "voice": "Voice"
       },
       "profile": {
         "title": "Profile",
@@ -98,6 +99,11 @@
         "llama": "Llama",
         "nova": "Nova",
         "orbit": "Orbit"
+      },
+      "voice": {
+        "title": "Voice",
+        "language": "Language",
+        "voice": "Reading voice"
       }
     },
     "createNotebook": {
@@ -315,6 +321,7 @@
         "copy": "Copy",
         "copied": "Copied",
         "play": "Read aloud",
+        "pause": "Pause",
         "refresh": "Regenerate response",
         "edit": "Edit message",
         "cancel": "Cancel",

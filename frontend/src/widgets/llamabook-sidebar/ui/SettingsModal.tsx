@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
 import { useAuth } from '@/features/auth'
+import { getVoiceSettings, saveVoiceSettings, TTS_VOICES } from '@/features/tts'
+import type { VoiceSettings, TTSVoiceItem } from '@/features/tts'
 import { LlamabookSpinner } from '@/shared/ui/icons/LlamabookSpinner'
-import { IconClose, IconSettings, IconLanguage, IconSun, IconMoon } from '@/shared/ui/icons'
+import { IconClose, IconSettings, IconLanguage, IconSun, IconMoon, IconAudio } from '@/shared/ui/icons'
 
-type SettingsSection = 'general'
+type SettingsSection = 'general' | 'voice'
 
 export function SettingsModal() {
   const { t, i18n } = useTranslation()
@@ -17,11 +19,21 @@ export function SettingsModal() {
   const [nameInput, setNameInput] = useState('')
   const [isSavingName, setIsSavingName] = useState(false)
   const [nameSaved, setNameSaved] = useState(false)
+  const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(() => getVoiceSettings())
 
   useEffect(() => {
     setNameInput(user?.name ?? '')
     setNameSaved(false)
   }, [user?.name])
+
+  function updateVoiceSettings(partial: Partial<VoiceSettings>) {
+    const next = { ...voiceSettings, ...partial }
+    if (partial.lang && !TTS_VOICES[partial.lang].some((v) => v.id === next.voice)) {
+      next.voice = TTS_VOICES[partial.lang][0].id
+    }
+    setVoiceSettings(next)
+    saveVoiceSettings(next)
+  }
 
   const displayName = user?.name ?? user?.email ?? ''
   const displayEmail = user?.email ?? ''
@@ -76,11 +88,28 @@ export function SettingsModal() {
             <IconSettings className="w-4 h-4 stroke-[1.8]" />
             {t('dashboard.settings.sections.general')}
           </button>
+
+          <button
+            className={clsx(
+              'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] text-left transition-colors duration-100',
+              activeSection === 'voice'
+                ? 'bg-llama-surface text-llama-fg'
+                : 'text-llama-fg-3 hover:text-llama-fg hover:bg-white/[0.08]'
+            )}
+            onClick={() => setActiveSection('voice')}
+          >
+            <IconAudio className="w-4 h-4 stroke-[1.8]" />
+            {t('dashboard.settings.sections.voice')}
+          </button>
         </div>
 
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex items-center justify-between px-5 py-3 border-b border-llama-border shrink-0">
-            <span className="text-[15px] font-medium text-llama-fg">{t('dashboard.settings.sections.general')}</span>
+            <span className="text-[15px] font-medium text-llama-fg">
+              {activeSection === 'voice'
+                ? t('dashboard.settings.sections.voice')
+                : t('dashboard.settings.sections.general')}
+            </span>
             <button
               className="hidden md:flex w-8 h-8 items-center justify-center rounded-md text-llama-fg-3 hover:bg-llama-surface"
               onClick={closeSettingsModal}
@@ -91,6 +120,37 @@ export function SettingsModal() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
+            {activeSection === 'voice' ? (
+              <section>
+                <h3 className="text-[14px] font-medium text-llama-fg mb-3">{t('dashboard.settings.voice.title')}</h3>
+
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-[13px] text-llama-fg-2">{t('dashboard.settings.voice.language')}</label>
+                  <select
+                    value={voiceSettings.lang}
+                    onChange={(e) => updateVoiceSettings({ lang: e.target.value as 'es' | 'en' })}
+                    className="px-3 py-2 rounded-lg bg-llama-surface border border-llama-border text-[13px] text-llama-fg outline-none cursor-pointer"
+                  >
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="text-[13px] text-llama-fg-2">{t('dashboard.settings.voice.voice')}</label>
+                  <select
+                    value={voiceSettings.voice}
+                    onChange={(e) => updateVoiceSettings({ voice: e.target.value })}
+                    className="px-3 py-2 rounded-lg bg-llama-surface border border-llama-border text-[13px] text-llama-fg outline-none cursor-pointer"
+                  >
+                    {TTS_VOICES[voiceSettings.lang].map((v: TTSVoiceItem) => (
+                      <option key={v.id} value={v.id}>{v.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </section>
+            ) : (
+              <>
             <section>
               <h3 className="text-[14px] font-medium text-llama-fg mb-3">{t('dashboard.settings.profile.title')}</h3>
               <div className="flex items-center gap-4 mb-4">
@@ -215,6 +275,8 @@ export function SettingsModal() {
                 </div>
               </div>
             </section>
+              </>
+            )}
           </div>
         </div>
       </div>

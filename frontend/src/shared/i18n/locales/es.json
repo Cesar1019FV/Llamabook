@@ -72,7 +72,8 @@
       "title": "Configuracion",
       "close": "Cerrar configuracion",
       "sections": {
-        "general": "General"
+        "general": "General",
+        "voice": "Voz"
       },
       "profile": {
         "title": "Perfil",
@@ -98,6 +99,11 @@
         "llama": "Llama",
         "nova": "Nova",
         "orbit": "Orbita"
+      },
+      "voice": {
+        "title": "Voz",
+        "language": "Idioma",
+        "voice": "Voz de lectura"
       }
     },
     "createNotebook": {
@@ -308,6 +314,7 @@
         "copy": "Copiar",
         "copied": "Copiado",
         "play": "Leer en voz alta",
+        "pause": "Pausar",
         "refresh": "Regenerar respuesta",
         "edit": "Editar mensaje",
         "cancel": "Cancelar",
