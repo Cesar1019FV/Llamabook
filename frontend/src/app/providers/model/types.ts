@@ -9,6 +9,8 @@ import type {
   GeneratedDocument,
 } from '@/entities/llamabook-document'
 import type { i18n } from 'i18next'
+import type { ThinkMode } from '../lib/useThinkMode'
+import type { TriggerSettings } from '@/entities/user'
 
 export type View =
   | 'dashboard'
@@ -56,6 +58,9 @@ export interface DashboardState {
   generatedDocs: GeneratedDocument[]
   chats: Chat[]
   spinnerVariant: 'asterisk' | 'llama' | 'nova' | 'orbit'
+  thinkMode: ThinkMode
+  webSearchEnabled: boolean
+  triggerSettings: TriggerSettings
   i18n: i18n
 }
 
@@ -87,6 +92,7 @@ export interface DashboardActions {
   renameChat: (chatId: string, title: string) => Promise<void>
   deleteChat: (chatId: string) => Promise<void>
   toggleTool: (tool: string) => void
+  stopGeneration: () => void
   toggleNotebook: (id: string) => void
   collapseNotebook: (id: string) => void
   addNotebook: (name: string) => void
@@ -105,6 +111,12 @@ export interface DashboardActions {
   setSearchQuery: (q: string) => void
   setModelSearchQuery: (q: string) => void
   setSpinnerVariant: (variant: 'asterisk' | 'llama' | 'nova' | 'orbit') => void
+  setThinkMode: (mode: ThinkMode) => void
+  setWebSearchEnabled: (v: boolean) => void
+  detectTriggers: (text: string) => { webSearch: boolean; webFetch: boolean; thinking: boolean; urls: string[] }
+  addTriggerKeyword: (group: 'webSearch' | 'thinking', kw: string) => void
+  removeTriggerKeyword: (group: 'webSearch' | 'thinking', kw: string) => void
+  toggleTriggersEnabled: () => void
   openPlusPopup: () => void
   closePlusPopup: () => void
   openModelPopup: () => void

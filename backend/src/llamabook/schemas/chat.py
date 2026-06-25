@@ -28,11 +28,13 @@ class ChatResponse(BaseModel):
 class MessageRequest(BaseModel):
     content: str = Field(min_length=1)
     tools: list[str] | None = None
+    think: bool | str | None = None
 
 
 class MessageEditRequest(BaseModel):
     new_content: str = Field(min_length=1)
     tools: list[str] | None = None
+    think: bool | str | None = None
 
 
 class WebSearchResultItem(BaseModel):

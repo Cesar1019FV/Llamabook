@@ -1,5 +1,5 @@
 import { http, setTokens, clearTokens } from '@/shared/api'
-import type { AuthTokens, User, SignupData } from '@/entities/user'
+import type { AuthTokens, User, SignupData, UserPreferences } from '@/entities/user'
 
 export async function loginApi(email: string, password: string): Promise<AuthTokens> {
   const form = new URLSearchParams()
@@ -30,7 +30,7 @@ export async function meApi(): Promise<User> {
   return http.get<User>('/auth/me')
 }
 
-export async function updateMeApi(data: { name: string }): Promise<User> {
+export async function updateMeApi(data: { name?: string; preferences?: UserPreferences }): Promise<User> {
   return http.patch<User>('/auth/me', data)
 }
 

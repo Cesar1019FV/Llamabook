@@ -110,10 +110,13 @@ async function readSSEStream(res: Response, handlers: StreamHandlers): Promise<v
   }
 }
 
-async function openSSE(chatId: string, content: string, token: string, tools?: string[]): Promise<Response> {
+async function openSSE(chatId: string, content: string, token: string, tools?: string[], think?: boolean | string | null): Promise<Response> {
   const body: Record<string, unknown> = { content }
   if (tools && tools.length > 0) {
     body.tools = tools
+  }
+  if (think !== null && think !== undefined) {
+    body.think = think
   }
   return fetch(`${API_URL}/chats/${chatId}/messages`, {
     method: 'POST',
@@ -130,6 +133,7 @@ export async function sendMessageStreamApi(
   content: string,
   handlers: StreamHandlers,
   tools?: string[],
+  think?: boolean | string | null,
 ): Promise<void> {
   let token = getAccessToken()
   if (!token) {
@@ -137,13 +141,13 @@ export async function sendMessageStreamApi(
     return
   }
 
-  let res = await openSSE(chatId, content, token, tools)
+  let res = await openSSE(chatId, content, token, tools, think)
 
   if (res.status === 401) {
     const refreshed = await refreshAccessToken()
     if (refreshed) {
       token = refreshed
-      res = await openSSE(chatId, content, token, tools)
+      res = await openSSE(chatId, content, token, tools, think)
     }
   }
 
@@ -161,6 +165,7 @@ export async function editMessageStreamApi(
   newContent: string,
   handlers: StreamHandlers,
   tools?: string[],
+  think?: boolean | string | null,
 ): Promise<void> {
   let token = getAccessToken()
   if (!token) {
@@ -168,9 +173,15 @@ export async function editMessageStreamApi(
     return
   }
 
-  const body: Record<string, unknown> = { new_content: newContent }
-  if (tools && tools.length > 0) {
-    body.tools = tools
+  const buildBody = () => {
+    const body: Record<string, unknown> = { new_content: newContent }
+    if (tools && tools.length > 0) {
+      body.tools = tools
+    }
+    if (think !== null && think !== undefined) {
+      body.think = think
+    }
+    return JSON.stringify(body)
   }
 
   const doFetch = (tok: string) =>
@@ -180,7 +191,7 @@ export async function editMessageStreamApi(
         'Content-Type': 'application/json',
         Authorization: `Bearer ${tok}`,
       },
-      body: JSON.stringify(body),
+      body: buildBody(),
     })
 
   let res = await doFetch(token)

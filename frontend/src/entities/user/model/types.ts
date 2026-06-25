@@ -1,11 +1,22 @@
 export type UserRole = 'admin' | 'user'
 
+export interface TriggerSettings {
+  enabled: boolean
+  webSearch: string[]
+  thinking: string[]
+}
+
+export interface UserPreferences {
+  triggers?: TriggerSettings | null
+}
+
 export interface User {
   id: string
   email: string
   name: string | null
   role: UserRole
   is_active: boolean
+  preferences?: UserPreferences | null
 }
 
 export interface AuthTokens {

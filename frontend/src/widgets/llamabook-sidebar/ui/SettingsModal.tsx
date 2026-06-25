@@ -6,9 +6,137 @@ import { useAuth } from '@/features/auth'
 import { getVoiceSettings, saveVoiceSettings, TTS_VOICES } from '@/features/tts'
 import type { VoiceSettings, TTSVoiceItem } from '@/features/tts'
 import { LlamabookSpinner } from '@/shared/ui/icons/LlamabookSpinner'
-import { IconClose, IconSettings, IconLanguage, IconSun, IconMoon, IconAudio } from '@/shared/ui/icons'
+import { IconClose, IconSettings, IconLanguage, IconSun, IconMoon, IconAudio, IconWebSearch } from '@/shared/ui/icons'
 
-type SettingsSection = 'general' | 'voice'
+type SettingsSection = 'general' | 'voice' | 'triggers'
+
+function KeywordList({
+  title,
+  hint,
+  keywords,
+  onAdd,
+  onRemove,
+}: {
+  title: string
+  hint: string
+  keywords: string[]
+  onAdd: (kw: string) => void
+  onRemove: (kw: string) => void
+}) {
+  const { t } = useTranslation()
+  const [input, setInput] = useState('')
+
+  const handleAdd = () => {
+    const trimmed = input.trim()
+    if (!trimmed) return
+    onAdd(trimmed)
+    setInput('')
+  }
+
+  return (
+    <div>
+      <div className="text-[13px] font-medium text-llama-fg-2 mb-1">{title}</div>
+      <div className="text-[11.5px] text-llama-fg-4 mb-2">{hint}</div>
+      <div className="flex flex-wrap gap-1.5 mb-2.5">
+        {keywords.length === 0 && (
+          <span className="text-[12px] text-llama-fg-5 italic">{t('dashboard.settings.triggers.empty')}</span>
+        )}
+        {keywords.map((kw) => (
+          <span
+            key={kw}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-llama-surface border border-llama-border text-[12px] text-llama-fg-3"
+          >
+            {kw}
+            <button
+              type="button"
+              onClick={() => onRemove(kw)}
+              className="text-llama-fg-5 hover:text-llama-error transition-colors duration-100"
+              aria-label={t('dashboard.settings.triggers.remove')}
+            >
+              <IconClose className="w-3 h-3 stroke-2" />
+            </button>
+          </span>
+        ))}
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleAdd()
+            }
+          }}
+          placeholder={t('dashboard.settings.triggers.addPlaceholder')}
+          className="flex-1 px-3 py-2 rounded-lg bg-llama-surface border border-llama-border text-[13px] text-llama-fg outline-none focus:border-llama-border-2"
+        />
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={!input.trim()}
+          className="px-3 py-2 rounded-lg text-[12px] font-medium bg-llama-accent text-white hover:bg-llama-accent-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-100"
+        >
+          {t('dashboard.settings.triggers.add')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function TriggersSection() {
+  const { t } = useTranslation()
+  const {
+    triggerSettings,
+    toggleTriggersEnabled,
+    addTriggerKeyword,
+    removeTriggerKeyword,
+  } = useLlamabookDashboard()
+
+  return (
+    <section>
+      <h3 className="text-[14px] font-medium text-llama-fg mb-1">{t('dashboard.settings.triggers.title')}</h3>
+      <p className="text-[12px] text-llama-fg-4 mb-4">{t('dashboard.settings.triggers.description')}</p>
+
+      <div className="flex items-center justify-between mb-5 p-3 rounded-lg bg-llama-surface border border-llama-border">
+        <span className="text-[13px] text-llama-fg-2">{t('dashboard.settings.triggers.enabled')}</span>
+        <button
+          type="button"
+          onClick={toggleTriggersEnabled}
+          className={clsx(
+            'relative w-[40px] h-[22px] rounded-full transition-colors duration-200',
+            triggerSettings.enabled ? 'bg-llama-accent' : 'bg-llama-border'
+          )}
+        >
+          <span
+            className={clsx(
+              'absolute top-[2px] w-[18px] h-[18px] rounded-full bg-white shadow-sm transition-all duration-200',
+              triggerSettings.enabled ? 'left-[20px]' : 'left-[2px]'
+            )}
+          />
+        </button>
+      </div>
+
+      <div className="space-y-5">
+        <KeywordList
+          title={t('dashboard.settings.triggers.webSearch.title')}
+          hint={t('dashboard.settings.triggers.webSearch.hint')}
+          keywords={triggerSettings.webSearch}
+          onAdd={(kw) => addTriggerKeyword('webSearch', kw)}
+          onRemove={(kw) => removeTriggerKeyword('webSearch', kw)}
+        />
+        <KeywordList
+          title={t('dashboard.settings.triggers.thinking.title')}
+          hint={t('dashboard.settings.triggers.thinking.hint')}
+          keywords={triggerSettings.thinking}
+          onAdd={(kw) => addTriggerKeyword('thinking', kw)}
+          onRemove={(kw) => removeTriggerKeyword('thinking', kw)}
+        />
+      </div>
+    </section>
+  )
+}
 
 export function SettingsModal() {
   const { t, i18n } = useTranslation()
@@ -101,6 +229,19 @@ export function SettingsModal() {
             <IconAudio className="w-4 h-4 stroke-[1.8]" />
             {t('dashboard.settings.sections.voice')}
           </button>
+
+          <button
+            className={clsx(
+              'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] text-left transition-colors duration-100',
+              activeSection === 'triggers'
+                ? 'bg-llama-surface text-llama-fg'
+                : 'text-llama-fg-3 hover:text-llama-fg hover:bg-white/[0.08]'
+            )}
+            onClick={() => setActiveSection('triggers')}
+          >
+            <IconWebSearch className="w-4 h-4 stroke-[1.8]" />
+            {t('dashboard.settings.sections.triggers')}
+          </button>
         </div>
 
         <div className="flex-1 flex flex-col min-h-0">
@@ -108,6 +249,8 @@ export function SettingsModal() {
             <span className="text-[15px] font-medium text-llama-fg">
               {activeSection === 'voice'
                 ? t('dashboard.settings.sections.voice')
+                : activeSection === 'triggers'
+                ? t('dashboard.settings.sections.triggers')
                 : t('dashboard.settings.sections.general')}
             </span>
             <button
@@ -149,6 +292,8 @@ export function SettingsModal() {
                   </select>
                 </div>
               </section>
+            ) : activeSection === 'triggers' ? (
+              <TriggersSection />
             ) : (
               <>
             <section>

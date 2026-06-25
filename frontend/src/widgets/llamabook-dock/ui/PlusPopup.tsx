@@ -13,7 +13,6 @@ interface PlusPopupProps {
 
 const iconColorByAction: Record<string, string> = {
   upload: 'text-llama-fg-3 bg-white/[0.10]',
-  drive: 'text-[#4ade80] bg-[rgba(34,197,94,0.1)]',
   link: 'text-[#818cf8] bg-[rgba(99,102,241,0.1)]',
 }
 
@@ -84,15 +83,22 @@ export function PlusPopup({ open, onClose }: PlusPopupProps) {
         </div>
         {toolItems.map((item) => {
           const Icon = iconsByToolId[item.id]
-          const isActive = activeTools.has(item.id)
+          const isActive = !item.comingSoon && activeTools.has(item.id)
           return (
             <button
               key={item.id}
-              className="plus-popup-item flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-[13px] font-normal text-llama-fg-2 text-left transition-colors duration-100 cursor-pointer hover:bg-white/[0.06] hover:text-llama-fg"
+              className={clsx(
+                'plus-popup-item flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-[13px] font-normal text-left transition-colors duration-100',
+                item.comingSoon
+                  ? 'cursor-default opacity-50'
+                  : 'cursor-pointer hover:bg-white/[0.06] hover:text-llama-fg text-llama-fg-2'
+              )}
               onClick={(e) => {
                 e.stopPropagation()
+                if (item.comingSoon) return
                 toggleTool(item.id)
               }}
+              disabled={item.comingSoon}
             >
               <div
                 className="plus-popup-icon w-[30px] h-[30px] rounded-lg flex items-center justify-center shrink-0"
@@ -111,14 +117,20 @@ export function PlusPopup({ open, onClose }: PlusPopupProps) {
                   {t(`dashboard.dock.tools.${item.id}Desc`)}
                 </div>
               </div>
-              <div
-                className={clsx(
-                  'plus-popup-item-check w-4 h-4 rounded border-[1.5px] border-llama-border-2 flex items-center justify-center shrink-0 transition-colors duration-150',
-                  isActive && 'bg-llama-accent border-llama-accent'
-                )}
-              >
-                <IconCheck className={clsx('w-2.5 h-2.5 stroke-white stroke-[3] opacity-0 transition-opacity duration-100', isActive && 'opacity-100')} />
-              </div>
+              {item.comingSoon ? (
+                <span className="plus-popup-soon text-[9.5px] font-medium uppercase tracking-wide text-llama-fg-4 px-1.5 py-0.5 rounded bg-white/[0.06] shrink-0">
+                  {t('dashboard.dock.tools.comingSoon')}
+                </span>
+              ) : (
+                <div
+                  className={clsx(
+                    'plus-popup-item-check w-4 h-4 rounded border-[1.5px] border-llama-border-2 flex items-center justify-center shrink-0 transition-colors duration-150',
+                    isActive && 'bg-llama-accent border-llama-accent'
+                  )}
+                >
+                  <IconCheck className={clsx('w-2.5 h-2.5 stroke-white stroke-[3] opacity-0 transition-opacity duration-100', isActive && 'opacity-100')} />
+                </div>
+              )}
             </button>
           )
         })}

@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import type { User } from '@/entities/user'
+import type { User, UserPreferences } from '@/entities/user'
 
 export interface AuthContextValue {
   user: User | null
@@ -8,6 +8,7 @@ export interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name?: string) => Promise<void>
   updateProfile: (data: { name: string }) => Promise<User>
+  syncPreferences: (preferences: UserPreferences) => Promise<void>
   logout: () => Promise<void>
 }
 

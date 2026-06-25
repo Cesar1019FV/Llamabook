@@ -152,6 +152,7 @@ class ChatService:
         user_id: uuid.UUID,
         content: str,
         tools: list[str] | None = None,
+        think: bool | str | None = None,
         skip_user_insert: bool = False,
     ):
         chat, existing_messages = await self.get_chat(db, chat_id, user_id)
@@ -174,9 +175,15 @@ class ChatService:
                 yield {"type": "title", "title": title}
 
         use_web_search = bool(tools and "web_search" in tools)
-        use_thinking = not tools or "thinking" in tools or True
 
-        think_param: bool | None = True if use_thinking else None
+        if think is None:
+            think_param: bool | str | None = True
+        elif think is False:
+            think_param = False
+        elif think is True:
+            think_param = True
+        else:
+            think_param = think
 
         all_search_results: list[dict] = []
 
@@ -270,7 +277,7 @@ class ChatService:
                     query = func_args.get("query", "")
                     yield {"type": "web_search", "web_search_query": query, "message_id": str(assistant_message.id)}
                     try:
-                        results = await self.ollama.web_search(query, max_results=5)
+                        results = await self.ollama.web_search(query, max_results=8)
                         all_search_results.extend(results)
                         yield {
                             "type": "web_search_results",

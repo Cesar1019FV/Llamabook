@@ -14,6 +14,9 @@ import { usePDFState } from './lib/usePDFState'
 import { useGeneratedDocs } from './lib/useGeneratedDocs'
 import { useModals } from './lib/useModals'
 import { useSpinnerVariant } from './lib/useSpinnerVariant'
+import { useThinkMode } from './lib/useThinkMode'
+import { useWebSearchEnabled } from './lib/useWebSearchEnabled'
+import { useTriggers } from './lib/useTriggers'
 import { useKeyboardShortcuts } from './lib/useKeyboardShortcuts'
 
 const DashboardContext = createContext<DashboardContextValue | null>(null)
@@ -52,6 +55,12 @@ export function LlamabookDashboardProvider({
     showDashboard: navigation.showDashboard,
   })
 
+  const modals = useModals()
+  const spinner = useSpinnerVariant()
+  const think = useThinkMode()
+  const webSearch = useWebSearchEnabled()
+  const triggers = useTriggers()
+
   const chatState = useChatState({
     currentView: navigation.currentView,
     setCurrentView: navigation.setCurrentView,
@@ -66,6 +75,9 @@ export function LlamabookDashboardProvider({
     setSidebarOpen,
     setChats: chatList.setChats,
     refreshChats: chatList.refreshChats,
+    thinkMode: think.thinkMode,
+    webSearchEnabled: webSearch.webSearchEnabled,
+    detectTriggers: triggers.detectTriggers,
   })
   const notebooks = useNotebooks()
   const agents = useAgents()
@@ -95,9 +107,6 @@ export function LlamabookDashboardProvider({
     setPdfPreviewOpen: setPdfPreviewOpenState,
     setCurrentView: navigation.setCurrentView,
   })
-
-  const modals = useModals()
-  const spinner = useSpinnerVariant()
 
   useKeyboardShortcuts({
     currentView: navigation.currentView,
@@ -168,6 +177,9 @@ export function LlamabookDashboardProvider({
       generatedDocs: generatedDocs.generatedDocs,
       chats: chatList.chats,
       spinnerVariant: spinner.spinnerVariant,
+      thinkMode: think.thinkMode,
+      webSearchEnabled: webSearch.webSearchEnabled,
+      triggerSettings: triggers.settings,
       i18n,
       toggleSidebar,
       openMobileSidebar,
@@ -196,6 +208,7 @@ export function LlamabookDashboardProvider({
       renameChat: chatList.renameChat,
       deleteChat: chatList.deleteChat,
       toggleTool: chatState.toggleTool,
+      stopGeneration: chatState.stopGeneration,
       toggleNotebook: notebooks.toggleNotebook,
       collapseNotebook: notebooks.collapseNotebook,
       addNotebook: notebooks.addNotebook,
@@ -214,6 +227,18 @@ export function LlamabookDashboardProvider({
       setSearchQuery,
       setModelSearchQuery,
       setSpinnerVariant: spinner.setSpinnerVariant,
+      setThinkMode: think.setThinkMode,
+      setWebSearchEnabled: webSearch.setWebSearchEnabled,
+      detectTriggers: triggers.detectTriggers,
+      addTriggerKeyword: (group, kw) => {
+        if (group === 'webSearch') triggers.addWebSearchKeyword(kw)
+        else triggers.addThinkingKeyword(kw)
+      },
+      removeTriggerKeyword: (group, kw) => {
+        if (group === 'webSearch') triggers.removeWebSearchKeyword(kw)
+        else triggers.removeThinkingKeyword(kw)
+      },
+      toggleTriggersEnabled: triggers.toggleEnabled,
       openPlusPopup: modals.openPlusPopup,
       closePlusPopup: modals.closePlusPopup,
       openModelPopup: modals.openModelPopup,
@@ -244,6 +269,9 @@ export function LlamabookDashboardProvider({
       generatedDocs,
       chatList,
       spinner,
+      think,
+      webSearch,
+      triggers,
       i18n,
       toggleSidebar,
       openMobileSidebar,

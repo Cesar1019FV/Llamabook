@@ -164,7 +164,7 @@ async def send_message(
 ):
     async def event_generator():
         async for event in service.stream_response(
-            db, uuid.UUID(chat_id), current_user.id, body.content, tools=body.tools
+            db, uuid.UUID(chat_id), current_user.id, body.content, tools=body.tools, think=body.think
         ):
             yield f"data: {ChatStreamEvent(**event).model_dump_json()}\n\n"
         yield "event: done\ndata: {}\n\n"
@@ -199,6 +199,7 @@ async def edit_message(
             current_user.id,
             body.new_content,
             tools=body.tools,
+            think=body.think,
             skip_user_insert=True,
         ):
             yield f"data: {ChatStreamEvent(**event).model_dump_json()}\n\n"

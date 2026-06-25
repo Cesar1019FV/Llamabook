@@ -57,6 +57,7 @@
       "library": "Biblioteca",
       "newPDF": "Subir PDF",
       "noPDFs": "Sin PDFs",
+      "comingSoon": "Próximamente",
       "profile": {
         "name": "Mira",
         "plan": "Pro"
@@ -73,7 +74,8 @@
       "close": "Cerrar configuracion",
       "sections": {
         "general": "General",
-        "voice": "Voz"
+        "voice": "Voz",
+        "triggers": "Palabras clave"
       },
       "profile": {
         "title": "Perfil",
@@ -104,6 +106,23 @@
         "title": "Voz",
         "language": "Idioma",
         "voice": "Voz de lectura"
+      },
+      "triggers": {
+        "title": "Activacion automatica",
+        "description": "Detecta palabras clave en tus mensajes para activar herramientas automaticamente.",
+        "enabled": "Activar deteccion automatica",
+        "webSearch": {
+          "title": "Busqueda web",
+          "hint": "Estas palabras activan la busqueda en internet al detectarlas en el mensaje."
+        },
+        "thinking": {
+          "title": "Razonamiento",
+          "hint": "Estas palabras activan el razonamiento al detectarlas en el mensaje."
+        },
+        "addPlaceholder": "Anadir palabra clave...",
+        "add": "Anadir",
+        "remove": "Quitar",
+        "empty": "Sin palabras clave"
       }
     },
     "createNotebook": {
@@ -332,6 +351,27 @@
       "attach": "Adjuntar y herramientas",
       "mic": "Voz",
       "send": "Enviar",
+      "stop": "Detener",
+      "think": {
+        "label": "Razonamiento",
+        "effort": "Esfuerzo de razonamiento",
+        "disclaimer": "Los niveles solo aplican a modelos compatibles, como gpt-oss",
+        "off": "Apagado",
+        "on": "Razonamiento",
+        "low": "Bajo",
+        "medium": "Medio",
+        "high": "Alto",
+        "offDesc": "Sin razonamiento",
+        "onDesc": "Razonamiento estandar",
+        "lowDesc": "Razonamiento breve",
+        "mediumDesc": "Razonamiento medio",
+        "highDesc": "Razonamiento profundo"
+      },
+      "webSearch": {
+        "label": "Web",
+        "onDesc": "Busca en internet al responder",
+        "offDesc": "Sin busqueda en internet"
+      },
       "attachSection": {
         "title": "Adjuntar",
         "upload": "Subir archivo",
@@ -366,7 +406,8 @@
         "infographic": "Infografia",
         "infographicDesc": "Visual de datos y conceptos",
         "table": "Tabla de datos",
-        "tableDesc": "Datos estructurados en tabla"
+        "tableDesc": "Datos estructurados en tabla",
+        "comingSoon": "Próximamente"
       }
     },
     "statusBar": {

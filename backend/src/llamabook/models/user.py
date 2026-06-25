@@ -19,6 +19,7 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=now_utc)
     updated_at: datetime = Field(default_factory=now_utc)
+    preferences: str | None = Field(default=None)
 
     @property
     def is_admin(self) -> bool:

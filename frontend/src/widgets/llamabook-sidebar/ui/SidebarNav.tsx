@@ -9,12 +9,13 @@ interface NavItem {
   icon: React.FC<{ className?: string }>
   variant: 'primary' | 'default'
   disabled?: boolean
+  comingSoon?: boolean
   onClick?: () => void
 }
 
 export function SidebarNav() {
   const { t } = useTranslation()
-  const { currentView, showDashboard, showNotebooksList, showAgentsList, showPDFChatList, showLibrary } = useLlamabookDashboard()
+  const { currentView, showDashboard } = useLlamabookDashboard()
 
   const items: NavItem[] = [
     {
@@ -29,35 +30,35 @@ export function SidebarNav() {
       labelKey: 'dashboard.sidebar.search',
       icon: IconSearch,
       variant: 'default',
-      disabled: true,
+      comingSoon: true,
     },
     {
       id: 'notebooks',
       labelKey: 'dashboard.sidebar.notebooksMenu',
       icon: IconDocument,
       variant: 'default',
-      onClick: showNotebooksList,
+      comingSoon: true,
     },
     {
       id: 'workspace',
       labelKey: 'dashboard.sidebar.agents',
       icon: IconWorkspace,
       variant: 'default',
-      onClick: showAgentsList,
+      comingSoon: true,
     },
     {
       id: 'pdf-chat',
       labelKey: 'dashboard.sidebar.pdfChat',
       icon: IconPDF,
       variant: 'default',
-      onClick: showPDFChatList,
+      comingSoon: true,
     },
     {
       id: 'library',
       labelKey: 'dashboard.sidebar.library',
       icon: IconLibrary,
       variant: 'default',
-      onClick: showLibrary,
+      comingSoon: true,
     },
   ]
 
@@ -68,31 +69,30 @@ export function SidebarNav() {
       <ul className="flex flex-col gap-0.5">
         {items.map((item) => {
           const Icon = item.icon
-          const active =
-            (item.id === 'new-chat' && isActive) ||
-            (item.id === 'notebooks' && currentView === 'notebooks-list') ||
-            (item.id === 'workspace' &&
-              (currentView === 'agents-list' || currentView === 'agent-detail')) ||
-            (item.id === 'pdf-chat' &&
-              (currentView === 'pdf-chat-list' || currentView === 'pdf-chat-detail')) ||
-            (item.id === 'library' && currentView === 'library')
+          const active = item.id === 'new-chat' && isActive
+          const disabled = item.comingSoon || item.disabled
           return (
             <li key={item.id} className="min-w-0">
               <button
                 className={clsx(
                   'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] font-normal text-left transition-colors duration-150',
-                  item.disabled
-                    ? 'text-llama-fg-4 cursor-default'
+                  disabled
+                    ? 'text-llama-fg-4 cursor-default opacity-60'
                     : 'text-llama-fg hover:bg-llama-sidebar-hover hover:text-llama-fg',
-                  item.variant === 'primary' && !item.disabled && 'bg-llama-surface border border-llama-border text-llama-fg hover:bg-llama-surface-2 hover:border-llama-border-2',
+                  item.variant === 'primary' && !disabled && 'bg-llama-surface border border-llama-border text-llama-fg hover:bg-llama-surface-2 hover:border-llama-border-2',
                   active && 'bg-llama-sidebar-active text-llama-fg'
                 )}
                 onClick={item.onClick}
-                disabled={item.disabled}
-                aria-disabled={item.disabled}
+                disabled={disabled}
+                aria-disabled={disabled}
               >
                 <Icon className="w-4 h-4 stroke-[1.8] shrink-0" />
                 <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{t(item.labelKey)}</span>
+                {item.comingSoon && (
+                  <span className="ml-auto text-[9px] font-medium uppercase tracking-wide text-llama-fg-5 px-1.5 py-0.5 rounded bg-white/[0.05] shrink-0">
+                    {t('dashboard.sidebar.comingSoon')}
+                  </span>
+                )}
               </button>
             </li>
           )

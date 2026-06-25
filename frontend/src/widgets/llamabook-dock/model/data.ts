@@ -6,24 +6,22 @@ export interface AttachItem {
 export interface ToolItem {
   id: string
   iconKey: string
+  comingSoon?: boolean
 }
 
 export const attachItems: AttachItem[] = [
   { id: 'upload', iconKey: 'upload' },
-  { id: 'drive', iconKey: 'drive' },
   { id: 'link', iconKey: 'link' },
 ]
 
 export const toolItems: ToolItem[] = [
-  { id: 'thinking', iconKey: 'thinking' },
-  { id: 'web_search', iconKey: 'web_search' },
-  { id: 'audio', iconKey: 'audio' },
-  { id: 'slides', iconKey: 'slides' },
-  { id: 'video', iconKey: 'video' },
-  { id: 'mindmap', iconKey: 'mindmap' },
-  { id: 'report', iconKey: 'report' },
-  { id: 'flash', iconKey: 'flash' },
-  { id: 'quiz', iconKey: 'quiz' },
-  { id: 'infographic', iconKey: 'infographic' },
-  { id: 'table', iconKey: 'table' },
+  { id: 'audio', iconKey: 'audio', comingSoon: true },
+  { id: 'slides', iconKey: 'slides', comingSoon: true },
+  { id: 'video', iconKey: 'video', comingSoon: true },
+  { id: 'mindmap', iconKey: 'mindmap', comingSoon: true },
+  { id: 'report', iconKey: 'report', comingSoon: true },
+  { id: 'flash', iconKey: 'flash', comingSoon: true },
+  { id: 'quiz', iconKey: 'quiz', comingSoon: true },
+  { id: 'infographic', iconKey: 'infographic', comingSoon: true },
+  { id: 'table', iconKey: 'table', comingSoon: true },
 ]

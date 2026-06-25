@@ -94,6 +94,8 @@ class UserService:
             user.name = data.name
         if data.is_active is not None:
             user.is_active = data.is_active
+        if data.preferences is not None:
+            user.preferences = data.preferences.model_dump_json()
         user.updated_at = datetime.utcnow()
 
         await self.repo.save(db, user)

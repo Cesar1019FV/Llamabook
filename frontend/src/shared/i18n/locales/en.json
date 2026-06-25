@@ -57,6 +57,7 @@
       "library": "Library",
       "newPDF": "Upload PDF",
       "noPDFs": "No PDFs",
+      "comingSoon": "Coming soon",
       "profile": {
         "name": "Mira",
         "plan": "Pro"
@@ -73,7 +74,8 @@
       "close": "Close settings",
       "sections": {
         "general": "General",
-        "voice": "Voice"
+        "voice": "Voice",
+        "triggers": "Keywords"
       },
       "profile": {
         "title": "Profile",
@@ -104,6 +106,23 @@
         "title": "Voice",
         "language": "Language",
         "voice": "Reading voice"
+      },
+      "triggers": {
+        "title": "Automatic activation",
+        "description": "Detects keywords in your messages to activate tools automatically.",
+        "enabled": "Enable automatic detection",
+        "webSearch": {
+          "title": "Web search",
+          "hint": "These keywords trigger internet search when detected in the message."
+        },
+        "thinking": {
+          "title": "Thinking",
+          "hint": "These keywords trigger thinking when detected in the message."
+        },
+        "addPlaceholder": "Add keyword...",
+        "add": "Add",
+        "remove": "Remove",
+        "empty": "No keywords"
       }
     },
     "createNotebook": {
@@ -339,6 +358,27 @@
       "attach": "Attach and tools",
       "mic": "Voice",
       "send": "Send",
+      "stop": "Stop",
+      "think": {
+        "label": "Thinking",
+        "effort": "Thinking effort",
+        "disclaimer": "Levels only apply to compatible models, like gpt-oss",
+        "off": "Off",
+        "on": "Thinking",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "offDesc": "No thinking",
+        "onDesc": "Standard thinking",
+        "lowDesc": "Brief thinking",
+        "mediumDesc": "Medium thinking",
+        "highDesc": "Deep thinking"
+      },
+      "webSearch": {
+        "label": "Web",
+        "onDesc": "Searches the internet when answering",
+        "offDesc": "No internet search"
+      },
       "attachSection": {
         "title": "Attach",
         "upload": "Upload file",
@@ -373,7 +413,8 @@
         "infographic": "Infographic",
         "infographicDesc": "Data and concept visual",
         "table": "Data table",
-        "tableDesc": "Structured data table"
+        "tableDesc": "Structured data table",
+        "comingSoon": "Coming soon"
       }
     },
     "statusBar": {

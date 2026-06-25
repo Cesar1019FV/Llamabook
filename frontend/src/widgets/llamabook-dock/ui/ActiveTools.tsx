@@ -1,14 +1,18 @@
 import { useLlamabookDashboard } from '@/app/providers'
 import { toolColors, toolNames } from '../model/consts'
+import { toolItems } from '../model/data'
 
 export function ActiveTools() {
   const { activeTools, toggleTool, i18n } = useLlamabookDashboard()
 
-  if (activeTools.size === 0) return null
+  const validTools = new Set(toolItems.filter((t) => !t.comingSoon).map((t) => t.id))
+  const active = [...activeTools].filter((tool) => validTools.has(tool))
+
+  if (active.length === 0) return null
 
   return (
     <div className="dock-active-tools flex flex-wrap gap-[5px] pb-1.5">
-      {[...activeTools].map((tool) => {
+      {active.map((tool) => {
         const label = toolNames[i18n.language]?.[tool] || toolNames.es[tool]
         return (
           <button

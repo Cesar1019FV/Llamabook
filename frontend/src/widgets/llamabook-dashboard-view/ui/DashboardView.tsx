@@ -1,9 +1,7 @@
 import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
 import { Greeting } from './Greeting'
-import { QuickActions } from './QuickActions'
 import { PinnedSection } from './PinnedSection'
-import { NotebooksSection } from './NotebooksSection'
 import { NotebooksListView } from '@/widgets/llamabook-notebooks-list/ui/NotebooksListView'
 import { NotebookView } from '@/widgets/llamabook-notebook-view/ui/NotebookView'
 import { AgentsListView } from '@/widgets/llamabook-agent-list/ui/AgentsListView'
@@ -26,9 +24,7 @@ export function DashboardView() {
         {currentView === 'dashboard' && (
           <div className="max-w-[780px] mx-auto px-[18px] py-6 pb-[60px] md:px-7 md:py-9">
             <Greeting />
-            <QuickActions />
             <PinnedSection />
-            <NotebooksSection />
           </div>
         )}
 

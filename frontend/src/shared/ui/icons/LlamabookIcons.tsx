@@ -238,6 +238,10 @@ export function IconWebSearch({ className }: IconProps) {
   return baseSvg(className, <><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><path d="M11 3a8 8 0 0 1 0 16" /><line x1="3" y1="11" x2="19" y2="11" /><path d="M11 3a8 8 0 0 0-4 8 8 8 0 0 0 4 8 8 8 0 0 0 4-8 8 8 0 0 0-4-8z" /></>, 16)
 }
 
+export function IconStop({ className }: IconProps) {
+  return baseSvg(className, <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none" />, 16)
+}
+
 export const iconsByToolId: Record<string, React.FC<IconProps>> = {
   audio: IconAudio,
   slides: IconSlides,

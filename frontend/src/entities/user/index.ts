@@ -1,1 +1,1 @@
-export type { User, UserRole, AuthTokens, LoginCredentials, SignupData } from './model/types'
+export type { User, UserRole, AuthTokens, LoginCredentials, SignupData, TriggerSettings, UserPreferences } from './model/types'

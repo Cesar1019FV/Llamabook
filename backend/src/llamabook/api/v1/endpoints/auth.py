@@ -1,3 +1,4 @@
+import json
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -19,12 +20,33 @@ from llamabook.schemas.auth import (
     RefreshRequest,
     TokenResponse,
     UserCreateRequest,
+    UserPreferences,
     UserResponse,
     UserUpdateRequest,
 )
 from llamabook.services.auth_service import AuthService, UserService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+def _parse_preferences(raw: str | None) -> UserPreferences | None:
+    if not raw:
+        return None
+    try:
+        return UserPreferences.model_validate(json.loads(raw))
+    except Exception:
+        return None
+
+
+def _user_to_response(user) -> UserResponse:
+    return UserResponse(
+        id=str(user.id),
+        email=user.email,
+        name=user.name,
+        role=user.role,
+        is_active=user.is_active,
+        preferences=_parse_preferences(user.preferences),
+    )
 
 
 async def _auth_service() -> AuthService:
@@ -74,20 +96,12 @@ async def register(
     db: DbDep,
 ):
     user = await service.register(db, body)
-    return UserResponse(
-        id=str(user.id), email=user.email, name=user.name, role=user.role, is_active=user.is_active
-    )
+    return _user_to_response(user)
 
 
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: CurrentUserDep):
-    return UserResponse(
-        id=str(current_user.id),
-        email=current_user.email,
-        name=current_user.name,
-        role=current_user.role,
-        is_active=current_user.is_active,
-    )
+    return _user_to_response(current_user)
 
 
 @router.patch("/me", response_model=UserResponse)
@@ -98,13 +112,7 @@ async def update_me(
     db: DbDep,
 ):
     user = await service.update_user(db, current_user.id, body)
-    return UserResponse(
-        id=str(user.id),
-        email=user.email,
-        name=user.name,
-        role=user.role,
-        is_active=user.is_active,
-    )
+    return _user_to_response(user)
 
 
 @router.post("/logout", status_code=204)

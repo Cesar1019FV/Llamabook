@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AuthContext } from './auth-context'
 import type { AuthContextValue } from './auth-context'
-import type { User } from '@/entities/user'
+import type { User, UserPreferences } from '@/entities/user'
 import { loginApi, registerApi, meApi, logoutApi, updateMeApi } from '../api/authApi'
 import { getAccessToken, clearTokens } from '@/shared/api'
 
@@ -57,6 +57,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return updated
   }, [])
 
+  const syncPreferences = useCallback(async (preferences: UserPreferences) => {
+    const updated = await updateMeApi({ preferences })
+    setUser(updated)
+  }, [])
+
   const value: AuthContextValue = {
     user,
     isAuthenticated: user !== null,
@@ -64,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     register,
     updateProfile,
+    syncPreferences,
     logout,
   }
 

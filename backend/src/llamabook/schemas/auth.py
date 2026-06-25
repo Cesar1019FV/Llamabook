@@ -1,4 +1,16 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
+
+class TriggerSettings(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    enabled: bool = True
+    webSearch: list[str] = Field(default_factory=list, alias="webSearch")  # noqa: N815
+    thinking: list[str] = Field(default_factory=list)
+
+
+class UserPreferences(BaseModel):
+    triggers: TriggerSettings | None = None
 
 
 class LoginRequest(BaseModel):
@@ -22,6 +34,7 @@ class UserResponse(BaseModel):
     name: str | None
     role: str
     is_active: bool
+    preferences: UserPreferences | None = None
 
 
 class UserCreateRequest(BaseModel):
@@ -33,3 +46,4 @@ class UserCreateRequest(BaseModel):
 class UserUpdateRequest(BaseModel):
     name: str | None = None
     is_active: bool | None = None
+    preferences: UserPreferences | None = None

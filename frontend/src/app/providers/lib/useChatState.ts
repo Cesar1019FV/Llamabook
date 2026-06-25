@@ -13,6 +13,7 @@ import {
   mapBackendMessages,
 } from '@/features/chat'
 import type { View } from '../model/types'
+import type { ThinkMode } from './useThinkMode'
 
 interface UseChatStateProps {
   currentView: View
@@ -28,6 +29,24 @@ interface UseChatStateProps {
   setSidebarOpen: (value: boolean | ((prev: boolean) => boolean)) => void
   setChats: React.Dispatch<React.SetStateAction<Chat[]>>
   refreshChats: () => Promise<void>
+  thinkMode: ThinkMode
+  webSearchEnabled: boolean
+  detectTriggers: (text: string) => { webSearch: boolean; webFetch: boolean; thinking: boolean; urls: string[] }
+}
+
+function thinkModeToParam(mode: ThinkMode): boolean | string | null {
+  switch (mode) {
+    case 'off':
+      return false
+    case 'on':
+      return true
+    case 'low':
+    case 'medium':
+    case 'high':
+      return mode
+    default:
+      return null
+  }
 }
 
 export function useChatState({
@@ -43,6 +62,9 @@ export function useChatState({
   setCanvasOpen,
   setChats,
   refreshChats,
+  thinkMode,
+  webSearchEnabled,
+  detectTriggers,
 }: UseChatStateProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
@@ -159,6 +181,14 @@ export function useChatState({
     })
   }, [])
 
+  const stopGeneration = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort()
+      abortRef.current = null
+    }
+    setIsGenerating(false)
+  }, [])
+
   const attachFile = useCallback(() => {
     if (attachedFiles.length >= 3) return
     const names = ['config.yaml', 'schema.sql', 'notes.md', 'data.csv']
@@ -228,6 +258,15 @@ export function useChatState({
       abortRef.current = controller
 
       const activeToolsList = [...activeTools]
+      if (webSearchEnabled && !activeToolsList.includes('web_search')) {
+        activeToolsList.push('web_search')
+      }
+      const trigger = detectTriggers(txt)
+      if (trigger.webSearch && !activeToolsList.includes('web_search')) {
+        activeToolsList.push('web_search')
+      }
+      const finalThinkMode = trigger.thinking ? 'on' as ThinkMode : thinkMode
+      const thinkParam = thinkModeToParam(finalThinkMode)
 
       try {
         await sendMessageStreamApi(
@@ -299,7 +338,8 @@ export function useChatState({
               }
             },
           },
-          activeToolsList
+          activeToolsList,
+          thinkParam
         )
       } catch (err) {
         if (!controller.signal.aborted) {
@@ -309,6 +349,12 @@ export function useChatState({
               m.localKey === aiLocalKey ? { ...m, status: 'error' } : m
             )
           )
+        } else {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.localKey === aiLocalKey ? { ...m, status: 'sent' } : m
+            )
+          )
         }
       } finally {
         setIsGenerating(false)
@@ -316,7 +362,7 @@ export function useChatState({
         void refreshChats()
       }
     },
-    [activeTools, currentView, isGenerating, currentChatId, refreshChats, setChats]
+    [activeTools, currentView, isGenerating, currentChatId, refreshChats, setChats, thinkMode, webSearchEnabled, detectTriggers]
   )
 
   const editMessage = useCallback(
@@ -358,6 +404,15 @@ export function useChatState({
       abortRef.current = controller
 
       const activeToolsList = [...activeTools]
+      if (webSearchEnabled && !activeToolsList.includes('web_search')) {
+        activeToolsList.push('web_search')
+      }
+      const trigger = detectTriggers(trimmed)
+      if (trigger.webSearch && !activeToolsList.includes('web_search')) {
+        activeToolsList.push('web_search')
+      }
+      const finalThinkMode = trigger.thinking ? 'on' as ThinkMode : thinkMode
+      const thinkParam = thinkModeToParam(finalThinkMode)
 
       try {
         await editMessageStreamApi(
@@ -416,7 +471,8 @@ export function useChatState({
               }
             },
           },
-          activeToolsList
+          activeToolsList,
+          thinkParam
         )
       } catch (err) {
         if (!controller.signal.aborted) {
@@ -433,7 +489,7 @@ export function useChatState({
         void refreshChats()
       }
     },
-    [activeTools, currentChatId, isGenerating, messages, refreshChats]
+    [activeTools, currentChatId, isGenerating, messages, refreshChats, thinkMode, webSearchEnabled, detectTriggers]
   )
 
   const regenerateMessage = useCallback(
@@ -459,6 +515,15 @@ export function useChatState({
       abortRef.current = controller
 
       const activeToolsList = [...activeTools]
+      if (webSearchEnabled && !activeToolsList.includes('web_search')) {
+        activeToolsList.push('web_search')
+      }
+      const trigger = detectTriggers(userText)
+      if (trigger.webSearch && !activeToolsList.includes('web_search')) {
+        activeToolsList.push('web_search')
+      }
+      const finalThinkMode = trigger.thinking ? 'on' as ThinkMode : thinkMode
+      const thinkParam = thinkModeToParam(finalThinkMode)
 
       try {
         await sendMessageStreamApi(
@@ -514,7 +579,8 @@ export function useChatState({
               }
             },
           },
-          activeToolsList
+          activeToolsList,
+          thinkParam
         )
       } catch (err) {
         if (!controller.signal.aborted) {
@@ -531,7 +597,7 @@ export function useChatState({
         void refreshChats()
       }
     },
-    [activeTools, currentChatId, isGenerating, refreshChats]
+    [activeTools, currentChatId, isGenerating, refreshChats, thinkMode, webSearchEnabled, detectTriggers]
   )
 
   return {
@@ -549,6 +615,7 @@ export function useChatState({
     startNotebookChat,
     startAgentChat,
     toggleTool,
+    stopGeneration,
     attachFile,
     removeFile,
     sendMessage,

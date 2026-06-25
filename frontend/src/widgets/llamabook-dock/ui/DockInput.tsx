@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import { useLlamabookDashboard } from '@/app/providers'
-import { IconPlus, IconMic, IconSend } from '@/shared/ui/icons'
+import { IconPlus, IconMic, IconSend, IconStop } from '@/shared/ui/icons'
 import { PlusPopup } from './PlusPopup'
+import { ThinkToggle } from './ThinkToggle'
+import { WebSearchToggle } from './WebSearchToggle'
 
 export function DockInput() {
   const { t } = useTranslation()
@@ -15,6 +17,8 @@ export function DockInput() {
     closePlusPopup,
     closeModelPopup,
     currentView,
+    isGenerating,
+    stopGeneration,
   } = useLlamabookDashboard()
   const [text, setText] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -60,6 +64,10 @@ export function DockInput() {
               e.preventDefault()
               handleSend()
             }
+            if (e.key === 'Escape' && isGenerating) {
+              e.preventDefault()
+              stopGeneration()
+            }
           }}
           onFocus={() => {
             closePlusPopup()
@@ -92,25 +100,38 @@ export function DockInput() {
           </button>
 
           <div className="flex items-center gap-1.5">
+            <ThinkToggle />
+            <WebSearchToggle />
             <button
               className="d-btn w-8 h-8 flex items-center justify-center rounded-lg text-llama-fg-4 transition-colors duration-150 hover:bg-white/[0.10] hover:text-llama-fg-2"
               aria-label={t('dashboard.dock.mic')}
             >
               <IconMic className="w-4 h-4 stroke-[1.8]" />
             </button>
-            <button
-              className={clsx(
-                'd-btn send w-8 h-8 flex items-center justify-center rounded-lg text-white transition-colors duration-150',
-                disabled
-                  ? 'bg-white/[0.10] text-llama-fg-3 cursor-default'
-                  : 'bg-llama-accent hover:bg-llama-accent-light'
-              )}
-              disabled={disabled}
-              onClick={handleSend}
-              aria-label={t('dashboard.dock.send')}
-            >
-              <IconSend className="w-4 h-4 stroke-[1.8]" />
-            </button>
+            {isGenerating ? (
+              <button
+                className="d-btn stop w-8 h-8 flex items-center justify-center rounded-lg bg-llama-fg text-llama-bg transition-colors duration-150 hover:bg-llama-fg-2"
+                onClick={stopGeneration}
+                aria-label={t('dashboard.dock.stop')}
+                title={t('dashboard.dock.stop')}
+              >
+                <IconStop className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                className={clsx(
+                  'd-btn send w-8 h-8 flex items-center justify-center rounded-lg text-white transition-colors duration-150',
+                  disabled
+                    ? 'bg-white/[0.10] text-llama-fg-3 cursor-default'
+                    : 'bg-llama-accent hover:bg-llama-accent-light'
+                )}
+                disabled={disabled}
+                onClick={handleSend}
+                aria-label={t('dashboard.dock.send')}
+              >
+                <IconSend className="w-4 h-4 stroke-[1.8]" />
+              </button>
+            )}
           </div>
         </div>
       </div>
