@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -5,6 +7,11 @@ from llamabook.api.v1.router import router as api_router
 from llamabook.config import get_settings
 from llamabook.exceptions import add_exception_handlers
 from llamabook.lifespan import lifespan
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 
 
 def create_app() -> FastAPI:

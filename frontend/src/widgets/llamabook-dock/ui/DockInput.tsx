@@ -6,12 +6,15 @@ import { IconPlus, IconMic, IconSend, IconStop } from '@/shared/ui/icons'
 import { PlusPopup } from './PlusPopup'
 import { ThinkToggle } from './ThinkToggle'
 import { WebSearchToggle } from './WebSearchToggle'
+import { ImagePreviewStrip } from './ImagePreviewStrip'
 
 export function DockInput() {
   const { t } = useTranslation()
   const {
     sendMessage,
     attachedFiles,
+    pendingImages,
+    addPendingImage,
     plusPopupOpen,
     openPlusPopup,
     closePlusPopup,
@@ -23,7 +26,9 @@ export function DockInput() {
   const [text, setText] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const disabled = !text.trim() && attachedFiles.length === 0
+  const hasUploadingImages = pendingImages.some((img) => img.uploading)
+  const hasContent = text.trim() || attachedFiles.length > 0 || pendingImages.length > 0
+  const disabled = !hasContent || hasUploadingImages
 
   const resize = () => {
     const el = textareaRef.current
@@ -50,9 +55,24 @@ export function DockInput() {
     if (el) el.style.height = 'auto'
   }
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.files
+    if (!items || items.length === 0) return
+    let hasImage = false
+    for (const file of Array.from(items)) {
+      if (file.type.startsWith('image/')) {
+        addPendingImage(file)
+        hasImage = true
+      }
+    }
+    if (hasImage) e.preventDefault()
+  }
+
   return (
     <div className="relative">
       <div className="dock-row flex flex-col min-h-[100px] py-3 px-3 rounded-2xl bg-llama-surface border border-llama-border transition-colors duration-150 focus-within:border-white/[0.18]">
+        <ImagePreviewStrip />
+
         <textarea
           id="msg-input"
           ref={textareaRef}
@@ -69,6 +89,7 @@ export function DockInput() {
               stopGeneration()
             }
           }}
+          onPaste={handlePaste}
           onFocus={() => {
             closePlusPopup()
             closeModelPopup()

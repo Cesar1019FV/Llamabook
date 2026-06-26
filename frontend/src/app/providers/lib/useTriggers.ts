@@ -94,11 +94,29 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+function triggersEqual(a: TriggerSettings, b: TriggerSettings): boolean {
+  if (a.enabled !== b.enabled) return false
+  if (a.webSearch.length !== b.webSearch.length || a.thinking.length !== b.thinking.length) return false
+  for (let i = 0; i < a.webSearch.length; i += 1) {
+    if (a.webSearch[i] !== b.webSearch[i]) return false
+  }
+  for (let i = 0; i < a.thinking.length; i += 1) {
+    if (a.thinking[i] !== b.thinking[i]) return false
+  }
+  return true
+}
+
 export function useTriggers() {
   const { user, syncPreferences } = useAuth()
   const [settings, setSettings] = useState<TriggerSettings>(() => loadFromStorage() ?? DEFAULT_SETTINGS)
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isInitialLoadRef = useRef(true)
+
+  useEffect(() => {
+    return () => {
+      if (syncTimerRef.current) clearTimeout(syncTimerRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     if (isInitialLoadRef.current) {
@@ -132,19 +150,23 @@ export function useTriggers() {
     (next: TriggerSettings) => {
       if (syncTimerRef.current) clearTimeout(syncTimerRef.current)
       syncTimerRef.current = setTimeout(() => {
-        const prefs: UserPreferences = { triggers: next }
+        const prefs: UserPreferences = {
+          triggers: next,
+          memory: user?.preferences?.memory ?? null,
+        }
         syncPreferences(prefs).catch(() => {
           // ignore sync errors — local is source of truth
         })
       }, SYNC_DELAY)
     },
-    [syncPreferences]
+    [syncPreferences, user?.preferences?.memory]
   )
 
   useEffect(() => {
     if (!user) return
+    if (user.preferences?.triggers && triggersEqual(settings, user.preferences.triggers)) return
     scheduleSync(settings)
-  }, [settings, user, scheduleSync])
+  }, [settings, scheduleSync])
 
   const toggleEnabled = useCallback(() => {
     setSettings((prev) => {

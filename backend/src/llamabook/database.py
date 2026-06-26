@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 
@@ -15,7 +16,21 @@ def _get_engine():
         settings = get_settings()
         settings.data_dir.mkdir(parents=True, exist_ok=True)
         settings.files_dir.mkdir(parents=True, exist_ok=True)
-        _engine = create_async_engine(settings.database_url, echo=False)
+        _engine = create_async_engine(
+            settings.database_url,
+            echo=False,
+            connect_args={"timeout": 30.0},
+        )
+
+        @event.listens_for(_engine.sync_engine, "connect")
+        def _enable_wal(dbapi_connection, _):
+            import sqlite3
+
+            if isinstance(dbapi_connection, sqlite3.Connection):
+                cursor = dbapi_connection.cursor()
+                cursor.execute("PRAGMA journal_mode=WAL")
+                cursor.close()
+
     return _engine
 
 

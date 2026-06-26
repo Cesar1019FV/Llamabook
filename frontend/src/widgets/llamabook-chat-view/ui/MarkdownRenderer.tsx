@@ -4,6 +4,9 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 import { IconCheck, IconCopy } from '@/shared/ui/icons'
 
 interface MarkdownRendererProps {
@@ -149,7 +152,7 @@ export function MarkdownRenderer({ children }: MarkdownRendererProps) {
 
   return (
     <div className="md-body font-serif text-[15px] font-normal leading-[1.7] text-llama-fg max-w-full break-words">
-      <Markdown remarkPlugins={[remarkGfm]} components={components}>
+      <Markdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]} components={components}>
         {children}
       </Markdown>
     </div>

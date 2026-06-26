@@ -69,6 +69,15 @@ async def _migrate_user_preferences() -> None:
             await conn.execute(text("ALTER TABLE user ADD COLUMN preferences TEXT"))
 
 
+async def _migrate_message_image_refs() -> None:
+    engine = _get_engine()
+    async with engine.begin() as conn:
+        result = await conn.execute(text("PRAGMA table_info(message)"))
+        columns = {row[1] for row in result.fetchall()}
+        if "image_refs" not in columns:
+            await conn.execute(text("ALTER TABLE message ADD COLUMN image_refs TEXT"))
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
@@ -79,6 +88,7 @@ async def lifespan(app: FastAPI):
     await _migrate_chat_pinned()
     await _migrate_message_columns()
     await _migrate_user_preferences()
+    await _migrate_message_image_refs()
     await _purge_expired_tokens()
     await _seed_admin(settings)
 

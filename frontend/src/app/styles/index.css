@@ -244,3 +244,20 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+.md-body .katex-display {
+  margin: 1.5em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5em 0;
+  text-align: center;
+}
+
+.md-body .katex {
+  font-size: 1.05em;
+  color: var(--fg);
+}
+
+.md-body .katex-display > .katex {
+  font-size: 1.15em;
+}

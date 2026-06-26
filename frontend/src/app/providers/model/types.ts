@@ -1,4 +1,4 @@
-import type { Message } from '@/entities/llamabook-message'
+import type { Message, PendingImage } from '@/entities/llamabook-message'
 import type { Model } from '@/entities/llamabook-model'
 import type { Notebook } from '@/entities/llamabook-notebook'
 import type { Agent } from '@/entities/llamabook-agent'
@@ -9,7 +9,7 @@ import type {
   GeneratedDocument,
 } from '@/entities/llamabook-document'
 import type { i18n } from 'i18next'
-import type { ThinkMode } from '../lib/useThinkMode'
+import type { ThinkMode, EffortMode } from '../lib/useThinkMode'
 import type { TriggerSettings } from '@/entities/user'
 
 export type View =
@@ -39,6 +39,7 @@ export interface DashboardState {
   messages: Message[]
   isGenerating: boolean
   attachedFiles: string[]
+  pendingImages: PendingImage[]
   activeTools: Set<string>
   expandedNotebooks: Set<string>
   plusPopupOpen: boolean
@@ -59,8 +60,10 @@ export interface DashboardState {
   chats: Chat[]
   spinnerVariant: 'asterisk' | 'llama' | 'nova' | 'orbit'
   thinkMode: ThinkMode
+  lastEffort: EffortMode
   webSearchEnabled: boolean
   triggerSettings: TriggerSettings
+  memoryCount: number
   i18n: i18n
 }
 
@@ -107,6 +110,8 @@ export interface DashboardActions {
   updateGeneratedDocTitle: (id: string, title: string) => void
   attachFile: () => void
   removeFile: (name: string) => void
+  addPendingImage: (file: File) => void
+  removePendingImage: (clientId: string) => void
   selectModel: (model: Model) => void
   setSearchQuery: (q: string) => void
   setModelSearchQuery: (q: string) => void
@@ -117,6 +122,7 @@ export interface DashboardActions {
   addTriggerKeyword: (group: 'webSearch' | 'thinking', kw: string) => void
   removeTriggerKeyword: (group: 'webSearch' | 'thinking', kw: string) => void
   toggleTriggersEnabled: () => void
+  clearMemoryBuffer: () => void
   openPlusPopup: () => void
   closePlusPopup: () => void
   openModelPopup: () => void

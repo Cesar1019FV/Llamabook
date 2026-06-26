@@ -18,8 +18,9 @@ const iconColorByAction: Record<string, string> = {
 
 export function PlusPopup({ open, onClose }: PlusPopupProps) {
   const { t } = useTranslation()
-  const { activeTools, toggleTool, attachFile } = useLlamabookDashboard()
+  const { activeTools, toggleTool, attachFile, addPendingImage } = useLlamabookDashboard()
   const ref = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!open) return
@@ -32,6 +33,19 @@ export function PlusPopup({ open, onClose }: PlusPopupProps) {
     return () => document.removeEventListener('click', onClick, true)
   }, [open, onClose])
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files) {
+      for (const file of Array.from(files)) {
+        if (file.type.startsWith('image/')) {
+          addPendingImage(file)
+        }
+      }
+    }
+    e.target.value = ''
+    onClose()
+  }
+
   return (
     <div
       ref={ref}
@@ -43,6 +57,15 @@ export function PlusPopup({ open, onClose }: PlusPopupProps) {
       )}
       onClick={(e) => e.stopPropagation()}
     >
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={handleFileSelect}
+      />
+
       <div className="plus-popup-section mb-0.5">
         <div className="plus-popup-label text-[10.5px] font-medium text-llama-fg-5 px-2.5 pt-1.5 pb-1 tracking-wide uppercase">
           {t('dashboard.dock.attachSection.title')}
@@ -55,7 +78,11 @@ export function PlusPopup({ open, onClose }: PlusPopupProps) {
               className="plus-popup-item flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-[13px] font-normal text-llama-fg-2 text-left transition-colors duration-100 cursor-pointer hover:bg-white/[0.06] hover:text-llama-fg"
               onClick={(e) => {
                 e.stopPropagation()
-                if (item.id === 'upload') attachFile()
+                if (item.id === 'upload') {
+                  fileInputRef.current?.click()
+                } else if (item.id === 'link') {
+                  attachFile()
+                }
                 onClose()
               }}
             >

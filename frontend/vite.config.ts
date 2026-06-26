@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename)
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   envDir: path.resolve(__dirname, '..'),
+  envPrefix: 'LLAMABOOK_',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

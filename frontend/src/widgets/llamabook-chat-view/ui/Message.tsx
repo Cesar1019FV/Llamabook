@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import type { Message as MessageType, WebSearchResult } from '@/entities/llamabook-message'
 import { LlamabookSpinner } from '@/shared/ui/icons/LlamabookSpinner'
 import { IconCopy, IconCheck, IconPlay, IconPause, IconRefresh, IconPen } from '@/shared/ui/icons'
+import { AuthImage } from '@/shared/ui/AuthImage'
 import { useLlamabookDashboard } from '@/app/providers'
 import { getVoiceSettings } from '@/features/tts'
 import { CodeBlock } from './CodeBlock'
@@ -225,6 +226,22 @@ export function Message({ message, isLast, userText, ttsPlayingKey, ttsLoadingKe
     return (
       <div className="msg py-3.5 msg-in group">
         <div className="flex flex-col items-end gap-1">
+          {message.images && message.images.length > 0 && (
+            <div className="flex flex-wrap gap-2 justify-end max-w-[85%]">
+              {message.images.map((img) => (
+                <div
+                  key={img.file_id}
+                  className="w-[120px] h-[120px] rounded-xl overflow-hidden border border-llama-border-2 bg-llama-surface"
+                >
+                  <AuthImage
+                    src={`/files/${img.file_id}/download`}
+                    alt={img.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
           <div className="msg-text-user font-sans text-[15px] font-normal leading-relaxed text-llama-fg text-right max-w-[85%] break-words rounded-2xl bg-llama-surface border border-llama-border px-4 py-2.5">
             {message.text.replace(/\n/g, '\n')}
           </div>

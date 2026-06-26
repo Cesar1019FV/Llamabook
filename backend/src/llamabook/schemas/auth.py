@@ -1,3 +1,4 @@
+
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -9,8 +10,15 @@ class TriggerSettings(BaseModel):
     thinking: list[str] = Field(default_factory=list)
 
 
+class MemoryData(BaseModel):
+    tags: list[str] = Field(default_factory=list)
+    messages_since_memory: int = 0
+    last_extracted_at: str | None = None
+
+
 class UserPreferences(BaseModel):
     triggers: TriggerSettings | None = None
+    memory: MemoryData | None = None
 
 
 class LoginRequest(BaseModel):

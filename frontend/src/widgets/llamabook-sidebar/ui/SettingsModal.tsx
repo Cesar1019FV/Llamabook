@@ -6,9 +6,9 @@ import { useAuth } from '@/features/auth'
 import { getVoiceSettings, saveVoiceSettings, TTS_VOICES } from '@/features/tts'
 import type { VoiceSettings, TTSVoiceItem } from '@/features/tts'
 import { LlamabookSpinner } from '@/shared/ui/icons/LlamabookSpinner'
-import { IconClose, IconSettings, IconLanguage, IconSun, IconMoon, IconAudio, IconWebSearch } from '@/shared/ui/icons'
+import { IconClose, IconSettings, IconLanguage, IconSun, IconMoon, IconAudio, IconWebSearch, IconThinking } from '@/shared/ui/icons'
 
-type SettingsSection = 'general' | 'voice' | 'triggers'
+type SettingsSection = 'general' | 'voice' | 'triggers' | 'memory'
 
 function KeywordList({
   title,
@@ -138,6 +138,67 @@ function TriggersSection() {
   )
 }
 
+function MemorySection() {
+  const { t } = useTranslation()
+  const { user, deleteMemoryTag } = useAuth()
+  const { memoryCount } = useLlamabookDashboard()
+  const [removing, setRemoving] = useState<string | null>(null)
+
+  const memory = user?.preferences?.memory
+  const tags = memory?.tags ?? []
+  const messagesLeft = Math.max(0, 5 - memoryCount)
+
+  const handleRemove = async (tag: string) => {
+    setRemoving(tag)
+    try {
+      await deleteMemoryTag(tag)
+    } finally {
+      setRemoving(null)
+    }
+  }
+
+  return (
+    <section>
+      <h3 className="text-[14px] font-medium text-llama-fg mb-1">{t('dashboard.settings.memory.title')}</h3>
+      <p className="text-[12px] text-llama-fg-4 mb-4">{t('dashboard.settings.memory.description')}</p>
+
+      <div className="flex items-center justify-between mb-5 p-3 rounded-lg bg-llama-surface border border-llama-border">
+        <span className="text-[13px] text-llama-fg-2">{t('dashboard.settings.memory.tags')}</span>
+        <span className="text-[12px] text-llama-fg-4">
+          {t('dashboard.settings.memory.nextExtraction', { count: messagesLeft })}
+        </span>
+      </div>
+
+      {tags.length === 0 ? (
+        <div className="text-center py-8">
+          <IconThinking className="w-8 h-8 mx-auto text-llama-fg-5 mb-3" />
+          <p className="text-[13px] text-llama-fg-4 italic">{t('dashboard.settings.memory.empty')}</p>
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {tags.map((tag) => (
+            <li
+              key={tag}
+              className="flex items-start justify-between gap-3 p-3 rounded-lg bg-llama-surface border border-llama-border hover:border-llama-border-2 transition-colors duration-100"
+            >
+              <span className="text-[13px] text-llama-fg-2 leading-relaxed flex-1">{tag}</span>
+              <button
+                type="button"
+                onClick={() => handleRemove(tag)}
+                disabled={removing === tag}
+                className="shrink-0 text-llama-fg-5 hover:text-llama-error transition-colors duration-100 disabled:opacity-50"
+                aria-label={t('dashboard.settings.memory.remove')}
+              >
+                <IconClose className="w-3.5 h-3.5 stroke-2" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
+
 export function SettingsModal() {
   const { t, i18n } = useTranslation()
   const { settingsModalOpen, closeSettingsModal, spinnerVariant, setSpinnerVariant } = useLlamabookDashboard()
@@ -242,12 +303,27 @@ export function SettingsModal() {
             <IconWebSearch className="w-4 h-4 stroke-[1.8]" />
             {t('dashboard.settings.sections.triggers')}
           </button>
+
+          <button
+            className={clsx(
+              'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] text-left transition-colors duration-100',
+              activeSection === 'memory'
+                ? 'bg-llama-surface text-llama-fg'
+                : 'text-llama-fg-3 hover:text-llama-fg hover:bg-white/[0.08]'
+            )}
+            onClick={() => setActiveSection('memory')}
+          >
+            <IconThinking className="w-4 h-4 stroke-[1.8]" />
+            {t('dashboard.settings.sections.memory')}
+          </button>
         </div>
 
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex items-center justify-between px-5 py-3 border-b border-llama-border shrink-0">
             <span className="text-[15px] font-medium text-llama-fg">
-              {activeSection === 'voice'
+              {activeSection === 'memory'
+                ? t('dashboard.settings.sections.memory')
+                : activeSection === 'voice'
                 ? t('dashboard.settings.sections.voice')
                 : activeSection === 'triggers'
                 ? t('dashboard.settings.sections.triggers')
@@ -263,7 +339,9 @@ export function SettingsModal() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
-            {activeSection === 'voice' ? (
+            {activeSection === 'memory' ? (
+              <MemorySection />
+            ) : activeSection === 'voice' ? (
               <section>
                 <h3 className="text-[14px] font-medium text-llama-fg mb-3">{t('dashboard.settings.voice.title')}</h3>
 

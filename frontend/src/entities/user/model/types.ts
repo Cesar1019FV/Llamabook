@@ -6,8 +6,15 @@ export interface TriggerSettings {
   thinking: string[]
 }
 
+export interface MemoryData {
+  tags: string[]
+  messages_since_memory: number
+  last_extracted_at: string | null
+}
+
 export interface UserPreferences {
   triggers?: TriggerSettings | null
+  memory?: MemoryData | null
 }
 
 export interface User {

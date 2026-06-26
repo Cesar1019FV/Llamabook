@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import shutil
 import uuid
 from pathlib import Path
@@ -83,3 +84,15 @@ class FileService:
         if file_dir.exists():
             shutil.rmtree(file_dir)
         return True
+
+    async def read_file_base64(self, db: AsyncSession, file_id: uuid.UUID, user_id: uuid.UUID) -> str | None:
+        file_record = await self.repo.get_by_id_and_user(db, file_id, user_id)
+        if not file_record:
+            return None
+        storage_path = self.settings.data_dir / file_record.storage_path
+        if not storage_path.exists():
+            return None
+        return base64.b64encode(storage_path.read_bytes()).decode("utf-8")
+
+    async def get_file_record(self, db: AsyncSession, file_id: uuid.UUID, user_id: uuid.UUID) -> File | None:
+        return await self.repo.get_by_id_and_user(db, file_id, user_id)

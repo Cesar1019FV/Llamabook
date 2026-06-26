@@ -9,6 +9,8 @@ export interface AuthContextValue {
   register: (email: string, password: string, name?: string) => Promise<void>
   updateProfile: (data: { name: string }) => Promise<User>
   syncPreferences: (preferences: UserPreferences) => Promise<void>
+  setUser: React.Dispatch<React.SetStateAction<User | null>>
+  deleteMemoryTag: (tag: string) => Promise<void>
   logout: () => Promise<void>
 }
 

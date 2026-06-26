@@ -75,7 +75,8 @@
       "sections": {
         "general": "General",
         "voice": "Voice",
-        "triggers": "Keywords"
+        "triggers": "Keywords",
+        "memory": "Memory"
       },
       "profile": {
         "title": "Profile",
@@ -123,6 +124,14 @@
         "add": "Add",
         "remove": "Remove",
         "empty": "No keywords"
+      },
+      "memory": {
+        "title": "Memory",
+        "description": "Every 5 messages, Llamabook extracts facts about you to remember in future conversations.",
+        "nextExtraction": "Next extraction in {{count}} messages",
+        "empty": "No memories saved yet",
+        "remove": "Delete memory",
+        "tags": "Saved memories"
       }
     },
     "createNotebook": {

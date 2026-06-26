@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { AuthContext } from './auth-context'
 import type { AuthContextValue } from './auth-context'
 import type { User, UserPreferences } from '@/entities/user'
-import { loginApi, registerApi, meApi, logoutApi, updateMeApi } from '../api/authApi'
+import { loginApi, registerApi, meApi, logoutApi, updateMeApi, deleteMemoryTagApi } from '../api/authApi'
 import { getAccessToken, clearTokens } from '@/shared/api'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -62,6 +62,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(updated)
   }, [])
 
+  const deleteMemoryTag = useCallback(async (tag: string) => {
+    const updated = await deleteMemoryTagApi(tag)
+    setUser(updated)
+  }, [])
+
   const value: AuthContextValue = {
     user,
     isAuthenticated: user !== null,
@@ -70,6 +75,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     updateProfile,
     syncPreferences,
+    setUser,
+    deleteMemoryTag,
     logout,
   }
 

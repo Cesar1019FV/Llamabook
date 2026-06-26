@@ -30,6 +30,7 @@ class Settings(BaseSettings):
 
     data_dir: Path = Field(default=Path("backend/data"), alias="LLAMABOOK_DATA_DIR")
     max_upload_size: int = Field(default=50 * 1024 * 1024, alias="LLAMABOOK_MAX_UPLOAD_SIZE")
+    memory_max_context_tags: int = Field(default=50, alias="LLAMABOOK_MEMORY_MAX_CONTEXT_TAGS")
 
     ollama_base_url: str = Field(default="http://localhost:11434", alias="OLLAMA_BASE_URL")
     ollama_api_key: str | None = Field(default=None, alias="OLLAMA_API_KEY")

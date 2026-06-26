@@ -100,3 +100,28 @@ class OllamaClient:
             return [m.model for m in response.models]
         except Exception:
             return []
+
+    async def generate(
+        self,
+        model: str,
+        prompt: str,
+        *,
+        system: str | None = None,
+        format: dict | str | None = None,
+        options: dict | None = None,
+        think: bool | str | None = None,
+    ) -> str:
+        kwargs: dict = {
+            "model": model,
+            "prompt": prompt,
+            "stream": False,
+            "options": options,
+        }
+        if system is not None:
+            kwargs["system"] = system
+        if format is not None:
+            kwargs["format"] = format
+        if think is not None:
+            kwargs["think"] = think
+        response = await self._client.generate(**kwargs)
+        return response.response if hasattr(response, "response") else ""

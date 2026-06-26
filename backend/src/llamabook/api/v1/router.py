@@ -7,6 +7,8 @@ from llamabook.api.v1.endpoints import (
     documents,
     embeddings,
     files,
+    memory,
+    models,
     notebooks,
     tts,
     users,
@@ -23,3 +25,5 @@ router.include_router(notebooks.router)
 router.include_router(agents.router)
 router.include_router(documents.router)
 router.include_router(tts.router)
+router.include_router(memory.router)
+router.include_router(models.router)

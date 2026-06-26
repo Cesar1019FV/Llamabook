@@ -5,6 +5,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, UploadFile
 from fastapi import File as FastAPIFile
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from llamabook.config import Settings, get_settings
@@ -113,3 +114,25 @@ async def delete_file(
         from llamabook.exceptions import NotFoundError
         raise NotFoundError("File not found")
     return None
+
+
+@router.get("/{file_id}/download")
+async def download_file(
+    file_id: str,
+    service: FileServiceDep,
+    db: DbDep,
+    current_user: CurrentUserDep,
+):
+    from llamabook.exceptions import NotFoundError
+
+    file_record = await service.get_file_record(db, uuid.UUID(file_id), current_user.id)
+    if not file_record:
+        raise NotFoundError("File not found")
+    storage_path = service.settings.data_dir / file_record.storage_path
+    if not storage_path.exists():
+        raise NotFoundError("File not found")
+    return FileResponse(
+        path=str(storage_path),
+        media_type=file_record.mime_type,
+        filename=file_record.name,
+    )

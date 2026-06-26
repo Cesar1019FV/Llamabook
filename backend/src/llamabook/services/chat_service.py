@@ -82,9 +82,19 @@ class ChatService:
         await db.commit()
 
     async def add_message(
-        self, db: AsyncSession, chat_id: uuid.UUID, role: str, content: str
+        self,
+        db: AsyncSession,
+        chat_id: uuid.UUID,
+        role: str,
+        content: str,
+        image_refs: list[dict] | None = None,
     ) -> Message:
-        message = Message(chat_id=chat_id, role=role, content=content)
+        message = Message(
+            chat_id=chat_id,
+            role=role,
+            content=content,
+            image_refs=json.dumps(image_refs) if image_refs else None,
+        )
         await self.message_repo.create(db, message)
         return message
 
@@ -125,8 +135,33 @@ class ChatService:
             entry: dict = {"role": m.role, "content": m.content}
             if m.thinking:
                 entry["thinking"] = m.thinking
+            if m.image_refs:
+                try:
+                    refs = json.loads(m.image_refs)
+                    images_b64 = self._load_image_base64(refs)
+                    if images_b64:
+                        entry["images"] = images_b64
+                except Exception:
+                    pass
             history.append(entry)
         return history
+
+    def _load_image_base64(self, refs: list[dict]) -> list[str]:
+        import base64
+
+        from llamabook.config import get_settings
+
+        settings = get_settings()
+        result: list[str] = []
+        for ref in refs:
+            file_id = ref.get("file_id")
+            name = ref.get("name", "image")
+            if not file_id:
+                continue
+            storage_path = settings.files_dir / file_id / name
+            if storage_path.exists():
+                result.append(base64.b64encode(storage_path.read_bytes()).decode("utf-8"))
+        return result
 
     async def _generate_title(self, first_message: str) -> str | None:
         try:
@@ -154,11 +189,34 @@ class ChatService:
         tools: list[str] | None = None,
         think: bool | str | None = None,
         skip_user_insert: bool = False,
+        image_ids: list[str] | None = None,
     ):
         chat, existing_messages = await self.get_chat(db, chat_id, user_id)
         is_first_message = len(existing_messages) == 0
+
+        image_refs: list[dict] | None = None
+        if image_ids:
+            from llamabook.repositories.file_repository import FileRepository
+
+            file_repo = FileRepository()
+            resolved: list[dict] = []
+            for fid_str in image_ids:
+                try:
+                    fid = uuid.UUID(fid_str)
+                except ValueError:
+                    continue
+                fr = await file_repo.get_by_id_and_user(db, fid, user_id)
+                if fr:
+                    resolved.append({
+                        "file_id": str(fr.id),
+                        "name": fr.name,
+                        "mime_type": fr.mime_type,
+                    })
+            if resolved:
+                image_refs = resolved
+
         if not skip_user_insert:
-            user_message = await self.add_message(db, chat.id, "user", content)
+            user_message = await self.add_message(db, chat.id, "user", content, image_refs=image_refs)
             await db.commit()
             yield {"type": "user_message", "message_id": str(user_message.id)}
 

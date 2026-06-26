@@ -54,6 +54,7 @@ export {
   IconThinking,
   IconWebSearch,
   IconStop,
+  IconImage,
   iconsByToolId,
   iconsByActionId,
 } from './LlamabookIcons'

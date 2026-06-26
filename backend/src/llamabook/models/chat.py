@@ -31,4 +31,5 @@ class Message(SQLModel, table=True):
     content: str
     thinking: str | None = Field(default=None)
     web_search_results: str | None = Field(default=None)
+    image_refs: str | None = Field(default=None)
     created_at: datetime = Field(default_factory=now_utc)

@@ -29,12 +29,14 @@ class MessageRequest(BaseModel):
     content: str = Field(min_length=1)
     tools: list[str] | None = None
     think: bool | str | None = None
+    image_ids: list[str] | None = None
 
 
 class MessageEditRequest(BaseModel):
     new_content: str = Field(min_length=1)
     tools: list[str] | None = None
     think: bool | str | None = None
+    image_ids: list[str] | None = None
 
 
 class WebSearchResultItem(BaseModel):
@@ -43,12 +45,19 @@ class WebSearchResultItem(BaseModel):
     content: str
 
 
+class MessageImageRef(BaseModel):
+    file_id: str
+    name: str
+    mime_type: str
+
+
 class MessageResponse(BaseModel):
     id: str
     role: str
     content: str
     thinking: str | None = None
     web_search_results: list[WebSearchResultItem] | None = None
+    images: list[MessageImageRef] | None = None
     created_at: str
 
 

@@ -3,8 +3,9 @@ import {
   useCallback,
   useRef,
 } from 'react'
-import type { Message } from '@/entities/llamabook-message'
+import type { Message, PendingImage } from '@/entities/llamabook-message'
 import type { Chat } from '@/entities/llamabook-chat'
+import type { User } from '@/entities/user'
 import {
   createChatApi,
   listMessagesApi,
@@ -12,8 +13,11 @@ import {
   editMessageStreamApi,
   mapBackendMessages,
 } from '@/features/chat'
+import { extractMemoryApi } from '@/features/memory'
+import { uploadFileApi } from '@/features/files'
 import type { View } from '../model/types'
 import type { ThinkMode } from './useThinkMode'
+import { MAX_UPLOAD_SIZE } from '@/shared/config/env'
 
 interface UseChatStateProps {
   currentView: View
@@ -32,6 +36,11 @@ interface UseChatStateProps {
   thinkMode: ThinkMode
   webSearchEnabled: boolean
   detectTriggers: (text: string) => { webSearch: boolean; webFetch: boolean; thinking: boolean; urls: string[] }
+  addMemoryMessage: (text: string) => void
+  memoryMessages: string[]
+  clearMemoryBuffer: () => void
+  currentModel: string
+  onMemoryExtracted: (user: User) => void
 }
 
 function thinkModeToParam(mode: ThinkMode): boolean | string | null {
@@ -65,12 +74,59 @@ export function useChatState({
   thinkMode,
   webSearchEnabled,
   detectTriggers,
+  addMemoryMessage,
+  memoryMessages,
+  clearMemoryBuffer,
+  currentModel,
+  onMemoryExtracted,
 }: UseChatStateProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [attachedFiles, setAttachedFiles] = useState<string[]>([])
   const [activeTools, setActiveTools] = useState<Set<string>>(new Set())
+  const [pendingImages, setPendingImages] = useState<PendingImage[]>([])
   const abortRef = useRef<AbortController | null>(null)
+
+  const MAX_PENDING_IMAGES = 20
+
+  const addPendingImage = useCallback((file: File) => {
+    if (!file.type.startsWith('image/')) return
+    if (file.size > MAX_UPLOAD_SIZE) return
+    const clientId = 'img-' + Date.now() + '-' + Math.random().toString(36).slice(2)
+    const previewUrl = URL.createObjectURL(file)
+    const newImage: PendingImage = { clientId, file, previewUrl, uploading: true }
+    setPendingImages((prev) => {
+      if (prev.length >= MAX_PENDING_IMAGES) return prev
+      return [...prev, newImage]
+    })
+    uploadFileApi(file)
+      .then((res) => {
+        setPendingImages((prev) =>
+          prev.map((img) =>
+            img.clientId === clientId ? { ...img, fileId: res.id, uploading: false } : img
+          )
+        )
+      })
+      .catch(() => {
+        setPendingImages((prev) => prev.filter((img) => img.clientId !== clientId))
+        URL.revokeObjectURL(previewUrl)
+      })
+  }, [])
+
+  const removePendingImage = useCallback((clientId: string) => {
+    setPendingImages((prev) => {
+      const target = prev.find((img) => img.clientId === clientId)
+      if (target) URL.revokeObjectURL(target.previewUrl)
+      return prev.filter((img) => img.clientId !== clientId)
+    })
+  }, [])
+
+  const clearPendingImages = useCallback(() => {
+    setPendingImages((prev) => {
+      prev.forEach((img) => URL.revokeObjectURL(img.previewUrl))
+      return []
+    })
+  }, [])
 
   const resetChatView = useCallback(() => {
     setCurrentChatId(null)
@@ -207,6 +263,10 @@ export function useChatState({
       const txt = text.trim()
       if (!txt || isGenerating) return
 
+      const pendingMemoryMessages = [...memoryMessages, txt].slice(-5)
+      addMemoryMessage(txt)
+      const shouldExtractMemory = pendingMemoryMessages.length >= 5
+
       const now = new Date()
       const time =
         now.getHours().toString().padStart(2, '0') +
@@ -232,12 +292,29 @@ export function useChatState({
 
       const activeChatId = chatId
 
+      const readyImages = pendingImages.filter((img) => img.fileId && !img.uploading)
+      const imageIds = readyImages.map((img) => img.fileId!)
+      const userImages = readyImages.map((img) => ({
+        file_id: img.fileId!,
+        name: img.file.name,
+        mime_type: img.file.type,
+      }))
+
       const userLocalKey = 'u-' + Date.now()
       setMessages((prev) => [
         ...prev,
-        { id: userLocalKey, localKey: userLocalKey, type: 'user', text: txt, time, status: 'sent' },
+        {
+          id: userLocalKey,
+          localKey: userLocalKey,
+          type: 'user',
+          text: txt,
+          time,
+          status: 'sent',
+          images: userImages.length > 0 ? userImages : undefined,
+        },
       ])
 
+      clearPendingImages()
       setAttachedFiles([])
       setIsGenerating(true)
 
@@ -339,7 +416,8 @@ export function useChatState({
             },
           },
           activeToolsList,
-          thinkParam
+          thinkParam,
+          imageIds
         )
       } catch (err) {
         if (!controller.signal.aborted) {
@@ -360,9 +438,19 @@ export function useChatState({
         setIsGenerating(false)
         abortRef.current = null
         void refreshChats()
+
+        if (shouldExtractMemory) {
+          try {
+            const result = await extractMemoryApi(pendingMemoryMessages, currentModel)
+            clearMemoryBuffer()
+            onMemoryExtracted(result.user)
+          } catch (err) {
+            console.error('Memory extraction failed', err)
+          }
+        }
       }
     },
-    [activeTools, currentView, isGenerating, currentChatId, refreshChats, setChats, thinkMode, webSearchEnabled, detectTriggers]
+    [activeTools, currentView, isGenerating, currentChatId, refreshChats, setChats, thinkMode, webSearchEnabled, detectTriggers, addMemoryMessage, memoryMessages, clearMemoryBuffer, currentModel, onMemoryExtracted, pendingImages, clearPendingImages]
   )
 
   const editMessage = useCallback(
@@ -610,6 +698,9 @@ export function useChatState({
     activeTools,
     setActiveTools,
     abortRef,
+    pendingImages,
+    addPendingImage,
+    removePendingImage,
     openChat,
     startNewChat,
     startNotebookChat,

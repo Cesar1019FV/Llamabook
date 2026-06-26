@@ -75,7 +75,8 @@
       "sections": {
         "general": "General",
         "voice": "Voz",
-        "triggers": "Palabras clave"
+        "triggers": "Palabras clave",
+        "memory": "Memoria"
       },
       "profile": {
         "title": "Perfil",
@@ -123,6 +124,14 @@
         "add": "Anadir",
         "remove": "Quitar",
         "empty": "Sin palabras clave"
+      },
+      "memory": {
+        "title": "Memoria",
+        "description": "Cada 5 mensajes, Llamabook extrae datos sobre ti para recordarlos en futuras conversaciones.",
+        "nextExtraction": "Proxima extraccion en {{count}} mensajes",
+        "empty": "Aun no hay recuerdos guardados",
+        "remove": "Eliminar recuerdo",
+        "tags": "Recuerdos guardados"
       }
     },
     "createNotebook": {

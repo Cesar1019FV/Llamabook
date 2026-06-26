@@ -13,7 +13,7 @@ from llamabook.core.security import (
 from llamabook.exceptions import ConflictError, UnauthorizedError
 from llamabook.models.user import User
 from llamabook.repositories.user_repository import UserRepository
-from llamabook.schemas.auth import UserCreateRequest, UserUpdateRequest
+from llamabook.schemas.auth import UserCreateRequest, UserPreferences, UserUpdateRequest
 
 
 class AuthService:
@@ -61,6 +61,14 @@ class UserService:
     def __init__(self, repo: UserRepository) -> None:
         self.repo = repo
 
+    def _load_preferences(self, user: User) -> UserPreferences:
+        if not user.preferences:
+            return UserPreferences()
+        try:
+            return UserPreferences.model_validate_json(user.preferences)
+        except Exception:
+            return UserPreferences()
+
     async def register(
         self, db: AsyncSession, data: UserCreateRequest
     ) -> User:
@@ -95,7 +103,12 @@ class UserService:
         if data.is_active is not None:
             user.is_active = data.is_active
         if data.preferences is not None:
-            user.preferences = data.preferences.model_dump_json()
+            current = self._load_preferences(user)
+            if data.preferences.triggers is not None:
+                current.triggers = data.preferences.triggers
+            if data.preferences.memory is not None:
+                current.memory = data.preferences.memory
+            user.preferences = current.model_dump_json()
         user.updated_at = datetime.utcnow()
 
         await self.repo.save(db, user)

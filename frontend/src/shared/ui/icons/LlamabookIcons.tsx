@@ -231,7 +231,7 @@ export function IconMessage({ className }: IconProps) {
 }
 
 export function IconThinking({ className }: IconProps) {
-  return baseSvg(className, <><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v3A2.5 2.5 0 0 1 9.5 10H4a2 2 0 0 1-2-2V4.5A2.5 2.5 0 0 1 4.5 2z" /><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v3a2.5 2.5 0 0 0 2.5 2.5H20a2 2 0 0 0 2-2V4.5A2.5 2.5 0 0 0 19.5 2z" /><path d="M4 14a2 2 0 0 0-2 2v1.5A2.5 2.5 0 0 0 4.5 20H10a2.5 2.5 0 0 0 2.5-2.5v-3A2.5 2.5 0 0 0 10 12z" /><path d="M14 12a2.5 2.5 0 0 0-2.5 2.5v3A2.5 2.5 0 0 0 14 20h5.5A2.5 2.5 0 0 0 22 17.5V16a2 2 0 0 0-2-2z" /><circle cx="5.5" cy="5.5" r="0.5" fill="currentColor" /><circle cx="18.5" cy="5.5" r="0.5" fill="currentColor" /><circle cx="5.5" cy="16.5" r="0.5" fill="currentColor" /><circle cx="18.5" cy="16.5" r="0.5" fill="currentColor" /></>, 16)
+  return baseSvg(className, <><path d="M12 5a3 3 0 1 0-5.997.142 4 4 0 0 0-2.526 8.245 4 4 0 0 0 2.526 7.488A3 3 0 0 0 12 21.857V4.143A3 3 0 0 0 12 5Z" /><path d="M12 5a3 3 0 1 1 5.997.142 4 4 0 0 1 2.526 8.245 4 4 0 0 1-2.526 7.488A3 3 0 0 1 12 21.857V4.143A3 3 0 0 0 12 5Z" /><path d="M12 5v16.857" /><path d="M9 9.5a3 3 0 0 0-2.5 1.5" /><path d="M15 9.5a3 3 0 0 1 2.5 1.5" /></>, 16)
 }
 
 export function IconWebSearch({ className }: IconProps) {
@@ -240,6 +240,10 @@ export function IconWebSearch({ className }: IconProps) {
 
 export function IconStop({ className }: IconProps) {
   return baseSvg(className, <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none" />, 16)
+}
+
+export function IconImage({ className }: IconProps) {
+  return baseSvg(className, <><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></>, 16)
 }
 
 export const iconsByToolId: Record<string, React.FC<IconProps>> = {

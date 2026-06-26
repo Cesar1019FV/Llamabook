@@ -1,9 +1,10 @@
-import { createContext, useContext, useMemo } from 'react'
+import { createContext, useContext, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { defaultModel } from '@/entities/llamabook-model'
+import { defaultModel, availableModels } from '@/entities/llamabook-model'
 import { useState } from 'react'
 import type { Model } from '@/entities/llamabook-model'
 import type { DashboardContextValue } from './model/types'
+import { http } from '@/shared/api'
 import { useSidebar } from './lib/useSidebar'
 import { useNavigation } from './lib/useNavigation'
 import { useChatState } from './lib/useChatState'
@@ -17,7 +18,9 @@ import { useSpinnerVariant } from './lib/useSpinnerVariant'
 import { useThinkMode } from './lib/useThinkMode'
 import { useWebSearchEnabled } from './lib/useWebSearchEnabled'
 import { useTriggers } from './lib/useTriggers'
+import { useMemoryBuffer } from './lib/useMemoryBuffer'
 import { useKeyboardShortcuts } from './lib/useKeyboardShortcuts'
+import { useAuth } from '@/features/auth'
 
 const DashboardContext = createContext<DashboardContextValue | null>(null)
 
@@ -30,7 +33,30 @@ export function LlamabookDashboardProvider({
   const [modelSearchQuery, setModelSearchQuery] = useState('')
   const [currentModel, setCurrentModel] = useState<Model>(defaultModel)
 
+  useEffect(() => {
+    http.get<{ id: string }>('/models/default')
+      .then((res) => {
+        const found = availableModels.find((m) => m.id === res.id)
+        if (found) {
+          setCurrentModel(found)
+        } else {
+          setCurrentModel({
+            id: res.id,
+            name: res.id,
+            desc: 'Modelo de Ollama',
+            provider: 'local' as const,
+            gradient: 'linear-gradient(135deg,#c96442,#d97757)',
+            dotColor: '#d97757',
+          })
+        }
+      })
+      .catch(() => {
+        // keep default
+      })
+  }, [])
+
   const { i18n } = useTranslation()
+  const { setUser } = useAuth()
 
   const {
     sidebarOpen,
@@ -60,6 +86,7 @@ export function LlamabookDashboardProvider({
   const think = useThinkMode()
   const webSearch = useWebSearchEnabled()
   const triggers = useTriggers()
+  const memoryBuffer = useMemoryBuffer()
 
   const chatState = useChatState({
     currentView: navigation.currentView,
@@ -78,6 +105,11 @@ export function LlamabookDashboardProvider({
     thinkMode: think.thinkMode,
     webSearchEnabled: webSearch.webSearchEnabled,
     detectTriggers: triggers.detectTriggers,
+    addMemoryMessage: memoryBuffer.addMemoryMessage,
+    memoryMessages: memoryBuffer.memoryMessages,
+    clearMemoryBuffer: memoryBuffer.clearMemoryBuffer,
+    currentModel: currentModel.id,
+    onMemoryExtracted: (user) => setUser(user),
   })
   const notebooks = useNotebooks()
   const agents = useAgents()
@@ -158,6 +190,7 @@ export function LlamabookDashboardProvider({
       messages: chatState.messages,
       isGenerating: chatState.isGenerating,
       attachedFiles: chatState.attachedFiles,
+      pendingImages: chatState.pendingImages,
       activeTools: chatState.activeTools,
       expandedNotebooks: notebooks.expandedNotebooks,
       plusPopupOpen: modals.plusPopupOpen,
@@ -178,8 +211,10 @@ export function LlamabookDashboardProvider({
       chats: chatList.chats,
       spinnerVariant: spinner.spinnerVariant,
       thinkMode: think.thinkMode,
+      lastEffort: think.lastEffort,
       webSearchEnabled: webSearch.webSearchEnabled,
       triggerSettings: triggers.settings,
+      memoryCount: memoryBuffer.memoryCount,
       i18n,
       toggleSidebar,
       openMobileSidebar,
@@ -223,6 +258,8 @@ export function LlamabookDashboardProvider({
       updateGeneratedDocTitle: generatedDocs.updateGeneratedDocTitle,
       attachFile: chatState.attachFile,
       removeFile: chatState.removeFile,
+      addPendingImage: chatState.addPendingImage,
+      removePendingImage: chatState.removePendingImage,
       selectModel,
       setSearchQuery,
       setModelSearchQuery,
@@ -239,6 +276,7 @@ export function LlamabookDashboardProvider({
         else triggers.removeThinkingKeyword(kw)
       },
       toggleTriggersEnabled: triggers.toggleEnabled,
+      clearMemoryBuffer: memoryBuffer.clearMemoryBuffer,
       openPlusPopup: modals.openPlusPopup,
       closePlusPopup: modals.closePlusPopup,
       openModelPopup: modals.openModelPopup,

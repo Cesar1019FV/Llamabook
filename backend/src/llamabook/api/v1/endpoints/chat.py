@@ -18,6 +18,7 @@ from llamabook.schemas.chat import (
     ChatStreamEvent,
     ChatUpdateRequest,
     MessageEditRequest,
+    MessageImageRef,
     MessageRequest,
     MessageResponse,
 )
@@ -62,12 +63,24 @@ def _serialize_message(message) -> MessageResponse:
             ]
         except Exception:
             web_search_results = None
+    images = None
+    if message.image_refs:
+        try:
+            import json
+            refs = json.loads(message.image_refs)
+            images = [
+                MessageImageRef(file_id=r.get("file_id", ""), name=r.get("name", ""), mime_type=r.get("mime_type", ""))
+                for r in refs
+            ]
+        except Exception:
+            images = None
     return MessageResponse(
         id=str(message.id),
         role=message.role,
         content=message.content,
         thinking=message.thinking,
         web_search_results=web_search_results,
+        images=images,
         created_at=message.created_at.isoformat(),
     )
 
@@ -164,7 +177,7 @@ async def send_message(
 ):
     async def event_generator():
         async for event in service.stream_response(
-            db, uuid.UUID(chat_id), current_user.id, body.content, tools=body.tools, think=body.think
+            db, uuid.UUID(chat_id), current_user.id, body.content, tools=body.tools, think=body.think, image_ids=body.image_ids
         ):
             yield f"data: {ChatStreamEvent(**event).model_dump_json()}\n\n"
         yield "event: done\ndata: {}\n\n"

@@ -41,3 +41,8 @@ export async function logoutApi(): Promise<void> {
     clearTokens()
   }
 }
+
+export async function deleteMemoryTagApi(tag: string): Promise<User> {
+  const encoded = encodeURIComponent(tag)
+  return http.del<User>(`/auth/me/memory/${encoded}`)
+}

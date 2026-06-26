@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from llamabook.adapters.ollama.client import OllamaClient
 from llamabook.config import Settings, get_settings
 from llamabook.core.security import extract_exp, extract_jti
 from llamabook.database import get_db
@@ -25,6 +26,7 @@ from llamabook.schemas.auth import (
     UserUpdateRequest,
 )
 from llamabook.services.auth_service import AuthService, UserService
+from llamabook.services.memory_service import MemoryService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -133,3 +135,15 @@ async def logout(
     await revoked_repo.revoke(db, jti, current_user.id, expires_at)
     await db.commit()
     return None
+
+
+@router.delete("/me/memory/{tag}", response_model=UserResponse)
+async def delete_memory_tag(
+    tag: str,
+    current_user: CurrentUserDep,
+    db: DbDep,
+    settings: SettingsDep,
+):
+    memory_service = MemoryService(OllamaClient(settings))
+    user = await memory_service.remove_tag(db, current_user, tag)
+    return _user_to_response(user)

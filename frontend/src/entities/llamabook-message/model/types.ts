@@ -9,6 +9,20 @@ export interface WebSearchResult {
   content: string
 }
 
+export interface MessageImage {
+  file_id: string
+  name: string
+  mime_type: string
+}
+
+export interface PendingImage {
+  clientId: string
+  file: File
+  previewUrl: string
+  fileId?: string
+  uploading: boolean
+}
+
 export interface Message {
   id: string
   localKey: string
@@ -20,6 +34,7 @@ export interface Message {
   time?: string
   status?: 'sending' | 'sent' | 'error'
   code?: CodeBlock
+  images?: MessageImage[]
 }
 
 export interface BackendMessage {
@@ -28,6 +43,7 @@ export interface BackendMessage {
   content: string
   thinking?: string | null
   web_search_results?: WebSearchResult[] | null
+  images?: MessageImage[] | null
   created_at: string
 }
 

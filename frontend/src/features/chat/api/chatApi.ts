@@ -110,13 +110,16 @@ async function readSSEStream(res: Response, handlers: StreamHandlers): Promise<v
   }
 }
 
-async function openSSE(chatId: string, content: string, token: string, tools?: string[], think?: boolean | string | null): Promise<Response> {
+async function openSSE(chatId: string, content: string, token: string, tools?: string[], think?: boolean | string | null, imageIds?: string[]): Promise<Response> {
   const body: Record<string, unknown> = { content }
   if (tools && tools.length > 0) {
     body.tools = tools
   }
   if (think !== null && think !== undefined) {
     body.think = think
+  }
+  if (imageIds && imageIds.length > 0) {
+    body.image_ids = imageIds
   }
   return fetch(`${API_URL}/chats/${chatId}/messages`, {
     method: 'POST',
@@ -134,6 +137,7 @@ export async function sendMessageStreamApi(
   handlers: StreamHandlers,
   tools?: string[],
   think?: boolean | string | null,
+  imageIds?: string[],
 ): Promise<void> {
   let token = getAccessToken()
   if (!token) {
@@ -141,13 +145,13 @@ export async function sendMessageStreamApi(
     return
   }
 
-  let res = await openSSE(chatId, content, token, tools, think)
+  let res = await openSSE(chatId, content, token, tools, think, imageIds)
 
   if (res.status === 401) {
     const refreshed = await refreshAccessToken()
     if (refreshed) {
       token = refreshed
-      res = await openSSE(chatId, content, token, tools, think)
+      res = await openSSE(chatId, content, token, tools, think, imageIds)
     }
   }
 
